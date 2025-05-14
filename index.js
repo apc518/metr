@@ -1,7 +1,7 @@
 "use strict";
 
 // graphics constants
-const CANVAS_WIDTH_DEFAULT = 1920;
+const CANVAS_WIDTH_DEFAULT = 1200;
 const CANVAS_HEIGHT_DEFAULT = 800;
 let canvasWidth = CANVAS_WIDTH_DEFAULT;
 let canvasHeight = CANVAS_HEIGHT_DEFAULT;
@@ -11,6 +11,10 @@ const FRAMERATE = 60;
 
 // other constants
 const SPACE_KEYCODE = 32;
+
+// patch value constants
+const NODE_NUMBER_MODE_LEAVES = "node_number_mode_leaves";
+const NODE_NUMBER_MODE_CHILDREN = "node_number_mode_children";
 
 let p5canvas = null;
 let tree = null;
@@ -45,9 +49,7 @@ function setup(){
     p5canvas = createCanvas(canvasWidth, canvasHeight);
     p5canvas.parent(document.getElementById("p5canvas"));
 
-    tree = createMetricTreeFromNestedLists(
-        BINARY_TREE
-    )
+    tree = createMetricTreeFromNestedLists(currentPatch.tree);
 
     paint();
 }
@@ -64,51 +66,40 @@ function createMetricTreeFromNestedLists(ls){
     return t;
 }
 
-let leafCounter = 0;
-let totalLeaves = 0;
-
-const VERTICAL_OFFSET = 50;
-const VERTICAL_SPACING = 160;
-const HORIZONTAL_OFFSET = 50;
-const HORIZONTAL_SPACING = 50;
-const TEXT_SIZE = 50;
-const ON_COLOR = [255, 0, 255];
-const OFF_COLOR = 100;
-const LINE_THICKNESS = 4;
-
-const NODE_MODE_TOTAL = true;
-
-function drawMetricTree(tree, depth){
-    let childCount = 0;
+function _getMetricTreeDepth(tree){
+    if (tree.children.length < 1){
+        return 0;
+    }
     
-    for (let i = 0; i < tree.children.length; i++){
-        childCount += drawMetricTree(tree.children[i], depth + 1, 20 * i + 20 * depth * i)
+    return 1 + max(Array.from(tree.children, t => _getMetricTreeDepth(t)));
+}
+
+function _getMetricTreeLeafNodeCount(tree){
+    if (tree.children.length < 1){
+        return 1;
     }
 
-    tree.pos = {x: null, y: VERTICAL_OFFSET + TEXT_SIZE + depth * VERTICAL_SPACING}
+    let sum = 0;
+    tree.children.forEach(t => sum += _getMetricTreeLeafNodeCount(t));
+
+    return sum;
+}
+
+function _drawMetricTreeRecursive(tree, depth) {
+    let leafCount = 0;
+    
+    for (let i = 0; i < tree.children.length; i++){
+        leafCount += _drawMetricTreeRecursive(tree.children[i], depth + 1, 20 * i + 20 * depth * i)
+    }
+
+    tree.pos = {x: null, y: VERTICAL_PADDING + textSizeValue + depth * verticalSpacing}
 
     let leaf = tree.children.length < 1;
 
     if (leaf){ 
-        tree.pos.x = HORIZONTAL_OFFSET + HORIZONTAL_SPACING * leafCounter;
+        tree.pos.x = HORIZONTAL_PADDING + horizontalSpacing * leafCounter;
         tree.index = leafCounter;
         tree.on = leafCounter <= (globalProgress % 1) * totalLeaves && (globalProgress % 1) * totalLeaves < leafCounter + 1;
-
-        let progressPerHit = 1 / totalLeaves;
-        let floorMod = mod(globalProgress, progressPerHit);
-        let ceilMod = progressPerHit - mod(globalProgress, progressPerHit);
-        let distanceToIdeal = Math.min(floorMod, ceilMod);
-
-        let distanceToIdealIsFromBelow = floorMod > ceilMod;
-
-        let ideal = distanceToIdealIsFromBelow ? globalProgress + distanceToIdeal : globalProgress - distanceToIdeal;
-
-        let lowerBound = ideal - progressIncrement / 2;
-        let upperBound = ideal + progressIncrement / 2;
-
-        if (lowerBound < globalProgress && globalProgress <= upperBound){
-            console.log("hit!");
-        }
     }
     else{
         let sumOfChildXPositions = 0;
@@ -121,18 +112,18 @@ function drawMetricTree(tree, depth){
     }
 
     noStroke();
-    fill(tree.on ? ON_COLOR : OFF_COLOR);
-    textSize(TEXT_SIZE);
+    fill(tree.on ? currentPatch.onColor : currentPatch.offColor);
+    textSize(textSizeValue);
     textAlign(CENTER);
-    text(`${NODE_MODE_TOTAL ? (leaf ? 1 : childCount) : (tree.children.length > 0 ? tree.children.length : 1)}`, tree.pos.x, tree.pos.y);
+    text(`${currentPatch.nodeNumberMode === NODE_NUMBER_MODE_LEAVES ? (leaf ? 1 : leafCount) : (tree.children.length > 0 ? tree.children.length : 1)}`, tree.pos.x, tree.pos.y);
     // ellipse(tree.pos.x, tree.pos.y, 20, 20);
 
     if (!leaf){
         noFill();
-        strokeWeight(LINE_THICKNESS);
+        strokeWeight(lineThickness);
         tree.children.forEach(t => {
-            stroke(t.on ? ON_COLOR : OFF_COLOR);
-            line(tree.pos.x, tree.pos.y + TEXT_SIZE / 5, t.pos.x, t.pos.y - TEXT_SIZE);
+            stroke(t.on ? currentPatch.onColor : currentPatch.offColor);
+            line(tree.pos.x, tree.pos.y + textSizeValue / 5, t.pos.x, t.pos.y - textSizeValue);
         })
     }
 
@@ -140,7 +131,39 @@ function drawMetricTree(tree, depth){
         leafCounter += 1;
     }
 
-    return leaf ? 1 : childCount;
+    return leaf ? 1 : leafCount;
+}
+
+let leafCounter = 0;
+let totalLeaves = 0;
+
+const VERTICAL_PADDING = 25;
+const HORIZONTAL_PADDING = 50;
+let verticalSpacing = 160;
+let horizontalSpacing = 50;
+let textSizeValue = 50;
+let lineThickness = 4;
+
+let currentPatch = {
+    name: "LLS 11/16",
+    nodeNumberMode: NODE_NUMBER_MODE_LEAVES,
+    onColor: [255, 0, 255],
+    offColor: [100, 100, 100],
+    leafTempo: 500,
+    tree: lls_11_16
+}
+
+function drawMetricTree(tree, depth){
+    let totalDepth = _getMetricTreeDepth(tree);
+    let leafCount = _getMetricTreeLeafNodeCount(tree);
+
+    let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalDepth
+    verticalSpacing = layerHeight * 3 / 4;
+    textSizeValue = min(layerHeight * 1 / 4, 1.3 * canvasWidth / leafCount);
+    horizontalSpacing = (canvasWidth - 2 * HORIZONTAL_PADDING) / leafCount;
+    lineThickness = max(1, textSizeValue / 15);
+    
+    _drawMetricTreeRecursive(tree, depth);
 }
 
 
@@ -162,7 +185,7 @@ function draw() {
 
     paint();
     
-    progressIncrement = smallestDivisionBPM / (FRAMERATE * totalLeaves * 60);
+    progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
     
     globalProgress += progressIncrement;
 }

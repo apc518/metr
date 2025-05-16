@@ -25,12 +25,6 @@ function playPause(){
 }
 
 
-class MetricTree {
-    constructor(){
-        this.children = []
-    }
-}
-
 function play_(){
     try{
         rootPr.playIfOnBounds();
@@ -49,7 +43,7 @@ function setup(){
     p5canvas = createCanvas(canvasWidth, canvasHeight);
     p5canvas.parent(document.getElementById("p5canvas"));
 
-    tree = createMetricTreeFromNestedLists(currentPatch.tree);
+    tree = new MetricTree(currentPatch.tree);
 
     paint();
 }
@@ -57,33 +51,6 @@ function setup(){
 // real mod, not javascripts default "remainder" operator %
 const mod = (n, m) => (n % m + m) % m;
 
-function createMetricTreeFromNestedLists(ls){
-    let t = new MetricTree();
-    ls.forEach(item => {
-        t.children.push(createMetricTreeFromNestedLists(item));
-    })
-
-    return t;
-}
-
-function _getMetricTreeDepth(tree){
-    if (tree.children.length < 1){
-        return 0;
-    }
-    
-    return 1 + max(Array.from(tree.children, t => _getMetricTreeDepth(t)));
-}
-
-function _getMetricTreeLeafNodeCount(tree){
-    if (tree.children.length < 1){
-        return 1;
-    }
-
-    let sum = 0;
-    tree.children.forEach(t => sum += _getMetricTreeLeafNodeCount(t));
-
-    return sum;
-}
 
 function _drawMetricTreeRecursive(tree, depth) {
     let leafCount = 0;
@@ -154,8 +121,8 @@ let currentPatch = {
 }
 
 function drawMetricTree(tree, depth){
-    let totalDepth = _getMetricTreeDepth(tree);
-    let leafCount = _getMetricTreeLeafNodeCount(tree);
+    let totalDepth = tree.getDepth();
+    let leafCount = tree.getLeafNodeCount();
 
     let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalDepth
     verticalSpacing = layerHeight * 3 / 4;
@@ -173,6 +140,7 @@ function paint(){
     leafCounter = 0;
     drawMetricTree(tree, 0);
     totalLeaves = leafCounter;
+    document.getElementById("timeSigDisplay").innerText = `${totalLeaves}/?`;
 }
 
 let globalProgress = 0; // 0 -> beginning, 1 -> one full cycle has passed, 2 -> two full cycles have passed, etc

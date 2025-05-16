@@ -43,6 +43,10 @@ function setup(){
     p5canvas = createCanvas(canvasWidth, canvasHeight);
     p5canvas.parent(document.getElementById("p5canvas"));
 
+    if (isDevelopmentEnvironment()){
+        runTimeSignatureTests();
+    }
+
     tree = new MetricTree(currentPatch.tree);
 
     paint();
@@ -117,7 +121,9 @@ let currentPatch = {
     onColor: [255, 0, 255],
     offColor: [100, 100, 100],
     leafTempo: 500,
-    tree: lls_11_16
+    tree: [
+        [[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]]
+    ]
 }
 
 function drawMetricTree(tree, depth){
@@ -140,7 +146,8 @@ function paint(){
     leafCounter = 0;
     drawMetricTree(tree, 0);
     totalLeaves = leafCounter;
-    document.getElementById("timeSigDisplay").innerText = `${totalLeaves}/?`;
+
+    document.getElementById("timeSigDisplay").innerText = tree.getTimeSignature();
 }
 
 let globalProgress = 0; // 0 -> beginning, 1 -> one full cycle has passed, 2 -> two full cycles have passed, etc

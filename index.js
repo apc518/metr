@@ -38,10 +38,14 @@ function pause_(){
     noLoop();
 }
 
+function refreshCanvas(){
+    p5canvas = createCanvas(windowWidth, canvasHeight);
+    p5canvas.parent(document.getElementById("p5canvas"));
+}
+
 function setup(){
     noLoop();
-    p5canvas = createCanvas(canvasWidth, canvasHeight);
-    p5canvas.parent(document.getElementById("p5canvas"));
+    refreshCanvas();
 
     if (isDevelopmentEnvironment()){
         runTimeSignatureTests();
@@ -169,4 +173,10 @@ function keyPressed(e){
     if (keyCode === SPACE_KEYCODE){
         playPause();
     }
+}
+
+function windowResized(){
+    canvasWidth = windowWidth
+    p5canvas.resize(canvasWidth, canvasHeight);
+    paint();
 }

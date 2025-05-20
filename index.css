@@ -180,3 +180,14 @@ input:checked + .slider:before {
 	color: white;
 	vertical-align: middle;
 }
+
+.meterTextInput{
+	color: black;
+	padding-bottom: 0.25rem;
+}
+
+.errorMessage{
+	font-size: 1rem;
+	color: #f88;
+	min-height: 1rem;
+}

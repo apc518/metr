@@ -2,7 +2,7 @@
 
 // graphics constants
 const CANVAS_WIDTH_DEFAULT = 1200;
-const CANVAS_HEIGHT_DEFAULT = 800;
+const CANVAS_HEIGHT_DEFAULT = 700;
 let canvasWidth = CANVAS_WIDTH_DEFAULT;
 let canvasHeight = CANVAS_HEIGHT_DEFAULT;
 
@@ -38,6 +38,12 @@ function pause_(){
     noLoop();
 }
 
+function fullRefresh(){
+    refreshCanvas();
+    tree = new MetricTree(currentPatch.tree);
+    paint();
+}
+
 function refreshCanvas(){
     p5canvas = createCanvas(windowWidth, canvasHeight);
     p5canvas.parent(document.getElementById("p5canvas"));
@@ -45,15 +51,13 @@ function refreshCanvas(){
 
 function setup(){
     noLoop();
-    refreshCanvas();
-
+    
     if (isDevelopmentEnvironment()){
-        runTimeSignatureTests();
+        runTests();
+        setMtsErrorMessage("");
     }
-
-    tree = new MetricTree(currentPatch.tree);
-
-    paint();
+    
+    fullRefresh();
 }
 
 // real mod, not javascripts default "remainder" operator %
@@ -135,8 +139,8 @@ function drawMetricTree(tree, depth){
     let leafCount = tree.getLeafNodeCount();
 
     let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalDepth
-    verticalSpacing = layerHeight * 3 / 4;
     textSizeValue = min(layerHeight * 1 / 4, 1.3 * canvasWidth / leafCount);
+    verticalSpacing = (layerHeight * 3 / 4) - (textSizeValue / totalDepth);
     horizontalSpacing = (canvasWidth - 2 * HORIZONTAL_PADDING) / leafCount;
     lineThickness = max(1, textSizeValue / 15);
     

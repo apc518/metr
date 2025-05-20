@@ -3,10 +3,15 @@ class MetricTree {
      * Takes a nested list (a list of lists of lists of lists... etc.) and creates a MetricTree with the same topology
      */
     constructor(ls){
-        this.children = []
-        ls.forEach(sublist => {
-            this.children.push(new MetricTree(sublist));
-        })
+        if (typeof ls === "object"){
+            this.children = []
+            ls.forEach(sublist => {
+                this.children.push(new MetricTree(sublist));
+            })
+        }
+        else{
+            console.error(`Argument to MetricTree constructor was an unsupported type \"${typeof ls}\" Argument in question: `, ls);
+        }
     }
 
     getDepth(){

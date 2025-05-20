@@ -114,7 +114,220 @@ const TIME_SIGNATURE_TESTS = [
     }
 ]
 
+GENERIC_TESTS = [
+    {
+        name: "maxActualValue is power of 10",
+        func: () => {
+            return Number(maxActualValue.toString().slice(1)) === 0;
+        }
+    },
+    {
+        name: "mtsStringIsValid empty string",
+        func: () => {
+            return mtsStringIsValid("") === true;
+        }
+    },
+    {
+        name: "mtsStringIsValid single number",
+        func: () => {
+            return mtsStringIsValid("4") === true;
+        }
+    },
+    {
+        name: "mtsStringIsValid empty list",
+        func: () => {
+            return mtsStringIsValid("[]") === false;
+        }
+    },
+    {
+        name: "mtsStringIsValid asterisk without something to multiply",
+        func: () => {
+            return mtsStringIsValid("*[2]") === false;
+        }
+    },
+    {
+        name: "mtsStringIsValid asterisk without a multiplier",
+        func: () => {
+            return mtsStringIsValid("[2*]") === false;
+        }
+    },
+    {
+        name: "mtsStringIsValid good multiplier",
+        func: () => {
+            return mtsStringIsValid("[2*3]") === true;
+        }
+    },
+    {
+        name: "mtsStringIsValid multiple multipliers",
+        func: () => {
+            return mtsStringIsValid("[2*3*3]") === false;
+        }
+    },
+    {
+        name: "mtsStringIsValid number too big",
+        func: () => {
+            return mtsStringIsValid(`[${maxActualValue+1},3]`) === false;
+        }
+    },
+    {
+        name: "mtsObjectContainsMultipleMultipliersInARow test 1",
+        func: () => {
+            return mtsObjectContainsMultipleMultipliersInARow([{multiplier:3}, {multiplier:3}]) === true;
+        }
+    },
+    {
+        name: "mtsObjectContainsMultipleMultipliersInARow test 2",
+        func: () => {
+            return mtsObjectContainsMultipleMultipliersInARow([2, {multiplier:1}]) === false;
+        }
+    },
+    {
+        name: "mtsObjectContainsMultipleMultipliersInARow test 3",
+        func: () => {
+            return mtsObjectContainsMultipleMultipliersInARow([[[2,3],{multiplier:2},[3,2]],{multiplier:3}]) === false;
+        }
+    },
+    {
+        name: "mtsObjectContainsMultipleMultipliersInARow test 4",
+        func: () => {
+            return mtsObjectContainsMultipleMultipliersInARow([[[2,3],{multiplier:2},{multiplier:7},[3,2]],{multiplier:3}]) === true;
+        }
+    },
+    {
+        name: "mtsObjectIsValid single number",
+        func: () => {
+            return mtsObjectIsValid(4) === true;
+        }
+    },
+    {
+        name: "mtsObjectIsValid empty list",
+        func: () => {
+            return mtsObjectIsValid([]) === false;
+        }
+    },
+    {
+        name: "mtsObjectIsValid nested lists",
+        func: () => {
+            return mtsObjectIsValid([[2,3],[3,4]]) === true;
+        }
+    },
+    {
+        name: "mtsObjectIsValid value too big",
+        func: () => {
+            return mtsObjectIsValid([[2,maxActualValue+1],[3,4]]) === false;
+        }
+    },
+    {
+        name: "mtsObjectIsValid value just barely small enough",
+        func: () => {
+            return mtsObjectIsValid([[2,maxActualValue-1],[3,4]]) === true;
+        }
+    },
+    {
+        name: "mtsObjectIsValid leaf nodes at different depths",
+        func: () => {
+            return mtsObjectIsValid([2,[3,4]]) === false;
+        }
+    },
+    {
+        name: "convertRepeatedStructureFlat shallow",
+        func: () => {
+            return JSON.stringify(convertRepeatedStructureFlat([3,{multiplier:3}])) === "[3,3,3]";
+        }
+    },
+    {
+        name: "convertRepeatedStructureFlat deep",
+        func: () => {
+            return JSON.stringify(convertRepeatedStructureFlat([[[3,3],[2,2,3]],{multiplier:2}])) 
+                === "[[[3,3],[2,2,3]],[[3,3],[2,2,3]]]";
+        }
+    },
+    {
+        name: "convertRepeatedStructureRecursive shallow",
+        func: () => {
+            return JSON.stringify(convertRepeatedStructureRecursive([3,{multiplier:3}])) === "[3,3,3]";
+        }
+    },
+    {
+        name: "convertRepeatedStructureRecursive deep",
+        func: () => {
+            return JSON.stringify(convertRepeatedStructureRecursive([[[3,{multiplier:2}],[5,6],{multiplier:3}],{multiplier:2}])) 
+                === "[[[3,3],[5,6],[5,6],[5,6]],[[3,3],[5,6],[5,6],[5,6]]]";
+        }
+    },
+    {
+        name: "convertMtsToNestedLists single number",
+        func: () => {
+            return JSON.stringify(convertMtsToNestedLists(2)) === "[[],[]]";
+        }
+    },
+    {
+        name: "convertMtsToNestedLists several numbers",
+        func: () => {
+            return JSON.stringify(convertMtsToNestedLists([3,4,4])) === "[[[],[],[]],[[],[],[],[]],[[],[],[],[]]]";
+        }
+    },
+    {
+        name: "convertMtsToNestedLists threshold detailed",
+        func: () => {
+            return JSON.stringify(convertMtsToNestedLists([[6,6,7],[6,6,7],[6,6,7],[6,6,7]])) === JSON.stringify(THRESHOLD_DETAILED);
+        }
+    },
+    {
+        name: "parseMts empty string",
+        func: () => {
+            return JSON.stringify(parseMts("")) === "[]";
+        }
+    },
+    {
+        name: "parseMts single number",
+        func: () => {
+            return JSON.stringify(parseMts("14")) === "[[],[],[],[],[],[],[],[],[],[],[],[],[],[]]";
+        }
+    },
+    {
+        name: "parseMts single multiplier",
+        func: () => {
+            return JSON.stringify(parseMts("[2*3]")) === "[[[],[]],[[],[]],[[],[]]]";
+        }
+    },
+    {
+        name: "parseMts two multipliers",
+        func: () => {
+            return JSON.stringify(parseMts("[2*3,3*2]")) === "[[[],[]],[[],[]],[[],[]],[[],[],[]],[[],[],[]]]";
+        }
+    },
+    {
+        name: "parseMts complex example 1",
+        func: () => {
+            return JSON.stringify(parseMts("[[2,3*2]*2,[3,2*2]*3]"))
+                === "[[[[],[]],[[],[],[]],[[],[],[]]],[[[],[]],[[],[],[]],[[],[],[]]],[[[],[],[]],[[],[]],[[],[]]],[[[],[],[]],[[],[]],[[],[]]],[[[],[],[]],[[],[]],[[],[]]]]";
+        }
+    },
+    {
+        name: "parseMts 12-bar-blues",
+        func: () => {
+            return JSON.stringify(parseMts("[[[3*4]*4]*3]")) === JSON.stringify(BLUES_12_BARS);
+        }
+    },
+    {
+        name: "GENERIC_TESTS duplicate names",
+        func: () => {
+            let dict = {};
+            GENERIC_TESTS.forEach(item => {
+                if (item.name in dict){
+                    throw new Error(`Duplicate name \"${item.name}\" in GENERIC_TESTS`)
+                }
+                dict[item.name] = true;
+            });
+
+            return true;
+        }
+    }
+]
+
 function runTimeSignatureTests(){
+    let passedCount = 0;
     TIME_SIGNATURE_TESTS.forEach(test => {
         let tree = new MetricTree(test.tree);
         let passed = tree.getTimeSignature() === test.expectedResult;
@@ -122,7 +335,36 @@ function runTimeSignatureTests(){
             console.log(`%cTest \"${test.name}\" FAILED:`, consoleErrorStyle, test);
         }
         else{
-            console.log(`%cTest \"${test.name}\" PASSED`, consoleGoodStyle)
+            passedCount += 1;
         }
     })
+    console.log(`%c${passedCount}/${TIME_SIGNATURE_TESTS.length} time signature tests passed`, consoleGoodStyle);
+}
+
+function runGenericTests(){
+    let passedCount = 0;
+    GENERIC_TESTS.forEach(test => {
+        try{
+            if (!test.func()){
+                console.log(`%cTest \"${test.name}\" FAILED:`, consoleErrorStyle, test);
+            }
+            else{
+                passedCount += 1;
+            }
+        }
+        catch(e){
+            console.error(`Test \"${test.name}\" FAILED: ${e}`);
+        }
+    });
+    if (passedCount === GENERIC_TESTS.length){
+        console.log(`%c${passedCount}/${GENERIC_TESTS.length} generic tests passed`, consoleGoodStyle);
+    }
+    else{
+        console.log(`%c${GENERIC_TESTS.length - passedCount}/${GENERIC_TESTS.length} generic tests failed`, consoleErrorStyle);
+    }
+}
+
+function runTests(){
+    runTimeSignatureTests();
+    runGenericTests();
 }

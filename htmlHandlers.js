@@ -30,7 +30,5 @@ mtsInput.value = "[3,3,3,3]";
 mtsInput.style.backgroundColor = mtsStringIsValid(mtsInput.value) ? textFieldOkayColor : textFieldErrorColor;
 
 function setMtsErrorMessage(s){
-    if (!runningTests){
-        mtsErrorMessage.textContent = s;
-    }
+    mtsErrorMessage.textContent = s;
 }

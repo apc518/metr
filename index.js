@@ -54,6 +54,7 @@ function setup(){
     
     if (isDevelopmentEnvironment()){
         runTests();
+        setMtsErrorMessage("");
     }
     
     fullRefresh();

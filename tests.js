@@ -365,8 +365,6 @@ function runGenericTests(){
 }
 
 function runTests(){
-    runningTests = true;
     runTimeSignatureTests();
     runGenericTests();
-    runningTests = false;
 }

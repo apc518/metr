@@ -170,6 +170,12 @@ GENERIC_TESTS = [
         }
     },
     {
+        name: "mtsStringIsValid inconsistent depths",
+        func: () => {
+            return mtsStringIsValid("[[2,3],[[3,2],[2,3]]]") === false;
+        }
+    },
+    {
         name: "mtsObjectContainsMultipleMultipliersInARow test 1",
         func: () => {
             return mtsObjectContainsMultipleMultipliersInARow([{multiplier:3}, {multiplier:3}]) === true;
@@ -224,34 +230,52 @@ GENERIC_TESTS = [
         }
     },
     {
-        name: "mtsObjectIsValid leaf nodes at different depths",
+        name: "mtsObjectIsValid leaf nodes at different depths via leaf and nonleaf children on the same node",
         func: () => {
-            return mtsObjectIsValid([2,[3,4]]) === false;
+            try{
+                mtsObjectUniformDepth([2,[3,4]]) === false;
+                return false;
+            }
+            catch{
+                return true;
+            }
+        }
+    },
+    {
+        name: "mtsObjectIsValid leaf nodes at different depths without any nodes having a leaf and nonleaf child",
+        func: () => {
+            try{
+                mtsObjectUniformDepth([[2,3],[[3,2],[2,3]]])
+                return false;
+            }
+            catch{
+                return true;
+            }
         }
     },
     {
         name: "convertRepeatedStructureFlat shallow",
         func: () => {
-            return JSON.stringify(convertRepeatedStructureFlat([3,{multiplier:3}])) === "[3,3,3]";
+            return JSON.stringify(applyMtsMultipliersFlat([3,{multiplier:3}])) === "[3,3,3]";
         }
     },
     {
         name: "convertRepeatedStructureFlat deep",
         func: () => {
-            return JSON.stringify(convertRepeatedStructureFlat([[[3,3],[2,2,3]],{multiplier:2}])) 
+            return JSON.stringify(applyMtsMultipliersFlat([[[3,3],[2,2,3]],{multiplier:2}])) 
                 === "[[[3,3],[2,2,3]],[[3,3],[2,2,3]]]";
         }
     },
     {
         name: "convertRepeatedStructureRecursive shallow",
         func: () => {
-            return JSON.stringify(convertRepeatedStructureRecursive([3,{multiplier:3}])) === "[3,3,3]";
+            return JSON.stringify(applyMtsMultipliersRecursive([3,{multiplier:3}])) === "[3,3,3]";
         }
     },
     {
         name: "convertRepeatedStructureRecursive deep",
         func: () => {
-            return JSON.stringify(convertRepeatedStructureRecursive([[[3,{multiplier:2}],[5,6],{multiplier:3}],{multiplier:2}])) 
+            return JSON.stringify(applyMtsMultipliersRecursive([[[3,{multiplier:2}],[5,6],{multiplier:3}],{multiplier:2}])) 
                 === "[[[3,3],[5,6],[5,6],[5,6]],[[3,3],[5,6],[5,6],[5,6]]]";
         }
     },

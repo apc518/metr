@@ -1,6 +1,7 @@
 const validMtsCharacters = "[]*,0123456789";
 const digits = "0123456789"
 const maxActualValue = 1e4;
+const inconsistentDepthErrorMessage = "All numbers must be at the same nesting level (same depth)"
 
 function mtsStringProcessAsterisks(s){
     let newString = s.slice();
@@ -76,8 +77,12 @@ function mtsStringIsValid(s){
             return false;
         }
 
+        let mtsObjectMultiplied = applyMtsMultipliersRecursive(mtsObject);
+
+        mtsObjectUniformDepth(mtsObjectMultiplied);
+
         // do recursive check
-        return mtsObjectIsValid(convertRepeatedStructureRecursive(mtsObject));
+        return mtsObjectIsValid(mtsObjectMultiplied);
     }
     catch(e){
         setMtsErrorMessage(`${e.toString().replaceAll("at line 1 column", "at index").replaceAll(" of the JSON data", "")}`);
@@ -109,6 +114,28 @@ function mtsObjectContainsMultipleMultipliersInARow(mtsObject){
     }
 }
 
+/**
+ * takes a post-multiplication MTS object
+ */
+function mtsObjectUniformDepth(mtsObject){
+    if (typeof mtsObject === "number"){
+        return 0;
+    }
+    else if (typeof mtsObject.length === "number"){
+        let childDepths = Array.from(mtsObject, item => mtsObjectUniformDepth(item));
+        for (let i = 0; i < childDepths.length; i++){
+            if (childDepths[i] !== childDepths[0]){
+                throw new Error(inconsistentDepthErrorMessage);
+            }
+        }
+
+        return childDepths[0] + 1;
+    }
+}
+
+/**
+ * Takes a post-multiplication MTS object
+ */
 function mtsObjectIsValid(mtsObject){
     if (typeof mtsObject === "number"){
         if (mtsObject > maxActualValue){
@@ -120,11 +147,6 @@ function mtsObjectIsValid(mtsObject){
     else if (typeof mtsObject === "object"){
         if (typeof mtsObject.length === "number"){
             for (let i = 0; i < mtsObject.length; i++){
-                if (typeof mtsObject[i] !== typeof mtsObject[0]){
-                    setMtsErrorMessage(`All numbers must be at the same nesting level (same depth)`);
-                    return false;
-                }
-
                 if (!mtsObjectIsValid(mtsObject[i])){
                     return false;
                 }
@@ -150,7 +172,7 @@ function deepCopy(obj){
     return JSON.parse(JSON.stringify(obj));
 }
 
-function convertRepeatedStructureFlat(ls){
+function applyMtsMultipliersFlat(ls){
     let newList = [];
     for (let i = 0; i < ls.length; i++){
         if (typeof ls[i] === "object" && typeof ls[i].multiplier === "number"){
@@ -167,15 +189,12 @@ function convertRepeatedStructureFlat(ls){
 }
 
 
-/**
- * Convert structures like [[2,3]*100003] into [[2,3],[2,3],[2,3]]
- */
-function convertRepeatedStructureRecursive(mtsObject){
+function applyMtsMultipliersRecursive(mtsObject){
     if (typeof mtsObject === "number"){
         return mtsObject;
     }
     else if (typeof mtsObject === "object" && typeof mtsObject.length === "number"){
-        return Array.from(convertRepeatedStructureFlat(mtsObject), item => convertRepeatedStructureRecursive(item));
+        return Array.from(applyMtsMultipliersFlat(mtsObject), item => applyMtsMultipliersRecursive(item));
     }
     else{
         throw new Error("Unrecognized type for mtsObject");
@@ -193,7 +212,7 @@ function parseMts(s){
         mtsObj = s * 1;
     }
 
-    return convertMtsToNestedLists(convertRepeatedStructureRecursive(mtsObj));
+    return convertMtsToNestedLists(applyMtsMultipliersRecursive(mtsObj));
 }
 
 

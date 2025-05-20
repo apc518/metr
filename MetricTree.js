@@ -1,6 +1,6 @@
 class MetricTree {
     /**
-     * Takes either a nested list (a list of lists of lists of lists... etc.) and creates a MetricTree with the same topology
+     * Takes a nested list (a list of lists of lists of lists... etc.) and creates a MetricTree with the same topology
      */
     constructor(ls){
         if (typeof ls === "object"){

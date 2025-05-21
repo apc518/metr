@@ -126,6 +126,11 @@ const TIME_SIGNATURE_TESTS = [
         name: "12/8 but in sextuplets",
         tree: [[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]]],
         expectedResult: "12/8"
+    },
+    {
+        name: "Empty list",
+        tree: [],
+        expectedResult: "?"
     }
 ]
 
@@ -347,6 +352,12 @@ GENERIC_TESTS = [
         name: "parseMts 12-bar-blues",
         func: () => {
             return JSON.stringify(parseMts("[[[3*4]*4]*3]")) === JSON.stringify(BLUES_12_BARS);
+        }
+    },
+    {
+        name: "parseMts zero multiplier",
+        func: () => {
+            return JSON.stringify(parseMts("[3,2*0]")) === JSON.stringify([[[],[],[]]]);
         }
     },
     {

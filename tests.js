@@ -111,6 +111,21 @@ const TIME_SIGNATURE_TESTS = [
             [[],[],[],[],[]],
         ],
         expectedResult: "17/16"
+    },
+    {
+        name: "Quintuplet Swing 4/4",
+        tree: [[[[],[],[]],[[],[]]],[[[],[],[]],[[],[]]],[[[],[],[]],[[],[]]],[[[],[],[]],[[],[]]]],
+        expectedResult: "20/16"
+    },
+    {
+        name: "3+2 5/16",
+        tree: [[[[],[],[]],[[],[]]]],
+        expectedResult: "5/16"
+    },
+    {
+        name: "12/8 but in sextuplets",
+        tree: [[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]]],
+        expectedResult: "12/8"
     }
 ]
 
@@ -362,7 +377,12 @@ function runTimeSignatureTests(){
             passedCount += 1;
         }
     })
-    console.log(`%c${passedCount}/${TIME_SIGNATURE_TESTS.length} time signature tests passed`, consoleGoodStyle);
+    if (passedCount === TIME_SIGNATURE_TESTS.length){
+        console.log(`%c${passedCount}/${TIME_SIGNATURE_TESTS.length} time signature tests passed`, consoleGoodStyle);
+    }
+    else{
+        console.log(`%c${TIME_SIGNATURE_TESTS.length - passedCount}/${TIME_SIGNATURE_TESTS.length} time signature tests failed`, consoleErrorStyle);
+    }
 }
 
 function runGenericTests(){

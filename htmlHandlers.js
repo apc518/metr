@@ -26,7 +26,7 @@ mtsInput.oninput = () => {
     fullRefresh();
 }
 
-mtsInput.value = "[3,3,3,3]";
+mtsInput.value = "[3,2*4]";
 mtsInput.style.backgroundColor = mtsStringIsValid(mtsInput.value) ? textFieldOkayColor : textFieldErrorColor;
 
 function setMtsErrorMessage(s){

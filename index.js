@@ -124,14 +124,12 @@ let textSizeValue = 50;
 let lineThickness = 4;
 
 let currentPatch = {
-    name: "LLS 11/16",
+    name: "Orange Festival",
     nodeNumberMode: NODE_NUMBER_MODE_LEAVES,
     onColor: [255, 0, 255],
     offColor: [100, 100, 100],
     leafTempo: 500,
-    tree: [
-        [[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]]
-    ]
+    tree: ORANGE_FESTIVAL
 }
 
 function drawMetricTree(tree, depth){

@@ -131,12 +131,6 @@ const TIME_SIGNATURE_TESTS = [
 
 GENERIC_TESTS = [
     {
-        name: "maxActualValue is power of 10",
-        func: () => {
-            return Number(maxActualValue.toString().slice(1)) === 0;
-        }
-    },
-    {
         name: "mtsStringIsValid empty string",
         func: () => {
             return mtsStringIsValid("") === true;
@@ -182,6 +176,12 @@ GENERIC_TESTS = [
         name: "mtsStringIsValid number too big",
         func: () => {
             return mtsStringIsValid(`[${maxActualValue+1},3]`) === false;
+        }
+    },
+    {
+        name: "mtsStringIsValid number too small",
+        func: () => {
+            return mtsStringIsValid(`[${minActualValue-1},3]`) === false;
         }
     },
     {

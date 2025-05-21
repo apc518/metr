@@ -1,6 +1,7 @@
 const validMtsCharacters = "[]*,0123456789";
 const digits = "0123456789"
 const maxActualValue = 1e4;
+const minActualValue = 1;
 const inconsistentDepthErrorMessage = "All numbers must be at the same nesting level (same depth)"
 
 function mtsStringProcessAsterisks(s){
@@ -140,6 +141,10 @@ function mtsObjectIsValid(mtsObject){
     if (typeof mtsObject === "number"){
         if (mtsObject > maxActualValue){
             setMtsErrorMessage(`Numbers bigger than ${maxActualValue} are not supported`);
+            return false;
+        }
+        if (mtsObject < minActualValue){
+            setMtsErrorMessage(`Numbers smaller than ${minActualValue} are not supported`);
             return false;
         }
         return true;

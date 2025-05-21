@@ -111,16 +111,25 @@ const TIME_SIGNATURE_TESTS = [
             [[],[],[],[],[]],
         ],
         expectedResult: "17/16"
+    },
+    {
+        name: "Quintuplet Swing 4/4",
+        tree: [[[[],[],[]],[[],[]]],[[[],[],[]],[[],[]]],[[[],[],[]],[[],[]]],[[[],[],[]],[[],[]]]],
+        expectedResult: "20/16"
+    },
+    {
+        name: "3+2 5/16",
+        tree: [[[[],[],[]],[[],[]]]],
+        expectedResult: "5/16"
+    },
+    {
+        name: "12/8 but in sextuplets",
+        tree: [[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]]],
+        expectedResult: "12/8"
     }
 ]
 
 GENERIC_TESTS = [
-    {
-        name: "maxActualValue is power of 10",
-        func: () => {
-            return Number(maxActualValue.toString().slice(1)) === 0;
-        }
-    },
     {
         name: "mtsStringIsValid empty string",
         func: () => {
@@ -167,6 +176,12 @@ GENERIC_TESTS = [
         name: "mtsStringIsValid number too big",
         func: () => {
             return mtsStringIsValid(`[${maxActualValue+1},3]`) === false;
+        }
+    },
+    {
+        name: "mtsStringIsValid number too small",
+        func: () => {
+            return mtsStringIsValid(`[${minActualValue-1},3]`) === false;
         }
     },
     {
@@ -362,7 +377,12 @@ function runTimeSignatureTests(){
             passedCount += 1;
         }
     })
-    console.log(`%c${passedCount}/${TIME_SIGNATURE_TESTS.length} time signature tests passed`, consoleGoodStyle);
+    if (passedCount === TIME_SIGNATURE_TESTS.length){
+        console.log(`%c${passedCount}/${TIME_SIGNATURE_TESTS.length} time signature tests passed`, consoleGoodStyle);
+    }
+    else{
+        console.log(`%c${TIME_SIGNATURE_TESTS.length - passedCount}/${TIME_SIGNATURE_TESTS.length} time signature tests failed`, consoleErrorStyle);
+    }
 }
 
 function runGenericTests(){

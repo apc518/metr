@@ -63,12 +63,6 @@ class MetricTree {
         return 0;
     }
 
-    getPowerOf2LayerCount(){
-        if (this.children.length === 0) return 0;
-
-        return this.unanimousChildrensPowerOf2Exponent() + min(Array.from(this.children, t => t.getPowerOf2LayerCount()));
-    }
-
     getLeafNodeCountsAtDepth(depth, targetDepth){
         if (depth + 1 >= targetDepth){
             return Array.from(this.children, t => t.getLeafNodeCount());
@@ -85,17 +79,34 @@ class MetricTree {
         return Array.from(this.children, t => t.getChildCountsAtDepth(depth + 1, targetDepth)).flat(1);
     }
 
+    largestPowerOf2ThatEvenlyDividesEverything(ls){
+        let power = 0;
+        let iterations = 0;
+        const ITERATION_LIMIT = 100;
+        while (true && iterations < ITERATION_LIMIT){
+            if (Array.from(ls, n => n / Math.pow(2, power + 1)).every(item => Math.floor(item) === item)){
+                power += 1;
+            }
+            else{
+                break;
+            }
+
+            iterations += 1;
+        }
+        if (iterations >= ITERATION_LIMIT){
+            throw new Error("Too many loops");
+        }
+
+        return power;
+    }
+
     /**
      * Compute the likely bottom number of the time signature, assuming this node represents a single measure
      */
     getTimeSignature(){
-        let subDivGroups = this.getChildrensLeafNodeCounts();
-        let layer = floor(Math.log2(max(subDivGroups)));
-        let treeDepth = this.getDepth();
-        let ignorePowersOf2MakeupExponent = 0;
-        for (let i = 1; i < treeDepth; i++){
-            ignorePowersOf2MakeupExponent += this.unanimousPowerOf2Exponent(this.getChildCountsAtDepth(0, i));
-        }
+        let beatSizes = this.getChildrensLeafNodeCounts();
+        let layer = floor(Math.log2(max(beatSizes)));
+        let ignorePowersOf2MakeupExponent = this.largestPowerOf2ThatEvenlyDividesEverything(beatSizes);
         return `${this.getLeafNodeCount() / Math.pow(2, ignorePowersOf2MakeupExponent)}/${Math.pow(2, layer - ignorePowersOf2MakeupExponent + 2)}`
     }
 }

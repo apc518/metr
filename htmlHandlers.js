@@ -18,7 +18,7 @@ mtsInput.oninput = () => {
 
     mtsInput.style.backgroundColor = mtsInput.inputIsValid ? textFieldOkayColor : textFieldErrorColor;
 
-    if (mtsInput.value.length < 1 || (!mtsInput.inputIsValid)) return;
+    if (!mtsInput.inputIsValid) return;
 
     setMtsErrorMessage("");
 

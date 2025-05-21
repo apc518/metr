@@ -181,11 +181,11 @@ function applyMtsMultipliersFlat(ls){
     let newList = [];
     for (let i = 0; i < ls.length; i++){
         if (typeof ls[i] === "object" && typeof ls[i].multiplier === "number"){
-            for (let k = 0; k < ls[i].multiplier - 1; k++){
+            for (let k = 0; k < ls[i].multiplier; k++){
                 newList.push(deepCopy(ls[i-1]));
             }
         }
-        else{
+        else if (!(typeof ls[i+1] === "object" && typeof ls[i+1].multiplier === "number")){
             newList.push(deepCopy(ls[i]));
         }
     }
@@ -208,6 +208,10 @@ function applyMtsMultipliersRecursive(mtsObject){
 
 
 function parseMts(s){
+    if (s.length === 0){
+        return [];
+    }
+
     let mtsObj = [];
 
     if (s[0] === "[") {

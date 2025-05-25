@@ -1,7 +1,7 @@
 "use strict";
 
 // graphics constants
-const CANVAS_WIDTH_DEFAULT = 1200;
+const CANVAS_WIDTH_DEFAULT = document.body.clientWidth;
 const CANVAS_HEIGHT_DEFAULT = 700;
 let canvasWidth = CANVAS_WIDTH_DEFAULT;
 let canvasHeight = CANVAS_HEIGHT_DEFAULT;
@@ -55,7 +55,17 @@ function leafHitsNext(leaf, progress, latencyFrames){
 function calculateAudioClipSpeed(leaf){
     let soundDepth = tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf);
     let totalDepth = tree.getDepth();
-    return Math.pow(1.5, totalDepth - soundDepth);
+    if (!currentPatch.firstBeatSoundsDifferent) {
+        totalDepth -= 1;
+        soundDepth = Math.max(0, soundDepth - 1);
+    }
+    return Math.pow(currentPatch.pitchSpread, currentPatch.pitchesHighToLow ? totalDepth - soundDepth : soundDepth);
+}
+
+function calculateAudioClipVolume(leaf){
+    let soundDepth = tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf);
+    if (!currentPatch.firstBeatSoundsDifferent) soundDepth = Math.max(0, soundDepth - 1);
+    return Math.pow(currentPatch.volumeFalloff, soundDepth);
 }
 
 // NOTE: if we add functionality to jump around while playing, we should re-call play_() when we do the jumps
@@ -74,7 +84,11 @@ function play_(){
 
                 // console.log(playTime);
 
-                clipList[audioSampleDropdown.selectedIndex].play(playTime, calculateAudioClipSpeed(leaf));
+                clipList[audioSampleDropdown.selectedIndex].play(
+                    playTime,
+                    calculateAudioClipSpeed(leaf),
+                    calculateAudioClipVolume(leaf)
+                );
             }
         }
     }
@@ -187,7 +201,11 @@ let currentPatch = {
     nodeNumberMode: NODE_NUMBER_MODE_LEAVES,
     onColor: [255, 0, 255],
     offColor: [100, 100, 100],
-    leafTempo: 400,
+    leafTempo: 33*19,
+    firstBeatSoundsDifferent: true,
+    pitchesHighToLow: true,
+    pitchSpread: 1.5,
+    volumeFalloff: 0.6,
     tree: ORANGE_FESTIVAL
 }
 
@@ -240,7 +258,11 @@ function draw() {
             
             // console.log(JSON.stringify({playTime, frameCount, globalProgress, leaf}));
 
-            clipList[audioSampleDropdown.selectedIndex].play(playTime, calculateAudioClipSpeed(leaf));
+            clipList[audioSampleDropdown.selectedIndex].play(
+                playTime,
+                calculateAudioClipSpeed(leaf),
+                calculateAudioClipVolume(leaf)
+            );
         }
     }
 

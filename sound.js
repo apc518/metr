@@ -1,19 +1,19 @@
 const audioSampleOptions = [
     {
+        filepath: "assets/sounds/Volt SatRim 04.wav",
+        displayName: "Pitched Blip"
+    },
+    {
         filepath: "assets/sounds/Fracture Rim 03.wav",
-        displayName: "Short Blip"
+        displayName: "Short Click"
     },
     {
         filepath: "assets/sounds/HouseGen Rim 07.wav",
-        displayName: "Part-Pitched Blip"
+        displayName: "Hybrid Click-Blip"
     },
     {
         filepath: "assets/sounds/Fracture Rim 01.wav",
         displayName: "Loud Rim"
-    },
-    {
-        filepath: "assets/sounds/Volt SatRim 04.wav",
-        displayName: "Fully Pitched Blip"
     }
 ];
 
@@ -55,10 +55,10 @@ class Clip {
         this.audioBuffer = audioBuffer;
     }
 
-    play(time, speed){
+    play(time, speed, volume){
         let source = audioCtx.createBufferSource();
         let gainNode = audioCtx.createGain();
-        gainNode.gain.value = globalVolume;
+        gainNode.gain.value = globalVolume * volume;
         if(this.audioBuffer){
             source.buffer = this.audioBuffer;
             source.playbackRate.value = speed;

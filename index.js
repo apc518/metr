@@ -79,7 +79,6 @@ function fullRefresh(){
     tree = new MetricTree(currentPatch.tree);
     totalLeaves = tree.getLeafNodeCount();
     progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
-    createSounds();
     paint();
 }
 
@@ -95,6 +94,7 @@ function setup(){
     Swal.fire({ title: "Welcome to MeTr!", icon: 'info', text: "Click OK to enable audio" })
     .then(() => {
         fullRefresh();
+        createSounds();
         globalVolumeSlider.oninput();
     });
 

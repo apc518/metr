@@ -37,7 +37,7 @@ async function createSounds(){
                     return audioCtx.decodeAudioData(res);
                 });
     
-            console.log(decodedData);
+            // console.log(decodedData);
             
             clipList.push(new Clip(decodedData, opt.displayName));
         }

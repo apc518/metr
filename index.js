@@ -52,6 +52,12 @@ function leafHitsNext(leaf, progress, latencyFrames){
     return targetFrameProgress <= leafProgress && leafProgress < targetFrameProgress + progressIncrement;
 }
 
+function calculateAudioClipSpeed(leaf){
+    let soundDepth = tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf);
+    let totalDepth = tree.getDepth();
+    return Math.pow(1.5, totalDepth - soundDepth);
+}
+
 // NOTE: if we add functionality to jump around while playing, we should re-call play_() when we do the jumps
 function play_(){
     // calculate and set time offset based on globalProgress
@@ -68,7 +74,7 @@ function play_(){
 
                 // console.log(playTime);
 
-                clipList[audioSampleDropdown.selectedIndex].play(playTime, 1);
+                clipList[audioSampleDropdown.selectedIndex].play(playTime, calculateAudioClipSpeed(leaf));
             }
         }
     }
@@ -86,6 +92,7 @@ function fullRefresh(){
     tree = new MetricTree(currentPatch.tree);
     totalLeaves = tree.getLeafNodeCount();
     progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
+    if (isLooping()) play_();
     paint();
 }
 
@@ -97,10 +104,10 @@ function refreshCanvas(){
 function setup(){
     noLoop();
     frameRate(FRAMERATE);
+    fullRefresh();
 
     Swal.fire({ title: "Welcome to MeTr!", icon: 'info', text: "Click OK to enable audio" })
     .then(() => {
-        fullRefresh();
         createSounds();
         globalVolumeSlider.oninput();
     });
@@ -233,7 +240,7 @@ function draw() {
             
             // console.log(JSON.stringify({playTime, frameCount, globalProgress, leaf}));
 
-            clipList[audioSampleDropdown.selectedIndex].play(playTime, 1);
+            clipList[audioSampleDropdown.selectedIndex].play(playTime, calculateAudioClipSpeed(leaf));
         }
     }
 

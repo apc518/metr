@@ -15,7 +15,7 @@ class MetricTree {
     }
 
     getDepth(){
-        if (this.children.length < 1){
+        if (this.isLeaf()){
             return 0;
         }
         
@@ -26,7 +26,7 @@ class MetricTree {
      * Get the total number of leaf nodes that are descendents of this node
      */
     getLeafNodeCount(){
-        if (this.children.length < 1){
+        if (this.isLeaf()){
             return 1;
         }
 
@@ -104,7 +104,7 @@ class MetricTree {
      * Compute the likely bottom number of the time signature, assuming this node represents a single measure
      */
     getTimeSignature(){
-        if (this.children.length < 1){
+        if (this.isLeaf()){
             return "?";
         }
         
@@ -112,5 +112,42 @@ class MetricTree {
         let layer = floor(Math.log2(max(beatSizes)));
         let ignorePowersOf2MakeupExponent = this.largestPowerOf2ThatEvenlyDividesEverything(beatSizes);
         return `${this.getLeafNodeCount() / Math.pow(2, ignorePowersOf2MakeupExponent)}/${Math.pow(2, layer - ignorePowersOf2MakeupExponent + 2)}`
+    }
+
+    isLeaf(){
+        return this.children.length < 1;
+    }
+
+    leafIsLeftmost(leaf){
+        if (this.isLeaf()){
+            return this.index === leaf;
+        }
+
+        if (this.children[0].leafIsLeftmost(leaf)){
+            return true;
+        }
+
+        return false;
+    }
+
+    leafIsLeftmostAtDepth(leaf, targetDepth, depth){
+        if (depth === targetDepth){
+            return this.leafIsLeftmost(leaf);
+        }
+
+        return Array.from(this.children, c => c.leafIsLeftmostAtDepth(leaf, targetDepth, depth + 1)).some(x => x);
+    }
+
+    minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf){
+        let thisDepth = this.getDepth();
+
+        for (let depth = 0; depth < thisDepth; depth++){
+            // console.log(`this.leafIsLeftmostAtDepth(${leaf}, ${depth}, ${0}) -> ${this.leafIsLeftmostAtDepth(leaf, depth, 0)}`);
+            if (this.leafIsLeftmostAtDepth(leaf, depth, 0)){
+                return depth;
+            }
+        }
+
+        return thisDepth;
     }
 }

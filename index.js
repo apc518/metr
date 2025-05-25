@@ -24,11 +24,47 @@ function playPause(){
     else play_();
 }
 
+function epsilonFloor(num){
+    return Math.floor(num + 0.0000001);
+}
 
+function cycleDuration(){
+    return totalLeaves * 60 / currentPatch.leafTempo;
+}
+
+function numCycleFrames(){
+    return FRAMERATE * cycleDuration();
+}
+
+function cycleFrame(){
+    return epsilonFloor((globalProgress % 1) * numCycleFrames());
+}
+
+let audioCtxTimeOffset = 0;  // globalProgress * cycle time + audioCtxTimeOffset should equal approximately audioCtx.currentTime when we are playing
+const AUDIO_LATENCY_FRAMES = 3;
+
+// NOTE: if we add functionality to jump around while playing, we should re-call play_() when we do the jumps
 function play_(){
-    try{
-        rootPr.playIfOnBounds();
-    }catch(e){}
+    // calculate and set time offset based on globalProgress
+    audioCtxTimeOffset = audioCtx.currentTime - globalProgress * cycleDuration();
+
+    // for this frame and the next AUDIO_LATENCY_FRAMES - 1 frames, find every leaf node that should sound and schedule it
+    let currentFrame = cycleFrame();
+    for (let i = 0; i < AUDIO_LATENCY_FRAMES; i++){
+        for (let leaf = 0; leaf < totalLeaves; leaf++){
+            if ((leaf / totalLeaves) < (currentFrame + i + 1) % numCycleFrames() / numCycleFrames() &&
+                (leaf / totalLeaves) >= (currentFrame + i) % numCycleFrames() / numCycleFrames()
+            ){
+                let playTime = audioCtxTimeOffset
+                    + epsilonFloor(globalProgress + progressIncrement * i) * cycleDuration()
+                    + leaf * 60 / currentPatch.leafTempo;
+
+                // console.log(playTime);
+
+                clipList[audioSampleDropdown.selectedIndex].play(playTime, 1);
+            }
+        }
+    }
     
     loop();
 }
@@ -41,6 +77,9 @@ function pause_(){
 function fullRefresh(){
     refreshCanvas();
     tree = new MetricTree(currentPatch.tree);
+    totalLeaves = tree.getLeafNodeCount();
+    progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
+    createSounds();
     paint();
 }
 
@@ -51,13 +90,19 @@ function refreshCanvas(){
 
 function setup(){
     noLoop();
+    frameRate(FRAMERATE);
+
+    Swal.fire({ title: "Welcome to MeTr!", icon: 'info', text: "Click OK to enable audio" })
+    .then(() => {
+        fullRefresh();
+        globalVolumeSlider.oninput();
+    });
+
     
     if (isDevelopmentEnvironment()){
         runTests();
         setMtsErrorMessage("");
     }
-    
-    fullRefresh();
 }
 
 // real mod, not javascripts default "remainder" operator %
@@ -128,7 +173,7 @@ let currentPatch = {
     nodeNumberMode: NODE_NUMBER_MODE_LEAVES,
     onColor: [255, 0, 255],
     offColor: [100, 100, 100],
-    leafTempo: 500,
+    leafTempo: 400,
     tree: ORANGE_FESTIVAL
 }
 
@@ -151,13 +196,11 @@ function paint(){
 
     leafCounter = 0;
     drawMetricTree(tree, 0);
-    totalLeaves = leafCounter;
 
     document.getElementById("timeSigDisplay").innerText = tree.getTimeSignature();
 }
 
 let globalProgress = 0; // 0 -> beginning, 1 -> one full cycle has passed, 2 -> two full cycles have passed, etc
-let smallestDivisionBPM = 120;
 let progressIncrement = 0;
 
 function draw() {
@@ -167,7 +210,25 @@ function draw() {
     paint();
     
     progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
-    
+
+    // calculate if a sound should play during the frame that is AUDIO_LATENCY_FRAMES frames in the future
+    // if so, set that sound to play at precisely the correct time, referencing audioStartTime
+    let currentFrame = cycleFrame();
+    // console.log(frameCount, currentFrame, globalProgress);
+    for (let leaf = 0; leaf < totalLeaves; leaf++){
+        if ((leaf / totalLeaves) < (currentFrame + AUDIO_LATENCY_FRAMES + 1) % numCycleFrames() / numCycleFrames() &&
+            (leaf / totalLeaves) >= (currentFrame + AUDIO_LATENCY_FRAMES) % numCycleFrames() / numCycleFrames()
+        ){
+            let playTime = audioCtxTimeOffset
+                + epsilonFloor(globalProgress + progressIncrement * AUDIO_LATENCY_FRAMES) * cycleDuration()
+                + leaf * 60 / currentPatch.leafTempo;
+            
+            // console.log(JSON.stringify({playTime, currentFrame, frameCount, globalProgress, leaf}));
+
+            clipList[audioSampleDropdown.selectedIndex].play(playTime, 1);
+        }
+    }
+
     globalProgress += progressIncrement;
 }
 

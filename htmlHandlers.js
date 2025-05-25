@@ -41,3 +41,37 @@ mtsInput.oninput = e => {
 function setMtsErrorMessage(s){
     mtsErrorMessage.textContent = s;
 }
+
+const audioSampleDropdown = document.getElementById("audioSampleDropdown");
+for (let option of audioSampleOptions){
+    let elem = document.createElement('option');
+    elem.value = option.filepath;
+    elem.innerText = option.displayName;
+    audioSampleDropdown.appendChild(elem);
+    
+    elem.onclick = () => {
+        fullRefresh();
+    }
+}
+
+const globalVolumeSlider = document.getElementById("globalVolumeSlider");
+globalVolumeSlider.oninput = () => {
+    doVolumeInput();
+}
+
+const logb = (base, x) => {
+    return Math.log(x) / Math.log(base);
+}
+
+function convertSliderValueToAmplitude(sliderVal) {
+    // use exponential scale to go from 0 to 1 so the volume slider feels more natural
+    const tension = 10; // how extreme the curve is (higher = more extreme, slower start faster end)
+    const n = 1 / (1 - logb(1 / tension, 1 + (1 / tension)));         
+    const val = Math.pow(1 / tension, 1 - (sliderVal / 100) / n) - 1 / tension;
+    return val;
+}
+
+function doVolumeInput() {    
+    const val = convertSliderValueToAmplitude(globalVolumeSlider.value);
+    globalVolume = val;
+}

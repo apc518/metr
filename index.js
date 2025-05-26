@@ -197,6 +197,8 @@ function draw() {
     if (!isLooping()) return;
 
     paint();
+
+    if (!tree.children.length) return;
     
     scheduleSounds();
 

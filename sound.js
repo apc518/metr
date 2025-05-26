@@ -77,6 +77,8 @@ function calculateAudioClipVolume(leaf){
 }
 
 function scheduleInitialSounds(){
+    if (!tree.children.length) return;
+
     // for the first AUDIO_LOOKAHEAD_FRAMES frames, find every leaf node that should sound and schedule it
     for (let i = 0; i < AUDIO_LOOKAHEAD_FRAMES; i++){
         for (let leaf = 0; leaf < totalLeaves; leaf++){
@@ -98,6 +100,8 @@ function scheduleInitialSounds(){
 }
 
 function scheduleSounds(){
+    if (!tree.children.length) return;
+    
     // calculate if a sound should play during the frame that is AUDIO_LOOKAHEAD_FRAMES frames in the future
     // if so, set that sound to play at precisely the correct time
     for (let leaf = 0; leaf < totalLeaves; leaf++){

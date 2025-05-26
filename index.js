@@ -103,7 +103,7 @@ function _drawMetricTreeRecursive(tree, depth) {
 
     tree.pos = {x: null, y: VERTICAL_PADDING + textSizeValue + depth * verticalSpacing}
 
-    let leaf = tree.children.length < 1;
+    let leaf = tree.isLeaf();
 
     if (leaf){ 
         tree.pos.x = HORIZONTAL_PADDING + horizontalSpacing * leafCounter;
@@ -167,10 +167,10 @@ let currentPatch = {
 }
 
 function drawMetricTree(tree, depth){
-    let totalDepth = tree.getDepth();
+    let totalDepth = max(1, tree.getDepth());
     let leafCount = tree.getLeafNodeCount();
 
-    let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalDepth
+    let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalDepth;
     textSizeValue = min(layerHeight * 1 / 4, 1.3 * canvasWidth / leafCount);
     verticalSpacing = (layerHeight * 3 / 4) - (textSizeValue / totalDepth);
     horizontalSpacing = (canvasWidth - 2 * HORIZONTAL_PADDING) / leafCount;
@@ -198,8 +198,6 @@ function draw() {
 
     paint();
 
-    if (!tree.children.length) return;
-    
     scheduleSounds();
 
     globalProgress += progressIncrement;

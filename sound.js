@@ -76,9 +76,30 @@ function calculateAudioClipVolume(leaf){
     return Math.pow(currentPatch.volumeFalloff, soundDepth);
 }
 
-function scheduleInitialSounds(){
-    if (!tree.children.length) return;
 
+const soundTimeQueue = [];
+
+function listContainsNumWithEpsilon(ls, num, epsilon){
+    for (let n of ls){
+        if (Math.abs(n - num) <= epsilon){
+            return true;
+        }
+    }
+    return false;
+}
+
+function playClip(playTime, speed, volume){
+    if (!listContainsNumWithEpsilon(soundTimeQueue, playTime, 0.000001)){
+        clipList[audioSampleDropdown.selectedIndex].play(playTime, speed, volume);
+        soundTimeQueue.push(playTime);
+        while(soundTimeQueue.length > 16){
+            soundTimeQueue.shift();
+        }
+    }
+}
+
+
+function scheduleInitialSounds(){
     // for the first AUDIO_LOOKAHEAD_FRAMES frames, find every leaf node that should sound and schedule it
     for (let i = 0; i < AUDIO_LOOKAHEAD_FRAMES; i++){
         for (let leaf = 0; leaf < totalLeaves; leaf++){
@@ -89,7 +110,7 @@ function scheduleInitialSounds(){
 
                 // console.log(JSON.stringify({playTime, frameCount, globalProgress, leaf}));
 
-                clipList[audioSampleDropdown.selectedIndex].play(
+                playClip(
                     playTime,
                     calculateAudioClipSpeed(leaf),
                     calculateAudioClipVolume(leaf)
@@ -100,8 +121,6 @@ function scheduleInitialSounds(){
 }
 
 function scheduleSounds(){
-    if (!tree.children.length) return;
-    
     // calculate if a sound should play during the frame that is AUDIO_LOOKAHEAD_FRAMES frames in the future
     // if so, set that sound to play at precisely the correct time
     for (let leaf = 0; leaf < totalLeaves; leaf++){
@@ -117,7 +136,7 @@ function scheduleSounds(){
             
             // console.log(JSON.stringify({playTime, frameCount, globalProgress, leaf}));
 
-            clipList[audioSampleDropdown.selectedIndex].play(
+            playClip(
                 playTime,
                 calculateAudioClipSpeed(leaf),
                 calculateAudioClipVolume(leaf)

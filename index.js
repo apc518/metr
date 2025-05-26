@@ -1,7 +1,7 @@
 "use strict";
 
 // graphics constants
-const CANVAS_WIDTH_DEFAULT = document.body.clientWidth;
+const CANVAS_WIDTH_DEFAULT = document.body.clientWidth - document.getElementById("patchSettings").clientWidth;
 const CANVAS_HEIGHT_DEFAULT = 700;
 let canvasWidth = CANVAS_WIDTH_DEFAULT;
 let canvasHeight = CANVAS_HEIGHT_DEFAULT;
@@ -13,8 +13,10 @@ const FRAMERATE = 60;
 const SPACE_KEYCODE = 32;
 
 // patch value constants
-const NODE_NUMBER_MODE_LEAVES = "node_number_mode_leaves";
-const NODE_NUMBER_MODE_CHILDREN = "node_number_mode_children";
+const NODE_NUMBER_MODES = {
+    leaves: "node_number_mode_leaves",
+    children: "node_number_mode_children"
+}
 
 let p5canvas = null;
 let tree = null;
@@ -73,22 +75,23 @@ function play_(){
     // calculate and set time offset based on globalProgress
     audioCtxTimeOffset = audioCtx.currentTime - globalProgress * cycleDuration();
 
-    // for this frame and the next AUDIO_LATENCY_FRAMES - 1 frames, find every leaf node that should sound and schedule it
-    let currentFrame = cycleFrame();
-    for (let i = 0; i < AUDIO_LATENCY_FRAMES; i++){
-        for (let leaf = 0; leaf < totalLeaves; leaf++){
-            if (leafHitsNext(leaf, 0, i)){
-                let playTime = audioCtxTimeOffset
-                    + epsilonFloor(globalProgress + progressIncrement * i) * cycleDuration()
-                    + leaf * 60 / currentPatch.leafTempo;
-
-                // console.log(playTime);
-
-                clipList[audioSampleDropdown.selectedIndex].play(
-                    playTime,
-                    calculateAudioClipSpeed(leaf),
-                    calculateAudioClipVolume(leaf)
-                );
+    if (!isLooping()){
+        // for the first AUDIO_LATENCY_FRAMES frames, find every leaf node that should sound and schedule it
+        for (let i = 0; i < AUDIO_LATENCY_FRAMES; i++){
+            for (let leaf = 0; leaf < totalLeaves; leaf++){
+                if (leafHitsNext(leaf, 0, i)){
+                    let playTime = audioCtxTimeOffset
+                        + epsilonFloor(globalProgress + progressIncrement * i) * cycleDuration()
+                        + leaf * 60 / currentPatch.leafTempo;
+    
+                    // console.log(playTime);
+    
+                    clipList[audioSampleDropdown.selectedIndex].play(
+                        playTime,
+                        calculateAudioClipSpeed(leaf),
+                        calculateAudioClipVolume(leaf)
+                    );
+                }
             }
         }
     }
@@ -111,7 +114,7 @@ function fullRefresh(){
 }
 
 function refreshCanvas(){
-    p5canvas = createCanvas(windowWidth, canvasHeight);
+    p5canvas = createCanvas(canvasWidth, canvasHeight);
     p5canvas.parent(document.getElementById("p5canvas"));
 }
 
@@ -167,7 +170,7 @@ function _drawMetricTreeRecursive(tree, depth) {
     fill(tree.on ? currentPatch.onColor : currentPatch.offColor);
     textSize(textSizeValue);
     textAlign(CENTER);
-    text(`${currentPatch.nodeNumberMode === NODE_NUMBER_MODE_LEAVES ? (leaf ? 1 : leafCount) : (tree.children.length > 0 ? tree.children.length : 1)}`, tree.pos.x, tree.pos.y);
+    text(`${currentPatch.nodeNumberMode === NODE_NUMBER_MODES.leaves ? (leaf ? 1 : leafCount) : (tree.children.length > 0 ? tree.children.length : 1)}`, tree.pos.x, tree.pos.y);
     // ellipse(tree.pos.x, tree.pos.y, 20, 20);
 
     if (!leaf){
@@ -198,14 +201,14 @@ let lineThickness = 4;
 
 let currentPatch = {
     name: "Orange Festival",
-    nodeNumberMode: NODE_NUMBER_MODE_LEAVES,
+    nodeNumberMode: NODE_NUMBER_MODES.leaves,
     onColor: [255, 0, 255],
     offColor: [100, 100, 100],
-    leafTempo: 33*19,
+    leafTempo: 300,
     firstBeatSoundsDifferent: true,
     pitchesHighToLow: true,
     pitchSpread: 1.5,
-    volumeFalloff: 0.6,
+    volumeFalloff: 0.5,
     tree: ORANGE_FESTIVAL
 }
 
@@ -241,8 +244,6 @@ function draw() {
 
     paint();
     
-    progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
-
     // calculate if a sound should play during the frame that is AUDIO_LATENCY_FRAMES frames in the future
     // if so, set that sound to play at precisely the correct time
     for (let leaf = 0; leaf < totalLeaves; leaf++){
@@ -276,7 +277,7 @@ function keyPressed(e){
 }
 
 function windowResized(){
-    canvasWidth = windowWidth
+    canvasWidth = windowWidth - document.getElementById("patchSettings").clientWidth;
     p5canvas.resize(canvasWidth, canvasHeight);
     paint();
 }

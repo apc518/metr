@@ -13,24 +13,47 @@
 		<div style="flex: 1">
 			<h1>MeTr</h1>
 		</div>
+		<div style="flex: 1; margin: auto;">
+			<input type="text" id="mtsInput" class="meterTextInput"/>
+			<p id="mtsError" class="errorMessage"></p>
+		</div>
 		<div style="flex: 1">
 			<p id="timeSigDisplay">?</p>
 		</div>
-		<div id="audioSampleSettings" class="settingsCategory">
-			<label for="audioSampleDropdown" class="settingsCategoryLabel">Audio Sample</label>
-			<br/>
-			<select id="audioSampleDropdown"  class="mayDisplayFilename"></select>
+	</div>
+	<div style="display: flex;">
+		<div id="patchSettings">
+			<div class="settingsCategory">
+				<label for="tempoInput" id="tempoInputLabel" class="settingsCategoryLabel">Tempo</label>
+				<br/>
+				<input type="number" id="tempoInput" class="numberSettingsInput" />
+			</div>
+			<div class="settingsCategory">
+				<label for="nodeNumberModeDropdown" id="nodeNumberModeDropdownLabel" class="settingsCategoryLabel">Node Number Mode</label>
+				<br/>
+				<select id="nodeNumberModeDropdown" class="numberSettingsInput"></select>
+			</div>
+			<div id="volumeSliderContainer" class="settingsCategory">
+				<label for="globalVolumeSlider" id="volumeSliderLabel" class="settingsCategoryLabel">Volume</label>
+				<br/>
+				<input type="range" min="0" max="100" id="globalVolumeSlider" class="slider"/> <br/>
+			</div>
+			<div id="audioSampleSettings" class="settingsCategory">
+				<label for="audioSampleDropdown" class="settingsCategoryLabel">Audio Sample</label>
+				<br/>
+				<select id="audioSampleDropdown"  class="mayDisplayFilename"></select>
+			</div>
 		</div>
-		<div id="volumeSliderContainer">
-			<label for="globalVolumeSlider" id="volumeSliderLabel">Volume</label>
-			<input type="range" min="0" max="100" id="globalVolumeSlider" class="slider"/> <br/>
+		<div>
+			<div id="p5canvas"></div>
+			<div id="bottomControlBar">
+				<div class="playback-control-bar">
+					<button id="playPauseBtn" class="playbar-button">Play</button>
+					<button id="resetBtn" class="playbar-button">Reset</button>
+				</div>
+			</div>
 		</div>
 	</div>
-	<div>
-		<input type="text" id="mtsInput" class="meterTextInput"/>
-		<p id="mtsError" class="errorMessage"></p>
-	</div>
-	<div id="p5canvas"></div>
 </div>
 <script src="MetricTree.js" defer></script>
 <script src="sound.js" defer></script>

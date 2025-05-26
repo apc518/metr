@@ -48,10 +48,6 @@ for (let option of audioSampleOptions){
     elem.value = option.filepath;
     elem.innerText = option.displayName;
     audioSampleDropdown.appendChild(elem);
-    
-    elem.onclick = () => {
-        fullRefresh();
-    }
 }
 
 const globalVolumeSlider = document.getElementById("globalVolumeSlider");
@@ -74,4 +70,38 @@ function convertSliderValueToAmplitude(sliderVal) {
 function doVolumeInput() {    
     const val = convertSliderValueToAmplitude(globalVolumeSlider.value);
     globalVolume = val;
+}
+
+const tempoInput = document.getElementById("tempoInput");
+tempoInput.value = currentPatch.leafTempo;
+tempoInput.oninput = () => {
+    currentPatch.leafTempo = tempoInput.value;
+    fullRefresh();
+}
+
+const playPauseBtn = document.getElementById("playPauseBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+playPauseBtn.onclick = () => {
+    playPause();
+}
+
+resetBtn.onclick = () => {
+    noLoop();
+    globalProgress = 0;
+    fullRefresh();
+}
+
+const nodeNumberModeDropdown = document.getElementById("nodeNumberModeDropdown");
+let leavesOption = document.createElement('option');
+leavesOption.value = NODE_NUMBER_MODES.leaves;
+leavesOption.innerText = "Leaves";
+nodeNumberModeDropdown.appendChild(leavesOption);
+let childrenOption = document.createElement('option');
+childrenOption.value = NODE_NUMBER_MODES.children;
+childrenOption.innerText = "Children";
+nodeNumberModeDropdown.appendChild(childrenOption);
+nodeNumberModeDropdown.oninput = () => {
+    currentPatch.nodeNumberMode = nodeNumberModeDropdown.children[nodeNumberModeDropdown.selectedIndex].value;
+    paint();
 }

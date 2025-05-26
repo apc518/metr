@@ -87,7 +87,7 @@ playPauseBtn.onclick = () => {
 }
 
 resetBtn.onclick = () => {
-    noLoop();
+    pause_();
     globalProgress = 0;
     fullRefresh();
 }

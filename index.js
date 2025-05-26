@@ -158,7 +158,7 @@ let currentPatch = {
     nodeNumberMode: NODE_NUMBER_MODES.leaves,
     onColor: [255, 0, 255],
     offColor: [100, 100, 100],
-    leafTempo: 300,
+    leafTempo: 320,
     firstBeatSoundsDifferent: true,
     pitchesHighToLow: true,
     pitchSpread: 1.5,

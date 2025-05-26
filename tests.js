@@ -134,7 +134,7 @@ const TIME_SIGNATURE_TESTS = [
     }
 ]
 
-GENERIC_TESTS = [
+const GENERIC_TESTS = [
     {
         name: "mtsStringIsValid empty string",
         func: () => {

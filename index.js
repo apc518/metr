@@ -1,7 +1,7 @@
 "use strict";
 
 // graphics constants
-const CANVAS_WIDTH_DEFAULT = 1200;
+const CANVAS_WIDTH_DEFAULT = document.body.clientWidth - document.getElementById("patchSettings").clientWidth;
 const CANVAS_HEIGHT_DEFAULT = 700;
 let canvasWidth = CANVAS_WIDTH_DEFAULT;
 let canvasHeight = CANVAS_HEIGHT_DEFAULT;
@@ -13,8 +13,10 @@ const FRAMERATE = 60;
 const SPACE_KEYCODE = 32;
 
 // patch value constants
-const NODE_NUMBER_MODE_LEAVES = "node_number_mode_leaves";
-const NODE_NUMBER_MODE_CHILDREN = "node_number_mode_children";
+const NODE_NUMBER_MODES = {
+    leaves: "node_number_mode_leaves",
+    children: "node_number_mode_children"
+}
 
 let p5canvas = null;
 let tree = null;
@@ -24,40 +26,68 @@ function playPause(){
     else play_();
 }
 
+function epsilonFloor(num){
+    return Math.floor(num + 0.0000001);
+}
 
+function cycleDuration(){
+    return totalLeaves * 60 / currentPatch.leafTempo;
+}
+
+function framesPerCycle(){
+    return FRAMERATE * cycleDuration();
+}
+
+
+// NOTE: if we add functionality to jump around while playing, we should re-call play_() when we do the jumps
 function play_(){
-    try{
-        rootPr.playIfOnBounds();
-    }catch(e){}
+    // calculate and set time offset based on globalProgress
+    audioCtxTimeOffset = audioCtx.currentTime - globalProgress * cycleDuration();
+
+    if (!isLooping()){
+        scheduleInitialSounds();
+    }
     
     loop();
+    playPauseBtn.textContent = "Pause";
 }
 
 
 function pause_(){
     noLoop();
+    playPauseBtn.textContent = "Play";
 }
 
 function fullRefresh(){
     refreshCanvas();
     tree = new MetricTree(currentPatch.tree);
+    totalLeaves = tree.getLeafNodeCount();
+    progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
+    if (isLooping()) play_();
     paint();
 }
 
 function refreshCanvas(){
-    p5canvas = createCanvas(windowWidth, canvasHeight);
+    p5canvas = createCanvas(canvasWidth, canvasHeight);
     p5canvas.parent(document.getElementById("p5canvas"));
 }
 
 function setup(){
     noLoop();
+    frameRate(FRAMERATE);
+    fullRefresh();
+
+    Swal.fire({ title: "Welcome to MeTr!", icon: 'info', text: "Click OK to enable audio" })
+    .then(() => {
+        createSounds();
+        globalVolumeSlider.oninput();
+    });
+
     
     if (isDevelopmentEnvironment()){
         runTests();
         setMtsErrorMessage("");
     }
-    
-    fullRefresh();
 }
 
 // real mod, not javascripts default "remainder" operator %
@@ -73,7 +103,7 @@ function _drawMetricTreeRecursive(tree, depth) {
 
     tree.pos = {x: null, y: VERTICAL_PADDING + textSizeValue + depth * verticalSpacing}
 
-    let leaf = tree.children.length < 1;
+    let leaf = tree.isLeaf();
 
     if (leaf){ 
         tree.pos.x = HORIZONTAL_PADDING + horizontalSpacing * leafCounter;
@@ -94,7 +124,7 @@ function _drawMetricTreeRecursive(tree, depth) {
     fill(tree.on ? currentPatch.onColor : currentPatch.offColor);
     textSize(textSizeValue);
     textAlign(CENTER);
-    text(`${currentPatch.nodeNumberMode === NODE_NUMBER_MODE_LEAVES ? (leaf ? 1 : leafCount) : (tree.children.length > 0 ? tree.children.length : 1)}`, tree.pos.x, tree.pos.y);
+    text(`${currentPatch.nodeNumberMode === NODE_NUMBER_MODES.leaves ? (leaf ? 1 : leafCount) : (tree.children.length > 0 ? tree.children.length : 1)}`, tree.pos.x, tree.pos.y);
     // ellipse(tree.pos.x, tree.pos.y, 20, 20);
 
     if (!leaf){
@@ -125,18 +155,22 @@ let lineThickness = 4;
 
 let currentPatch = {
     name: "Orange Festival",
-    nodeNumberMode: NODE_NUMBER_MODE_LEAVES,
+    nodeNumberMode: NODE_NUMBER_MODES.leaves,
     onColor: [255, 0, 255],
     offColor: [100, 100, 100],
-    leafTempo: 500,
+    leafTempo: 300,
+    firstBeatSoundsDifferent: true,
+    pitchesHighToLow: true,
+    pitchSpread: 1.5,
+    volumeFalloff: 0.5,
     tree: ORANGE_FESTIVAL
 }
 
 function drawMetricTree(tree, depth){
-    let totalDepth = tree.getDepth();
+    let totalDepth = max(1, tree.getDepth());
     let leafCount = tree.getLeafNodeCount();
 
-    let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalDepth
+    let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalDepth;
     textSizeValue = min(layerHeight * 1 / 4, 1.3 * canvasWidth / leafCount);
     verticalSpacing = (layerHeight * 3 / 4) - (textSizeValue / totalDepth);
     horizontalSpacing = (canvasWidth - 2 * HORIZONTAL_PADDING) / leafCount;
@@ -151,13 +185,11 @@ function paint(){
 
     leafCounter = 0;
     drawMetricTree(tree, 0);
-    totalLeaves = leafCounter;
 
     document.getElementById("timeSigDisplay").innerText = tree.getTimeSignature();
 }
 
 let globalProgress = 0; // 0 -> beginning, 1 -> one full cycle has passed, 2 -> two full cycles have passed, etc
-let smallestDivisionBPM = 120;
 let progressIncrement = 0;
 
 function draw() {
@@ -165,9 +197,9 @@ function draw() {
     if (!isLooping()) return;
 
     paint();
-    
-    progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
-    
+
+    scheduleSounds();
+
     globalProgress += progressIncrement;
 }
 
@@ -178,7 +210,7 @@ function keyPressed(e){
 }
 
 function windowResized(){
-    canvasWidth = windowWidth
+    canvasWidth = windowWidth - document.getElementById("patchSettings").clientWidth;
     p5canvas.resize(canvasWidth, canvasHeight);
     paint();
 }

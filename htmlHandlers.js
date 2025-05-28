@@ -4,7 +4,6 @@ const textFieldOkayColor = "#fff";
 const mtsInput = document.getElementById("mtsInput");
 const mtsErrorMessage = document.getElementById("mtsError");
 
-mtsInput.value = "[3,2*4]";
 mtsInput.style.backgroundColor = mtsStringIsValid(mtsInput.value) ? textFieldOkayColor : textFieldErrorColor;
 let mtsInputPreviousContent = mtsInput.value;
 
@@ -33,9 +32,15 @@ mtsInput.oninput = e => {
 
     setMtsErrorMessage("");
 
-    currentPatch.tree = parseMts(mtsInput.value);
+    currentPatch.tree = mtsInput.value;
     fullRefresh();
 }
+
+function setMtsInputFromCurrentPatch(){
+    mtsInput.value = currentPatch.tree;
+}
+
+setMtsInputFromCurrentPatch();
 
 
 function setMtsErrorMessage(s){

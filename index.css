@@ -148,6 +148,7 @@ a:active {
 	max-width: 180px;
 	min-width: 180px;
 	padding-left: 1rem;
+	padding-right: 1rem;
 }
 
 .playback-control-bar {
@@ -160,4 +161,14 @@ a:active {
 
 .playbar-button {
     margin-right: 10px;
+}
+
+.colorInput {
+	max-height: 1.5rem;
+	width: 2rem;
+}
+
+.appDrawerDivider{
+    min-height: 2px;
+    background-color: #111;
 }

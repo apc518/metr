@@ -127,3 +127,43 @@ pitchSpreadInput.oninput = () => {
 volumeFalloffInput.oninput = () => {
     currentPatch.volumeFalloff = volumeFalloffInput.value;
 }
+
+
+function rgbArrayToHex(rgbArray){
+    let hex = "#";
+
+    for (let value of rgbArray){
+        hex += Number(value).toString(16).padStart(2, "0");
+    }
+
+    return hex;
+}
+
+
+function hexToRgbArray(hex){
+    if (hex.length !== 7) throw new Error("hex string must be exactly 7 characters");
+    if (!hex.startsWith("#")) throw new Error("hex string must start with '#'");
+    
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+
+    return [r,g,b];
+}
+
+const onColorInput = document.getElementById("onColorInput");
+const offColorInput = document.getElementById("offColorInput");
+onColorInput.value = rgbArrayToHex(currentPatch.onColor);
+offColorInput.value = rgbArrayToHex(currentPatch.offColor);
+onColorInput.oninput = () => {
+    currentPatch.onColor = hexToRgbArray(onColorInput.value);
+    if (!isLooping()) {
+        paint();
+    }
+}
+offColorInput.oninput = () => {
+    currentPatch.offColor = hexToRgbArray(offColorInput.value);
+    if (!isLooping()) {
+        paint();
+    }
+}

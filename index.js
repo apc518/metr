@@ -155,7 +155,7 @@ let lineThickness = 4;
 
 let currentPatch = {
     name: "Orange Festival",
-    nodeNumberMode: NODE_NUMBER_MODES.leaves,
+    nodeNumberMode: NODE_NUMBER_MODES.children,
     onColor: [255, 0, 255],
     offColor: [100, 100, 100],
     leafTempo: 320,
@@ -163,6 +163,7 @@ let currentPatch = {
     pitchesHighToLow: true,
     pitchSpread: 1.5,
     volumeFalloff: 0.5,
+    audioSample: audioSampleOptions[0].filepath,
     tree: ORANGE_FESTIVAL
 }
 

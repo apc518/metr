@@ -42,14 +42,6 @@ function setMtsErrorMessage(s){
     mtsErrorMessage.textContent = s;
 }
 
-const audioSampleDropdown = document.getElementById("audioSampleDropdown");
-for (let option of audioSampleOptions){
-    let elem = document.createElement('option');
-    elem.value = option.filepath;
-    elem.innerText = option.displayName;
-    audioSampleDropdown.appendChild(elem);
-}
-
 const globalVolumeSlider = document.getElementById("globalVolumeSlider");
 globalVolumeSlider.oninput = () => {
     doVolumeInput();
@@ -72,12 +64,6 @@ function doVolumeInput() {
     globalVolume = val;
 }
 
-const tempoInput = document.getElementById("tempoInput");
-tempoInput.value = currentPatch.leafTempo;
-tempoInput.oninput = () => {
-    currentPatch.leafTempo = tempoInput.value;
-    fullRefresh();
-}
 
 const playPauseBtn = document.getElementById("playPauseBtn");
 const resetBtn = document.getElementById("resetBtn");
@@ -91,6 +77,29 @@ resetBtn.onclick = () => {
     globalProgress = 0;
     fullRefresh();
 }
+
+
+
+//////////////////////
+//  TEMPO SETTING   //
+//////////////////////
+
+const tempoInput = document.getElementById("tempoInput");
+tempoInput.oninput = () => {
+    currentPatch.leafTempo = tempoInput.value;
+    fullRefresh();
+}
+
+function setTempoInputFromCurrentPatch(){
+    tempoInput.value = currentPatch.leafTempo;
+}
+
+setTempoInputFromCurrentPatch();
+
+
+/////////////////////////////////
+//  NODE NUMBER MODE SETTING   //
+/////////////////////////////////
 
 const nodeNumberModeDropdown = document.getElementById("nodeNumberModeDropdown");
 let leavesOption = document.createElement('option');
@@ -106,10 +115,24 @@ nodeNumberModeDropdown.oninput = () => {
     paint();
 }
 
+function setNumberModeInputFromCurrentPatch(){
+    for (let i = 0; i < nodeNumberModeDropdown.children.length; i++){
+        if (nodeNumberModeDropdown.children[i].value === currentPatch.nodeNumberMode){
+            nodeNumberModeDropdown.selectedIndex = i;
+            break;
+        }
+    }
+}
+
+setNumberModeInputFromCurrentPatch();
+
+
+/////////////////////////////
+//  CLICK SOUND SETTINGS   //
+/////////////////////////////
+
 const accentDownbeatCheckbox = document.getElementById("accentDownbeatCheckbox");
 const pitchesHighToLowCheckbox = document.getElementById("pitchesHighToLowCheckbox");
-accentDownbeatCheckbox.checked = currentPatch.accentDownbeat;
-pitchesHighToLowCheckbox.checked = currentPatch.pitchesHighToLow;
 accentDownbeatCheckbox.oninput = () => {
     currentPatch.accentDownbeat = accentDownbeatCheckbox.checked;
 }
@@ -119,8 +142,6 @@ pitchesHighToLowCheckbox.oninput = () => {
 
 const pitchSpreadInput = document.getElementById("pitchSpreadInput");
 const volumeFalloffInput = document.getElementById("volumeFalloffInput");
-pitchSpreadInput.value = currentPatch.pitchSpread;
-volumeFalloffInput.value = currentPatch.volumeFalloff;
 pitchSpreadInput.oninput = () => {
     currentPatch.pitchSpread = pitchSpreadInput.value;
 }
@@ -128,6 +149,35 @@ volumeFalloffInput.oninput = () => {
     currentPatch.volumeFalloff = volumeFalloffInput.value;
 }
 
+const audioSampleDropdown = document.getElementById("audioSampleDropdown");
+for (let option of audioSampleOptions){
+    let elem = document.createElement('option');
+    elem.value = option.filepath;
+    elem.innerText = option.displayName;
+    audioSampleDropdown.appendChild(elem);
+}
+
+function setClickSoundSettingsFromCurrentPatch(){
+    accentDownbeatCheckbox.checked = currentPatch.accentDownbeat;
+    pitchesHighToLowCheckbox.checked = currentPatch.pitchesHighToLow;
+    pitchSpreadInput.value = currentPatch.pitchSpread;
+    volumeFalloffInput.value = currentPatch.volumeFalloff;
+
+    for (let i = 0; i < audioSampleDropdown.children.length; i++){
+        if (audioSampleDropdown.children[i].value === currentPatch.audioSample){
+            audioSampleDropdown.selectedIndex = i;
+            break;
+        }
+    }
+}
+
+setClickSoundSettingsFromCurrentPatch();
+
+
+
+//////////////
+//  COLOR   //
+//////////////
 
 function rgbArrayToHex(rgbArray){
     let hex = "#";
@@ -138,7 +188,6 @@ function rgbArrayToHex(rgbArray){
 
     return hex;
 }
-
 
 function hexToRgbArray(hex){
     if (hex.length !== 7) throw new Error("hex string must be exactly 7 characters");
@@ -153,8 +202,14 @@ function hexToRgbArray(hex){
 
 const onColorInput = document.getElementById("onColorInput");
 const offColorInput = document.getElementById("offColorInput");
-onColorInput.value = rgbArrayToHex(currentPatch.onColor);
-offColorInput.value = rgbArrayToHex(currentPatch.offColor);
+
+function setColorInputsFromCurrentPatch(){
+    onColorInput.value = rgbArrayToHex(currentPatch.onColor);
+    offColorInput.value = rgbArrayToHex(currentPatch.offColor);
+}
+
+setColorInputsFromCurrentPatch();
+
 onColorInput.oninput = () => {
     currentPatch.onColor = hexToRgbArray(onColorInput.value);
     if (!isLooping()) {

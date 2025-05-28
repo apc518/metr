@@ -108,11 +108,22 @@ nodeNumberModeDropdown.oninput = () => {
 
 const accentDownbeatCheckbox = document.getElementById("accentDownbeatCheckbox");
 const pitchesHighToLowCheckbox = document.getElementById("pitchesHighToLowCheckbox");
-accentDownbeatCheckbox.checked = true;
-pitchesHighToLowCheckbox.checked = true;
+accentDownbeatCheckbox.checked = currentPatch.accentDownbeat;
+pitchesHighToLowCheckbox.checked = currentPatch.pitchesHighToLow;
 accentDownbeatCheckbox.oninput = () => {
     currentPatch.accentDownbeat = accentDownbeatCheckbox.checked;
 }
 pitchesHighToLowCheckbox.oninput = () => {
     currentPatch.pitchesHighToLow = pitchesHighToLowCheckbox.checked;
+}
+
+const pitchSpreadInput = document.getElementById("pitchSpreadInput");
+const volumeFalloffInput = document.getElementById("volumeFalloffInput");
+pitchSpreadInput.value = currentPatch.pitchSpread;
+volumeFalloffInput.value = currentPatch.volumeFalloff;
+pitchSpreadInput.oninput = () => {
+    currentPatch.pitchSpread = pitchSpreadInput.value;
+}
+volumeFalloffInput.oninput = () => {
+    currentPatch.volumeFalloff = volumeFalloffInput.value;
 }

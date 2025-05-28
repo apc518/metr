@@ -4,8 +4,6 @@ const textFieldOkayColor = "#fff";
 const mtsInput = document.getElementById("mtsInput");
 const mtsErrorMessage = document.getElementById("mtsError");
 
-mtsInput.style.backgroundColor = mtsStringIsValid(mtsInput.value) ? textFieldOkayColor : textFieldErrorColor;
-let mtsInputPreviousContent = mtsInput.value;
 
 mtsInput.oninput = e => {
     // remove invalid characters immediately
@@ -21,26 +19,28 @@ mtsInput.oninput = e => {
             }
         }
     }
-
+    
     mtsInputPreviousContent = mtsInput.value.slice();
     
     mtsInput.inputIsValid = mtsStringIsValid(mtsInput.value);
-
+    
     mtsInput.style.backgroundColor = mtsInput.inputIsValid ? textFieldOkayColor : textFieldErrorColor;
-
+    
     if (!mtsInput.inputIsValid) return;
-
+    
     setMtsErrorMessage("");
-
+    
     currentPatch.tree = mtsInput.value;
-    fullRefresh();
+    if (p5canvas){
+        fullRefresh();
+    }
 }
+
+let mtsInputPreviousContent = currentPatch.tree;
 
 function setMtsInputFromCurrentPatch(){
     mtsInput.value = currentPatch.tree;
 }
-
-setMtsInputFromCurrentPatch();
 
 
 function setMtsErrorMessage(s){
@@ -99,8 +99,6 @@ function setTempoInputFromCurrentPatch(){
     tempoInput.value = currentPatch.leafTempo;
 }
 
-setTempoInputFromCurrentPatch();
-
 
 /////////////////////////////////
 //  NODE NUMBER MODE SETTING   //
@@ -128,8 +126,6 @@ function setNumberModeInputFromCurrentPatch(){
         }
     }
 }
-
-setNumberModeInputFromCurrentPatch();
 
 
 /////////////////////////////
@@ -176,8 +172,6 @@ function setClickSoundSettingsFromCurrentPatch(){
     }
 }
 
-setClickSoundSettingsFromCurrentPatch();
-
 
 
 //////////////
@@ -213,8 +207,6 @@ function setColorInputsFromCurrentPatch(){
     offColorInput.value = rgbArrayToHex(currentPatch.offColor);
 }
 
-setColorInputsFromCurrentPatch();
-
 onColorInput.oninput = () => {
     currentPatch.onColor = hexToRgbArray(onColorInput.value);
     if (!isLooping()) {
@@ -227,3 +219,14 @@ offColorInput.oninput = () => {
         paint();
     }
 }
+
+
+function setPatchUIElementsFromCurrentPatch(){
+    setClickSoundSettingsFromCurrentPatch();
+    setColorInputsFromCurrentPatch();
+    setMtsInputFromCurrentPatch();
+    setNumberModeInputFromCurrentPatch();
+    setTempoInputFromCurrentPatch();
+}
+
+setPatchUIElementsFromCurrentPatch();

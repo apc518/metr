@@ -60,7 +60,7 @@ function pause_(){
 
 function fullRefresh(){
     refreshCanvas();
-    tree = new MetricTree(currentPatch.tree);
+    tree = new MetricTree(parseMts(currentPatch.tree));
     totalLeaves = tree.getLeafNodeCount();
     progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
     if (isLooping()) play_();
@@ -159,11 +159,12 @@ let currentPatch = {
     onColor: [255, 0, 255],
     offColor: [100, 100, 100],
     leafTempo: 320,
-    firstBeatSoundsDifferent: true,
+    accentDownbeat: true,
     pitchesHighToLow: true,
     pitchSpread: 1.5,
     volumeFalloff: 0.5,
-    tree: ORANGE_FESTIVAL
+    audioSample: audioSampleOptions[0].filepath,
+    tree: "[3,2*4]"
 }
 
 function drawMetricTree(tree, depth){

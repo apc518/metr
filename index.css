@@ -66,6 +66,7 @@ a:active {
 	color: white;
 	min-width: 100%;
 	margin-bottom: 1rem;
+	text-align: left;
 }
 
 .settingsInput {
@@ -78,10 +79,6 @@ a:active {
 	width: 80%;
 	height: 1.5rem;
 	font-size: 0.9rem;
-}
-
-.settingsCategoryLabel{
-	margin-bottom: 100px;
 }
 
 .slider{
@@ -150,6 +147,7 @@ a:active {
 #patchSettings{
 	max-width: 180px;
 	min-width: 180px;
+	padding-left: 1rem;
 }
 
 .playback-control-bar {

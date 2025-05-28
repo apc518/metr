@@ -63,7 +63,7 @@ function convertSliderValueToAmplitude(sliderVal) {
     // use exponential scale to go from 0 to 1 so the volume slider feels more natural
     const tension = 10; // how extreme the curve is (higher = more extreme, slower start faster end)
     const n = 1 / (1 - logb(1 / tension, 1 + (1 / tension)));         
-    const val = Math.pow(1 / tension, 1 - (sliderVal / 100) / n) - 1 / tension;
+    const val = Math.pow(1 / tension, 1 - ((sliderVal * 1.25) / 100) / n) - 1 / tension;
     return val;
 }
 
@@ -104,4 +104,15 @@ nodeNumberModeDropdown.appendChild(childrenOption);
 nodeNumberModeDropdown.oninput = () => {
     currentPatch.nodeNumberMode = nodeNumberModeDropdown.children[nodeNumberModeDropdown.selectedIndex].value;
     paint();
+}
+
+const accentDownbeatCheckbox = document.getElementById("accentDownbeatCheckbox");
+const pitchesHighToLowCheckbox = document.getElementById("pitchesHighToLowCheckbox");
+accentDownbeatCheckbox.checked = true;
+pitchesHighToLowCheckbox.checked = true;
+accentDownbeatCheckbox.oninput = () => {
+    currentPatch.accentDownbeat = accentDownbeatCheckbox.checked;
+}
+pitchesHighToLowCheckbox.oninput = () => {
+    currentPatch.pitchesHighToLow = pitchesHighToLowCheckbox.checked;
 }

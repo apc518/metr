@@ -159,7 +159,7 @@ let currentPatch = {
     onColor: [255, 0, 255],
     offColor: [100, 100, 100],
     leafTempo: 320,
-    firstBeatSoundsDifferent: true,
+    accentDownbeat: true,
     pitchesHighToLow: true,
     pitchSpread: 1.5,
     volumeFalloff: 0.5,

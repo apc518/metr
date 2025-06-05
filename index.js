@@ -14,8 +14,8 @@ const SPACE_KEYCODE = 32;
 
 // patch value constants
 const NODE_NUMBER_MODES = {
-    leaves: "node_number_mode_leaves",
-    children: "node_number_mode_children"
+    leaves: "leaves",
+    children: "children"
 }
 
 let p5canvas = null;
@@ -58,11 +58,20 @@ function pause_(){
     playPauseBtn.textContent = "Play";
 }
 
+
+function writePatchToUrl(){
+    let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname + `?p=${window.btoa(JSON.stringify(currentPatch))}`;    
+    window.history.pushState({ path: refresh }, '', refresh);
+}
+
+
 function fullRefresh(){
+    setPatchUIElementsFromCurrentPatch();
     refreshCanvas();
     tree = new MetricTree(parseMts(currentPatch.tree));
     totalLeaves = tree.getLeafNodeCount();
     progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
+    writePatchToUrl();
     if (isLooping()) play_();
     paint();
 }
@@ -121,7 +130,7 @@ function _drawMetricTreeRecursive(tree, depth) {
     }
 
     noStroke();
-    fill(tree.on ? currentPatch.onColor : currentPatch.offColor);
+    fill(tree.on ? getPatchHighlightColor(1, 0.5) : OFF_COLOR);
     textSize(textSizeValue);
     textAlign(CENTER);
     text(`${currentPatch.nodeNumberMode === NODE_NUMBER_MODES.leaves ? (leaf ? 1 : leafCount) : (tree.children.length > 0 ? tree.children.length : 1)}`, tree.pos.x, tree.pos.y);
@@ -131,7 +140,7 @@ function _drawMetricTreeRecursive(tree, depth) {
         noFill();
         strokeWeight(lineThickness);
         tree.children.forEach(t => {
-            stroke(t.on ? currentPatch.onColor : currentPatch.offColor);
+            stroke(t.on ? getPatchHighlightColor(1, 0.5) : OFF_COLOR);
             line(tree.pos.x, tree.pos.y + textSizeValue / 5, t.pos.x, t.pos.y - textSizeValue);
         })
     }
@@ -143,9 +152,14 @@ function _drawMetricTreeRecursive(tree, depth) {
     return leaf ? 1 : leafCount;
 }
 
+function getPatchHighlightColor(saturation, lightness){
+    return `hsl(${currentPatch.hue}, ${saturation * 100}%, ${lightness * 100}%)`;
+}
+
 let leafCounter = 0;
 let totalLeaves = 0;
 
+const OFF_COLOR = "hsl(0, 0%, 30%)"
 const VERTICAL_PADDING = 25;
 const HORIZONTAL_PADDING = 50;
 let verticalSpacing = 160;
@@ -153,19 +167,6 @@ let horizontalSpacing = 50;
 let textSizeValue = 50;
 let lineThickness = 4;
 
-let currentPatch = {
-    name: "Orange Festival",
-    nodeNumberMode: NODE_NUMBER_MODES.leaves,
-    onColor: [255, 0, 255],
-    offColor: [100, 100, 100],
-    leafTempo: 320,
-    accentDownbeat: true,
-    pitchesHighToLow: true,
-    pitchSpread: 1.5,
-    volumeFalloff: 0.5,
-    audioSample: audioSampleOptions[0].filepath,
-    tree: "[3,2*4]"
-}
 
 function drawMetricTree(tree, depth){
     let totalDepth = max(1, tree.getDepth());

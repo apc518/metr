@@ -153,7 +153,7 @@ volumeFalloffInput.oninput = () => {
 const audioSampleDropdown = document.getElementById("audioSampleDropdown");
 for (let option of audioSampleOptions){
     let elem = document.createElement('option');
-    elem.value = option.filepath;
+    elem.value = option.filename;
     elem.innerText = option.displayName;
     audioSampleDropdown.appendChild(elem);
 }
@@ -199,22 +199,14 @@ function hexToRgbArray(hex){
     return [r,g,b];
 }
 
-const onColorInput = document.getElementById("onColorInput");
-const offColorInput = document.getElementById("offColorInput");
+const hueInput = document.getElementById("hueInput");
 
 function setColorInputsFromCurrentPatch(){
-    onColorInput.value = rgbArrayToHex(currentPatch.onColor);
-    offColorInput.value = rgbArrayToHex(currentPatch.offColor);
+    hueInput.value = currentPatch.hue;
 }
 
-onColorInput.oninput = () => {
-    currentPatch.onColor = hexToRgbArray(onColorInput.value);
-    if (!isLooping()) {
-        paint();
-    }
-}
-offColorInput.oninput = () => {
-    currentPatch.offColor = hexToRgbArray(offColorInput.value);
+hueInput.oninput = () => {
+    currentPatch.hue = hueInput.value;
     if (!isLooping()) {
         paint();
     }
@@ -230,3 +222,84 @@ function setPatchUIElementsFromCurrentPatch(){
 }
 
 setPatchUIElementsFromCurrentPatch();
+
+
+//////////////////////
+//  Patch Selection //
+//////////////////////
+
+const patchSelectDropdown = document.getElementById("patchSelectDropdown");
+
+patchSelectDropdown.oninput = () => {
+    for (let i = 0; i < patches.length; i++){
+        if (patches[i].name === patchSelectDropdown.children[patchSelectDropdown.selectedIndex].value){
+            currentPatch = patches[i];
+            fullRefresh();
+            break;
+        }
+    }
+}
+
+function populatePatchSelectDropdown(){
+    patchSelectDropdown.replaceChildren([]);
+    for (let preset of patches){
+        let elem = document.createElement("option");
+        elem.value = preset.name;
+        elem.text = preset.name;
+
+        patchSelectDropdown.appendChild(elem);
+    }
+}
+
+populatePatchSelectDropdown();
+
+const LOCAL_STORAGE_PATCHES_KEY = 'metrPatches';
+const patchSaveButton = document.getElementById("patchSaveButton");
+patchSaveButton.onclick = e => {
+    Swal.fire({
+        title: "Name:",
+        input: "text",
+        showCancelButton: true
+    }).then(res => {
+        if(res.isConfirmed){
+            let name = res.value;
+
+            let patch = deepCopy(currentPatch);
+            patch.name = name;
+            
+            let patchJson = JSON.stringify(patch);
+            let currentLocalStoragePatches = JSON.parse(localStorage[LOCAL_STORAGE_PATCHES_KEY]);
+            currentLocalStoragePatches.push(patchJson);
+            localStorage[LOCAL_STORAGE_PATCHES_KEY] = JSON.stringify(currentLocalStoragePatches);
+
+            patches.push(patch);
+            populatePatchSelectDropdown();
+            patchSelectDropdown.selectedIndex = patchSelectDropdown.children.length - 1;
+        
+            if(name === ""){
+                name = "New.metr"
+            }
+            else if (!name.endsWith(".metr")){
+                name = name + ".metr";
+            }
+
+            Swal.fire({
+                icon: "success",
+                text: "Success",
+                timer: 1000,
+                showConfirmButton: false
+            });
+        }
+    });
+}
+
+if (!localStorage[LOCAL_STORAGE_PATCHES_KEY]){
+    localStorage[LOCAL_STORAGE_PATCHES_KEY] = '[]';
+}
+
+
+///// still todo: asterisk on current name on change, 
+// ctrl+s and localstorage
+// put the user patch first in the list instead of last
+// preset vs patch distinction... hm...
+// probably distinguish "Save" vs "Save As" (former with localstorage, latter as a file)

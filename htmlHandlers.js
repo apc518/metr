@@ -30,7 +30,7 @@ mtsInput.oninput = e => {
     
     setMtsErrorMessage("");
     
-    currentPatch.tree = mtsInput.value;
+    setPatchParam("tree", mtsInput.value);
     if (p5canvas){
         fullRefresh();
     }
@@ -91,7 +91,7 @@ resetBtn.onclick = () => {
 
 const tempoInput = document.getElementById("tempoInput");
 tempoInput.oninput = () => {
-    currentPatch.leafTempo = tempoInput.value;
+    setPatchParam("leafTempo", tempoInput.value);
     fullRefresh();
 }
 
@@ -114,7 +114,7 @@ childrenOption.value = NODE_NUMBER_MODES.children;
 childrenOption.innerText = "Children";
 nodeNumberModeDropdown.appendChild(childrenOption);
 nodeNumberModeDropdown.oninput = () => {
-    currentPatch.nodeNumberMode = nodeNumberModeDropdown.children[nodeNumberModeDropdown.selectedIndex].value;
+    setPatchParam("nodeNumberMode", nodeNumberModeDropdown.children[nodeNumberModeDropdown.selectedIndex].value);
     paint();
 }
 
@@ -135,19 +135,19 @@ function setNumberModeInputFromCurrentPatch(){
 const accentDownbeatCheckbox = document.getElementById("accentDownbeatCheckbox");
 const pitchesHighToLowCheckbox = document.getElementById("pitchesHighToLowCheckbox");
 accentDownbeatCheckbox.oninput = () => {
-    currentPatch.accentDownbeat = accentDownbeatCheckbox.checked;
+    setPatchParam("accentDownbeat", accentDownbeatCheckbox.checked);
 }
 pitchesHighToLowCheckbox.oninput = () => {
-    currentPatch.pitchesHighToLow = pitchesHighToLowCheckbox.checked;
+    setPatchParam("pitchesHighToLow", pitchesHighToLowCheckbox.checked);
 }
 
 const pitchSpreadInput = document.getElementById("pitchSpreadInput");
 const volumeFalloffInput = document.getElementById("volumeFalloffInput");
 pitchSpreadInput.oninput = () => {
-    currentPatch.pitchSpread = pitchSpreadInput.value;
+    setPatchParam("pitchSpread", pitchSpreadInput.value);
 }
 volumeFalloffInput.oninput = () => {
-    currentPatch.volumeFalloff = volumeFalloffInput.value;
+    setPatchParam("volumeFalloff", volumeFalloffInput.value);
 }
 
 const audioSampleDropdown = document.getElementById("audioSampleDropdown");
@@ -206,7 +206,7 @@ function setColorInputsFromCurrentPatch(){
 }
 
 hueInput.oninput = () => {
-    currentPatch.hue = hueInput.value;
+    setPatchParam("hue", hueInput.value);
     if (!isLooping()) {
         paint();
     }
@@ -252,54 +252,3 @@ function populatePatchSelectDropdown(){
 }
 
 populatePatchSelectDropdown();
-
-const LOCAL_STORAGE_PATCHES_KEY = 'metrPatches';
-const patchSaveButton = document.getElementById("patchSaveButton");
-patchSaveButton.onclick = e => {
-    Swal.fire({
-        title: "Name:",
-        input: "text",
-        showCancelButton: true
-    }).then(res => {
-        if(res.isConfirmed){
-            let name = res.value;
-
-            let patch = deepCopy(currentPatch);
-            patch.name = name;
-            
-            let patchJson = JSON.stringify(patch);
-            let currentLocalStoragePatches = JSON.parse(localStorage[LOCAL_STORAGE_PATCHES_KEY]);
-            currentLocalStoragePatches.push(patchJson);
-            localStorage[LOCAL_STORAGE_PATCHES_KEY] = JSON.stringify(currentLocalStoragePatches);
-
-            patches.push(patch);
-            populatePatchSelectDropdown();
-            patchSelectDropdown.selectedIndex = patchSelectDropdown.children.length - 1;
-        
-            if(name === ""){
-                name = "New.metr"
-            }
-            else if (!name.endsWith(".metr")){
-                name = name + ".metr";
-            }
-
-            Swal.fire({
-                icon: "success",
-                text: "Success",
-                timer: 1000,
-                showConfirmButton: false
-            });
-        }
-    });
-}
-
-if (!localStorage[LOCAL_STORAGE_PATCHES_KEY]){
-    localStorage[LOCAL_STORAGE_PATCHES_KEY] = '[]';
-}
-
-
-///// still todo: asterisk on current name on change, 
-// ctrl+s and localstorage
-// put the user patch first in the list instead of last
-// preset vs patch distinction... hm...
-// probably distinguish "Save" vs "Save As" (former with localstorage, latter as a file)

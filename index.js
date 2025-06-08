@@ -59,12 +59,6 @@ function pause_(){
 }
 
 
-function writePatchToUrl(){
-    let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname + `?p=${window.btoa(JSON.stringify(currentPatch))}`;    
-    window.history.pushState({ path: refresh }, '', refresh);
-}
-
-
 function fullRefresh(){
     setPatchUIElementsFromCurrentPatch();
     refreshCanvas();

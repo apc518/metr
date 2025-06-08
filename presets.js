@@ -52,3 +52,50 @@ const presets = [
 const patches = Array.from(presets, item => deepCopy(item));
 
 let currentPatch = patches[0];
+
+function convertListToPatch(ls){
+    let patch = {};
+    patch.name = ls[0];
+    patch.nodeNumberMode = ls[1];
+    patch.hue = ls[2];
+    patch.leafTempo = ls[3];
+    patch.accentDownbeat = !!ls[4];
+    patch.pitchesHighToLow = !!ls[5];
+    patch.pitchSpread = ls[6];
+    patch.volumeFalloff = ls[7];
+    patch.audioSample = audioSampleOptions[ls[8]];
+    patch.tree = ls[9];
+
+    return patch;
+}
+
+function convertPatchToList(patch){
+    return [
+        patch.name,
+        patch.nodeNumberMode,
+        patch.hue,
+        patch.leafTempo,
+        patch.accentDownbeat ? 1 : 0,
+        patch.pitchesHighToLow ? 1 : 0,
+        patch.pitchSpread,
+        patch.volumeFalloff,
+        Array.from(audioSampleOptions, o => o.filename).indexOf(patch.audioSample),
+        patch.tree
+    ];
+}
+
+let urlParts = window.location.toString().split("?p=");
+if (urlParts.length > 1){
+    currentPatch = convertListToPatch(JSON.parse(window.atob(urlParts[1])));
+}
+
+function writePatchToUrl(){
+    let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname
+                    + `?p=${window.btoa(JSON.stringify(convertPatchToList(currentPatch)))}`;
+    window.history.pushState({ path: refresh }, '', refresh);
+}
+
+function setPatchParam(param, value){
+    currentPatch[param] = value;
+    writePatchToUrl();
+}

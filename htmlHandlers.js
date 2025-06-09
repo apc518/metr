@@ -158,11 +158,21 @@ for (let option of audioSampleOptions){
     audioSampleDropdown.appendChild(elem);
 }
 
+const numLayersMutedInput = document.getElementById("numLayersMutedInput");
+numLayersMutedInput.oninput = () => {
+    if (numLayersMutedInput.value > tree.getDepth()){
+        numLayersMutedInput.value = tree.getDepth();
+    }
+    setPatchParam("numLayersMuted", numLayersMutedInput.value);
+    paint();
+}
+
 function setClickSoundSettingsFromCurrentPatch(){
     accentDownbeatCheckbox.checked = currentPatch.accentDownbeat;
     pitchesHighToLowCheckbox.checked = currentPatch.pitchesHighToLow;
     pitchSpreadInput.value = currentPatch.pitchSpread;
     volumeFalloffInput.value = currentPatch.volumeFalloff;
+    numLayersMutedInput.value = currentPatch.numLayersMuted;
 
     for (let i = 0; i < audioSampleDropdown.children.length; i++){
         if (audioSampleDropdown.children[i].value === currentPatch.audioSample){

@@ -134,6 +134,10 @@ function scheduleSounds(){
                 + cycle * cycleDuration()
                 + leaf * 60 / currentPatch.leafTempo;
             
+            if (tree.getDepth() - tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf) < currentPatch.numLayersMuted){
+                continue;
+            }
+
             playClip(
                 playTime,
                 calculateAudioClipSpeed(leaf),

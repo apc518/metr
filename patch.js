@@ -9,6 +9,7 @@ const presets = [
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[0].filename,
+        numLayersMuted: 0,
         tree: "[3,2*4]"
     },
     {
@@ -21,6 +22,7 @@ const presets = [
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[0].filename,
+        numLayersMuted: 0,
         tree: "[[6,6,7]*4]"
     },
     {
@@ -33,6 +35,7 @@ const presets = [
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[0].filename,
+        numLayersMuted: 0,
         tree: "[3*7]"
     },
     {
@@ -45,6 +48,7 @@ const presets = [
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[0].filename,
+        numLayersMuted: 0,
         tree: "[7,4,7,4]"
     }
 ];
@@ -64,7 +68,8 @@ function convertListToPatch(ls){
     patch.pitchSpread = ls[6];
     patch.volumeFalloff = ls[7];
     patch.audioSample = audioSampleOptions[ls[8]];
-    patch.tree = ls[9];
+    patch.numLayersMuted = ls[9];
+    patch.tree = ls[10];
 
     return patch;
 }
@@ -80,6 +85,7 @@ function convertPatchToList(patch){
         patch.pitchSpread,
         patch.volumeFalloff,
         Array.from(audioSampleOptions, o => o.filename).indexOf(patch.audioSample),
+        patch.numLayersMuted,
         patch.tree
     ];
 }

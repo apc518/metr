@@ -97,11 +97,11 @@ function setup(){
 const mod = (n, m) => (n % m + m) % m;
 
 
-function _drawMetricTreeRecursive(tree, depth) {
+function _drawMetricTreeRecursive(tree, depth, totalDepth) {
     let leafCount = 0;
-    
+
     for (let i = 0; i < tree.children.length; i++){
-        leafCount += _drawMetricTreeRecursive(tree.children[i], depth + 1, 20 * i + 20 * depth * i)
+        leafCount += _drawMetricTreeRecursive(tree.children[i], depth + 1, totalDepth);
     }
 
     tree.pos = {x: null, y: VERTICAL_PADDING + textSizeValue + depth * verticalSpacing}
@@ -123,20 +123,23 @@ function _drawMetricTreeRecursive(tree, depth) {
         tree.pos.x = sumOfChildXPositions / tree.children.length;
     }
 
-    noStroke();
-    fill(tree.on ? getPatchHighlightColor(1, 0.5) : OFF_COLOR);
-    textSize(textSizeValue);
-    textAlign(CENTER);
-    text(`${currentPatch.nodeNumberMode === NODE_NUMBER_MODES.leaves ? (leaf ? 1 : leafCount) : (tree.children.length > 0 ? tree.children.length : 1)}`, tree.pos.x, tree.pos.y);
-    // ellipse(tree.pos.x, tree.pos.y, 20, 20);
-
-    if (!leaf){
-        noFill();
-        strokeWeight(lineThickness);
-        tree.children.forEach(t => {
-            stroke(t.on ? getPatchHighlightColor(1, 0.5) : OFF_COLOR);
-            line(tree.pos.x, tree.pos.y + textSizeValue / 5, t.pos.x, t.pos.y - textSizeValue);
-        })
+    if (depth <= totalDepth - currentPatch.numLayersMuted){
+        noStroke();
+        fill(tree.on ? getPatchHighlightColor(1, 0.5) : OFF_COLOR);
+        textSize(textSizeValue);
+        textAlign(CENTER);
+        let textValue = `${currentPatch.nodeNumberMode === NODE_NUMBER_MODES.leaves ? (leaf ? 1 : leafCount) : (tree.children.length > 0 ? tree.children.length : 1)}`
+        text(textValue, tree.pos.x, tree.pos.y);
+    }
+    if (depth < totalDepth - currentPatch.numLayersMuted){
+        if (!leaf){
+            noFill();
+            strokeWeight(lineThickness);
+            tree.children.forEach(t => {
+                stroke(t.on ? getPatchHighlightColor(1, 0.5) : OFF_COLOR);
+                line(tree.pos.x, tree.pos.y + textSizeValue / 5, t.pos.x, t.pos.y - textSizeValue);
+            })
+        }
     }
 
     if (leaf){
@@ -164,15 +167,16 @@ let lineThickness = 4;
 
 function drawMetricTree(tree, depth){
     let totalDepth = max(1, tree.getDepth());
+    let displayDepth = totalDepth;
     let leafCount = tree.getLeafNodeCount();
 
-    let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalDepth;
+    let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / displayDepth;
     textSizeValue = min(layerHeight * 1 / 4, 1.3 * canvasWidth / leafCount);
-    verticalSpacing = (layerHeight * 3 / 4) - (textSizeValue / totalDepth);
+    verticalSpacing = (layerHeight * 3 / 4) - (textSizeValue / displayDepth);
     horizontalSpacing = (canvasWidth - 2 * HORIZONTAL_PADDING) / leafCount;
     lineThickness = max(1, textSizeValue / 15);
     
-    _drawMetricTreeRecursive(tree, depth);
+    _drawMetricTreeRecursive(tree, depth, totalDepth);
 }
 
 

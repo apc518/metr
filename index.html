@@ -24,9 +24,16 @@
 	<div style="display: flex;">
 		<div id="patchSettings">
 			<div class="settingsCategory">
+				<label for="patchSelectDropdown" id="patchSelectDropdownLabel" class="settingsCategoryLabel">Presets</label>
+				<br/>
+				<select id="patchSelectDropdown" class="patchDropdown"></select>
+			</div>
+			<div class="appDrawerDivider"></div>
+			<br/>
+			<div class="settingsCategory">
 				<label for="tempoInput" id="tempoInputLabel" class="settingsCategoryLabel">Tempo</label>
 				<br/>
-				<input type="number" id="tempoInput" class="numberSettingsInput" />
+				<input type="number" id="tempoInput" class="patchDropdown" />
 			</div>
 			<div class="settingsCategory">
 				<input type="checkbox" id="accentDownbeatCheckbox"/> <label for="accentDownbeatCheckbox" class="settingsCategoryLabel">Accent Downbeat</label>
@@ -40,23 +47,20 @@
 			<div id="audioSampleSettings" class="settingsCategory">
 				<label for="audioSampleDropdown" class="settingsCategoryLabel">Audio Sample</label>
 				<br/>
-				<select id="audioSampleDropdown"  class="mayDisplayFilename"></select>
+				<select id="audioSampleDropdown"  class="patchDropdown"></select>
 			</div>
 			<div class="appDrawerDivider"></div>
 			<br/>
 			<div class="settingsCategory">
 				<label for="nodeNumberModeDropdown" id="nodeNumberModeDropdownLabel" class="settingsCategoryLabel">Node Number Mode</label>
 				<br/>
-				<select id="nodeNumberModeDropdown" class="numberSettingsInput"></select>
+				<select id="nodeNumberModeDropdown" class="patchDropdown"></select>
 			</div>
 			<div class="settingsCategory">
 				<div style="text-align: left; line-height: 1rem;">
-					<input id="onColorInput" class="colorInput" style="max-width: 3rem;" type="color" />
-					<label for="onColorInput" class="settingsCategoryLabel">Highlight</label>
-				</div>
-				<div style="text-align: left; line-height: 1rem;">
-					<input id="offColorInput" class="colorInput" style="max-width: 3rem;" type="color" />
-					<label for="offColorInput" class="settingsCategoryLabel">Background</label>
+					<label for="hueInput" class="settingsCategoryLabel">Highlight Hue</label>
+					<br/>
+					<input id="hueInput" class="slider" type="range" min="0" max="360" />
 				</div>
 			</div>
 			<div class="appDrawerDivider"></div>
@@ -84,6 +88,7 @@
 <script src="environment.js" defer></script>
 <script src="meters.js" defer></script>
 <script src="index.js" defer></script>
+<script src="patch.js" defer></script>
 <script src="htmlHandlers.js" defer></script>
 <script src="tests.js" defer></script>
 </body>

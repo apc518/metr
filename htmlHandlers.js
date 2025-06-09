@@ -30,7 +30,7 @@ mtsInput.oninput = e => {
     
     setMtsErrorMessage("");
     
-    currentPatch.tree = mtsInput.value;
+    setPatchParam("tree", mtsInput.value);
     if (p5canvas){
         fullRefresh();
     }
@@ -91,7 +91,7 @@ resetBtn.onclick = () => {
 
 const tempoInput = document.getElementById("tempoInput");
 tempoInput.oninput = () => {
-    currentPatch.leafTempo = tempoInput.value;
+    setPatchParam("leafTempo", tempoInput.value);
     fullRefresh();
 }
 
@@ -114,7 +114,7 @@ childrenOption.value = NODE_NUMBER_MODES.children;
 childrenOption.innerText = "Children";
 nodeNumberModeDropdown.appendChild(childrenOption);
 nodeNumberModeDropdown.oninput = () => {
-    currentPatch.nodeNumberMode = nodeNumberModeDropdown.children[nodeNumberModeDropdown.selectedIndex].value;
+    setPatchParam("nodeNumberMode", nodeNumberModeDropdown.children[nodeNumberModeDropdown.selectedIndex].value);
     paint();
 }
 
@@ -135,25 +135,25 @@ function setNumberModeInputFromCurrentPatch(){
 const accentDownbeatCheckbox = document.getElementById("accentDownbeatCheckbox");
 const pitchesHighToLowCheckbox = document.getElementById("pitchesHighToLowCheckbox");
 accentDownbeatCheckbox.oninput = () => {
-    currentPatch.accentDownbeat = accentDownbeatCheckbox.checked;
+    setPatchParam("accentDownbeat", accentDownbeatCheckbox.checked);
 }
 pitchesHighToLowCheckbox.oninput = () => {
-    currentPatch.pitchesHighToLow = pitchesHighToLowCheckbox.checked;
+    setPatchParam("pitchesHighToLow", pitchesHighToLowCheckbox.checked);
 }
 
 const pitchSpreadInput = document.getElementById("pitchSpreadInput");
 const volumeFalloffInput = document.getElementById("volumeFalloffInput");
 pitchSpreadInput.oninput = () => {
-    currentPatch.pitchSpread = pitchSpreadInput.value;
+    setPatchParam("pitchSpread", pitchSpreadInput.value);
 }
 volumeFalloffInput.oninput = () => {
-    currentPatch.volumeFalloff = volumeFalloffInput.value;
+    setPatchParam("volumeFalloff", volumeFalloffInput.value);
 }
 
 const audioSampleDropdown = document.getElementById("audioSampleDropdown");
 for (let option of audioSampleOptions){
     let elem = document.createElement('option');
-    elem.value = option.filepath;
+    elem.value = option.filename;
     elem.innerText = option.displayName;
     audioSampleDropdown.appendChild(elem);
 }
@@ -199,22 +199,14 @@ function hexToRgbArray(hex){
     return [r,g,b];
 }
 
-const onColorInput = document.getElementById("onColorInput");
-const offColorInput = document.getElementById("offColorInput");
+const hueInput = document.getElementById("hueInput");
 
 function setColorInputsFromCurrentPatch(){
-    onColorInput.value = rgbArrayToHex(currentPatch.onColor);
-    offColorInput.value = rgbArrayToHex(currentPatch.offColor);
+    hueInput.value = currentPatch.hue;
 }
 
-onColorInput.oninput = () => {
-    currentPatch.onColor = hexToRgbArray(onColorInput.value);
-    if (!isLooping()) {
-        paint();
-    }
-}
-offColorInput.oninput = () => {
-    currentPatch.offColor = hexToRgbArray(offColorInput.value);
+hueInput.oninput = () => {
+    setPatchParam("hue", hueInput.value);
     if (!isLooping()) {
         paint();
     }
@@ -230,3 +222,33 @@ function setPatchUIElementsFromCurrentPatch(){
 }
 
 setPatchUIElementsFromCurrentPatch();
+
+
+//////////////////////
+//  Patch Selection //
+//////////////////////
+
+const patchSelectDropdown = document.getElementById("patchSelectDropdown");
+
+patchSelectDropdown.oninput = () => {
+    for (let i = 0; i < patches.length; i++){
+        if (patches[i].name === patchSelectDropdown.children[patchSelectDropdown.selectedIndex].value){
+            currentPatch = patches[i];
+            fullRefresh();
+            break;
+        }
+    }
+}
+
+function populatePatchSelectDropdown(){
+    patchSelectDropdown.replaceChildren([]);
+    for (let preset of patches){
+        let elem = document.createElement("option");
+        elem.value = preset.name;
+        elem.text = preset.name;
+
+        patchSelectDropdown.appendChild(elem);
+    }
+}
+
+populatePatchSelectDropdown();

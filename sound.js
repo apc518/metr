@@ -1,18 +1,18 @@
 const audioSampleOptions = [
     {
-        filepath: "assets/sounds/Volt SatRim 04.wav",
+        filename: "Volt SatRim 04.wav",
         displayName: "Pitched Blip"
     },
     {
-        filepath: "assets/sounds/Fracture Rim 03.wav",
+        filename: "Fracture Rim 03.wav",
         displayName: "Short Click"
     },
     {
-        filepath: "assets/sounds/HouseGen Rim 07.wav",
+        filename: "HouseGen Rim 07.wav",
         displayName: "Hybrid Click-Blip"
     },
     {
-        filepath: "assets/sounds/Fracture Rim 01.wav",
+        filename: "Fracture Rim 01.wav",
         displayName: "Loud Rim"
     }
 ];
@@ -31,7 +31,7 @@ async function createSounds(){
 
     for(let opt of audioSampleOptions){
         try{
-            let decodedData = await fetch(opt.filepath)
+            let decodedData = await fetch("assets/sounds/" + opt.filename)
                 .then(async f => {
                     const res = await f.arrayBuffer();
                     return audioCtx.decodeAudioData(res);

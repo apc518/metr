@@ -235,30 +235,30 @@ setPatchUIElementsFromCurrentPatch();
 
 
 //////////////////////
-//  Patch Selection //
+//  Preset Selection //
 //////////////////////
 
-const patchSelectDropdown = document.getElementById("patchSelectDropdown");
+const presetSelectDropdown = document.getElementById("presetSelectDropdown");
 
-patchSelectDropdown.oninput = () => {
+presetSelectDropdown.oninput = () => {
     for (let i = 0; i < patches.length; i++){
-        if (patches[i].name === patchSelectDropdown.children[patchSelectDropdown.selectedIndex].value){
-            currentPatch = patches[i];
+        if (patches[i].name === presetSelectDropdown.children[presetSelectDropdown.selectedIndex].value){
+            currentPatch = deepCopy(presets[i]);
             fullRefresh();
             break;
         }
     }
 }
 
-function populatePatchSelectDropdown(){
-    patchSelectDropdown.replaceChildren([]);
+function populatepresetSelectDropdown(){
+    presetSelectDropdown.replaceChildren([]);
     for (let preset of patches){
         let elem = document.createElement("option");
         elem.value = preset.name;
         elem.text = preset.name;
 
-        patchSelectDropdown.appendChild(elem);
+        presetSelectDropdown.appendChild(elem);
     }
 }
 
-populatePatchSelectDropdown();
+populatepresetSelectDropdown();

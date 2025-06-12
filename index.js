@@ -124,21 +124,35 @@ function _drawMetricTreeRecursive(tree, depth, totalDepth) {
     }
 
     if (depth <= totalDepth - currentPatch.numLayersMuted){
+        push();
         noStroke();
-        fill(tree.on ? getPatchHighlightColor(1, 0.5) : OFF_COLOR);
+        fill(tree.on ? getPatchHighlightColor() : OFF_COLOR);
         textSize(textSizeValue);
         textAlign(CENTER);
         let textValue = `${currentPatch.nodeNumberMode === NODE_NUMBER_MODES.leaves ? (leaf ? 1 : leafCount) : (tree.children.length > 0 ? tree.children.length : 1)}`
         text(textValue, tree.pos.x, tree.pos.y);
+        pop();
     }
     if (depth < totalDepth - currentPatch.numLayersMuted){
         if (!leaf){
+            push();
             noFill();
             strokeWeight(lineThickness);
-            tree.children.forEach(t => {
-                stroke(t.on ? getPatchHighlightColor(1, 0.5) : OFF_COLOR);
+            let lineThatIsOnIdx = -1;
+            for (let i = 0; i < tree.children.length; i++){
+                let t = tree.children[i];
+                if (t.on){ 
+                    lineThatIsOnIdx = i;
+                    continue;
+                }
+                stroke(OFF_COLOR);
                 line(tree.pos.x, tree.pos.y + textSizeValue / 5, t.pos.x, t.pos.y - textSizeValue);
-            })
+            }
+            if (lineThatIsOnIdx >= 0){
+                stroke(getPatchHighlightColor());
+                line(tree.pos.x, tree.pos.y + textSizeValue / 5, tree.children[lineThatIsOnIdx].pos.x, tree.children[lineThatIsOnIdx].pos.y - textSizeValue);
+                pop();
+            }
         }
     }
 
@@ -149,8 +163,8 @@ function _drawMetricTreeRecursive(tree, depth, totalDepth) {
     return leaf ? 1 : leafCount;
 }
 
-function getPatchHighlightColor(saturation, lightness){
-    return `hsl(${currentPatch.hue}, ${saturation * 100}%, ${lightness * 100}%)`;
+function getPatchHighlightColor(){
+    return `hsl(${currentPatch.hue}, 100%, 50%)`;
 }
 
 let leafCounter = 0;

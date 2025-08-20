@@ -255,13 +255,9 @@ function populatepresetSelectDropdown(){
 populatepresetSelectDropdown();
 
 function setPresetDropdownFromCurrentPatch(){
-    for (let i = 0; i < presetSelectDropdown.children.length; i++){
-        console.log(presets[i], currentPatch);
-        if (patchBase64(presets[i]) === patchBase64(currentPatch)){
-            console.log("FOUND A MATCH ============================================")
-            presetSelectDropdown.selectedIndex = i;
-            break;
-        }
+    let i = getPatchPresetIdx();
+    if (i >= 0){
+        presetSelectDropdown.selectedIndex = i;
     }
 }
 

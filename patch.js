@@ -118,6 +118,19 @@ function writePatchToUrl(){
     window.history.pushState({ path: refresh }, '', refresh);
 }
 
+/**
+ * returns -1 if the current patch is not a preset, otherwise the index of the preset in the preset list
+ */
+function getPatchPresetIdx(){
+    for (let i = 0; i < presetSelectDropdown.children.length; i++){
+        if (patchBase64(presets[i]) === patchBase64(currentPatch)){
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 function setPatchParam(param, value){
     currentPatch[param] = value;
     writePatchToUrl();

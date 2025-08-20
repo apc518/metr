@@ -1,8 +1,21 @@
 const presets = [
     {
-        name: "Orange Festival (Fizz Inc.)",
+        name: "Default",
         nodeNumberMode: NODE_NUMBER_MODES.leaves,
         hue: 300,
+        leafTempo: 100,
+        accentDownbeat: true,
+        pitchesHighToLow: true,
+        pitchSpread: 1.5,
+        volumeFalloff: 0.5,
+        audioSample: audioSampleOptions[0],
+        numLayersMuted: 0,
+        tree: "4"
+    },
+    {
+        name: "Orange Festival (Fizz Inc.)",
+        nodeNumberMode: NODE_NUMBER_MODES.leaves,
+        hue: 30,
         leafTempo: 320,
         accentDownbeat: true,
         pitchesHighToLow: true,
@@ -15,7 +28,7 @@ const presets = [
     {
         name: "Threshold (sungazer)",
         nodeNumberMode: NODE_NUMBER_MODES.children,
-        hue: 300,
+        hue: 150,
         leafTempo: 33*19,
         accentDownbeat: true,
         pitchesHighToLow: true,
@@ -41,7 +54,7 @@ const presets = [
     {
         name: "Natalie Has Never Tasted Anything Other Than Mustard (Andy Chamberlain)",
         nodeNumberMode: NODE_NUMBER_MODES.leaves,
-        hue: 300,
+        hue: 60,
         leafTempo: 128*4,
         accentDownbeat: true,
         pitchesHighToLow: true,
@@ -54,6 +67,8 @@ const presets = [
 ];
 
 const patches = Array.from(presets, item => deepCopy(item));
+
+const musicSensitiveParams = ["leafTempo", "tree", "numLayersMuted"];
 
 let currentPatch = patches[0];
 
@@ -133,5 +148,10 @@ function getPatchPresetIdx(){
 
 function setPatchParam(param, value){
     currentPatch[param] = value;
+
+    if (getPatchPresetIdx() < 0){
+        presetSelectDropdown.selectedIndex = 0;
+    }
+
     writePatchToUrl();
 }

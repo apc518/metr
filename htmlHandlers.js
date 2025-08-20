@@ -91,7 +91,7 @@ resetBtn.onclick = () => {
 
 const tempoInput = document.getElementById("tempoInput");
 tempoInput.oninput = () => {
-    setPatchParam("leafTempo", tempoInput.value);
+    setPatchParam("leafTempo", tempoInput.valueAsNumber);
     fullRefresh();
 }
 
@@ -105,14 +105,12 @@ function setTempoInputFromCurrentPatch(){
 /////////////////////////////////
 
 const nodeNumberModeDropdown = document.getElementById("nodeNumberModeDropdown");
-let leavesOption = document.createElement('option');
-leavesOption.value = NODE_NUMBER_MODES.leaves;
-leavesOption.innerText = "Leaves";
-nodeNumberModeDropdown.appendChild(leavesOption);
-let childrenOption = document.createElement('option');
-childrenOption.value = NODE_NUMBER_MODES.children;
-childrenOption.innerText = "Children";
-nodeNumberModeDropdown.appendChild(childrenOption);
+for (let item of nodeNumberModeOptions){
+    let leavesOption = document.createElement('option');
+    leavesOption.value = item;
+    leavesOption.innerText = item;
+    nodeNumberModeDropdown.appendChild(leavesOption);
+}
 nodeNumberModeDropdown.oninput = () => {
     setPatchParam("nodeNumberMode", nodeNumberModeDropdown.children[nodeNumberModeDropdown.selectedIndex].value);
     paint();
@@ -144,10 +142,10 @@ pitchesHighToLowCheckbox.oninput = () => {
 const pitchSpreadInput = document.getElementById("pitchSpreadInput");
 const volumeFalloffInput = document.getElementById("volumeFalloffInput");
 pitchSpreadInput.oninput = () => {
-    setPatchParam("pitchSpread", pitchSpreadInput.value);
+    setPatchParam("pitchSpread", pitchSpreadInput.valueAsNumber);
 }
 volumeFalloffInput.oninput = () => {
-    setPatchParam("volumeFalloff", volumeFalloffInput.value);
+    setPatchParam("volumeFalloff", volumeFalloffInput.valueAsNumber);
 }
 
 const audioSampleDropdown = document.getElementById("audioSampleDropdown");
@@ -157,13 +155,16 @@ for (let option of audioSampleOptions){
     elem.innerText = option.displayName;
     audioSampleDropdown.appendChild(elem);
 }
+audioSampleDropdown.oninput = () => {
+    setPatchParam("audioSample", audioSampleOptions[audioSampleDropdown.selectedIndex]);
+}
 
 const numLayersMutedInput = document.getElementById("numLayersMutedInput");
 numLayersMutedInput.oninput = () => {
     if (numLayersMutedInput.value > tree.getDepth()){
         numLayersMutedInput.value = tree.getDepth();
     }
-    setPatchParam("numLayersMuted", numLayersMutedInput.value);
+    setPatchParam("numLayersMuted", numLayersMutedInput.valueAsNumber);
     paint();
 }
 
@@ -232,18 +233,21 @@ hueInput.oninput = () => {
 const presetSelectDropdown = document.getElementById("presetSelectDropdown");
 
 presetSelectDropdown.oninput = () => {
-    for (let i = 0; i < patches.length; i++){
-        if (patches[i].name === presetSelectDropdown.children[presetSelectDropdown.selectedIndex].value){
+    for (let i = 0; i < presets.length; i++){
+        if (presets[i].name === presetSelectDropdown.children[presetSelectDropdown.selectedIndex].value){
             currentPatch = deepCopy(presets[i]);
+            mtsInputPreviousContent = currentPatch.tree;
             fullRefresh();
             break;
         }
     }
+
+    trySelectPreset();
 }
 
 function populatepresetSelectDropdown(){
     presetSelectDropdown.replaceChildren([]);
-    for (let preset of patches){
+    for (let preset of presets){
         let elem = document.createElement("option");
         elem.value = preset.name;
         elem.text = preset.name;
@@ -254,13 +258,18 @@ function populatepresetSelectDropdown(){
 
 populatepresetSelectDropdown();
 
-function setPresetDropdownFromCurrentPatch(){
-    let i = getPatchPresetIdx();
-    if (i >= 0){
-        presetSelectDropdown.selectedIndex = i;
+
+function setPresetDisplayNames(){
+    for (let i = 0; i < presetSelectDropdown.children.length; i++){
+        if (i === presetSelectDropdown.selectedIndex){
+            presetSelectDropdown.children[i].text = "*" + presets[i].name;
+        }
+        else{
+            console.log("heloo")
+            presetSelectDropdown.children[i].text = presets[i].name;
+        }
     }
 }
-
 
 function setPatchUIElementsFromCurrentPatch(){
     setClickSoundSettingsFromCurrentPatch();
@@ -268,7 +277,8 @@ function setPatchUIElementsFromCurrentPatch(){
     setMtsInputFromCurrentPatch();
     setNumberModeInputFromCurrentPatch();
     setTempoInputFromCurrentPatch();
-    setPresetDropdownFromCurrentPatch();
+    setPresetDisplayNames();
+    trySelectPreset();
 }
 
 setPatchUIElementsFromCurrentPatch();

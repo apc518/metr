@@ -175,7 +175,7 @@ function setClickSoundSettingsFromCurrentPatch(){
     numLayersMutedInput.value = currentPatch.numLayersMuted;
 
     for (let i = 0; i < audioSampleDropdown.children.length; i++){
-        if (audioSampleDropdown.children[i].value === currentPatch.audioSample){
+        if (audioSampleDropdown.children[i].value === currentPatch.audioSample.filename){
             audioSampleDropdown.selectedIndex = i;
             break;
         }
@@ -223,20 +223,11 @@ hueInput.oninput = () => {
 }
 
 
-function setPatchUIElementsFromCurrentPatch(){
-    setClickSoundSettingsFromCurrentPatch();
-    setColorInputsFromCurrentPatch();
-    setMtsInputFromCurrentPatch();
-    setNumberModeInputFromCurrentPatch();
-    setTempoInputFromCurrentPatch();
-}
-
-setPatchUIElementsFromCurrentPatch();
 
 
-//////////////////////
+///////////////////////
 //  Preset Selection //
-//////////////////////
+///////////////////////
 
 const presetSelectDropdown = document.getElementById("presetSelectDropdown");
 
@@ -262,3 +253,22 @@ function populatepresetSelectDropdown(){
 }
 
 populatepresetSelectDropdown();
+
+function setPresetDropdownFromCurrentPatch(){
+    let i = getPatchPresetIdx();
+    if (i >= 0){
+        presetSelectDropdown.selectedIndex = i;
+    }
+}
+
+
+function setPatchUIElementsFromCurrentPatch(){
+    setClickSoundSettingsFromCurrentPatch();
+    setColorInputsFromCurrentPatch();
+    setMtsInputFromCurrentPatch();
+    setNumberModeInputFromCurrentPatch();
+    setTempoInputFromCurrentPatch();
+    setPresetDropdownFromCurrentPatch();
+}
+
+setPatchUIElementsFromCurrentPatch();

@@ -1,6 +1,6 @@
 const presets = [
     {
-        name: "Orange Festival",
+        name: "Orange Festival (Fizz Inc.)",
         nodeNumberMode: NODE_NUMBER_MODES.leaves,
         hue: 300,
         leafTempo: 320,
@@ -8,12 +8,12 @@ const presets = [
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[0].filename,
+        audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
         tree: "[3,2*4]"
     },
     {
-        name: "Threshold",
+        name: "Threshold (sungazer)",
         nodeNumberMode: NODE_NUMBER_MODES.children,
         hue: 300,
         leafTempo: 33*19,
@@ -21,12 +21,12 @@ const presets = [
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[0].filename,
+        audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
         tree: "[[6,6,7]*4]"
     },
     {
-        name: "Does She Know",
+        name: "Does She Know (Andy Chamberlain)",
         nodeNumberMode: NODE_NUMBER_MODES.children,
         hue: 300,
         leafTempo: 165*3,
@@ -34,12 +34,12 @@ const presets = [
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[0].filename,
+        audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
         tree: "[3*7]"
     },
     {
-        name: "Natalie Has Never Tasted Anything Other Than Mustard",
+        name: "Natalie Has Never Tasted Anything Other Than Mustard (Andy Chamberlain)",
         nodeNumberMode: NODE_NUMBER_MODES.leaves,
         hue: 300,
         leafTempo: 128*4,
@@ -47,7 +47,7 @@ const presets = [
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[0].filename,
+        audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
         tree: "[7,4,7,4]"
     }
@@ -84,20 +84,37 @@ function convertPatchToList(patch){
         patch.pitchesHighToLow ? 1 : 0,
         patch.pitchSpread,
         patch.volumeFalloff,
-        Array.from(audioSampleOptions, o => o.filename).indexOf(patch.audioSample),
+        Array.from(audioSampleOptions, o => o.filename).indexOf(patch.audioSample.filename),
         patch.numLayersMuted,
         patch.tree
     ];
 }
 
-let urlParts = window.location.toString().split("?p=");
-if (urlParts.length > 1){
-    currentPatch = convertListToPatch(JSON.parse(window.atob(urlParts[1])));
+function getPatchFromURL(){
+    let urlParts = window.location.toString().split("?p=");
+    if (urlParts.length > 1){
+        return convertListToPatch(JSON.parse(window.atob(urlParts[1])));
+    }
+
+    return null;
+}
+
+function setPatchFromURL(){
+    let patch = getPatchFromURL();
+    if (patch){
+        currentPatch = patch;
+    }
+}
+
+setPatchFromURL();
+
+function patchBase64(patch){
+    return window.btoa(JSON.stringify(convertPatchToList(patch)));
 }
 
 function writePatchToUrl(){
     let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname
-                    + `?p=${window.btoa(JSON.stringify(convertPatchToList(currentPatch)))}`;
+                    + `?p=${patchBase64(currentPatch)}`;
     window.history.pushState({ path: refresh }, '', refresh);
 }
 

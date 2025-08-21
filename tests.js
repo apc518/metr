@@ -326,38 +326,53 @@ const GENERIC_TESTS = [
     {
         name: "parseMts single number",
         func: () => {
-            return JSON.stringify(parseMts("14")) === "[[],[],[],[],[],[],[],[],[],[],[],[],[],[]]";
+            return JSON.stringify(parseMts("14")) === "[[[],[],[],[],[],[],[],[],[],[],[],[],[],[]]]";
         }
     },
     {
         name: "parseMts single multiplier",
         func: () => {
-            return JSON.stringify(parseMts("[2*3]")) === "[[[],[]],[[],[]],[[],[]]]";
+            return JSON.stringify(parseMts("2*3")) === "[[[],[]],[[],[]],[[],[]]]";
         }
     },
     {
         name: "parseMts two multipliers",
         func: () => {
-            return JSON.stringify(parseMts("[2*3,3*2]")) === "[[[],[]],[[],[]],[[],[]],[[],[],[]],[[],[],[]]]";
+            return JSON.stringify(parseMts("2*3+3*2")) === "[[[],[]],[[],[]],[[],[]],[[],[],[]],[[],[],[]]]";
         }
     },
     {
         name: "parseMts complex example 1",
         func: () => {
-            return JSON.stringify(parseMts("[[2,3*2]*2,[3,2*2]*3]"))
+            return JSON.stringify(parseMts("[2+3*2]*2+[3+2*2]*3"))
                 === "[[[[],[]],[[],[],[]],[[],[],[]]],[[[],[]],[[],[],[]],[[],[],[]]],[[[],[],[]],[[],[]],[[],[]]],[[[],[],[]],[[],[]],[[],[]]],[[[],[],[]],[[],[]],[[],[]]]]";
         }
     },
     {
         name: "parseMts 12-bar-blues",
         func: () => {
-            return JSON.stringify(parseMts("[[[3*4]*4]*3]")) === JSON.stringify(BLUES_12_BARS);
+            return JSON.stringify(parseMts("[[3*4]*4]*3")) === JSON.stringify(BLUES_12_BARS);
         }
     },
     {
         name: "parseMts zero multiplier",
         func: () => {
-            return JSON.stringify(parseMts("[3,2*0]")) === JSON.stringify([[[],[],[]]]);
+            return JSON.stringify(parseMts("3+2*0")) === JSON.stringify([[[],[],[]]]);
+        }
+    },
+    {
+        name: "MetricTree pre-prune",
+        func: () => {
+            let t = new MetricTree(parseMts("1*4"));
+            return t.getDepth() === 2;
+        }
+    },
+    {
+        name: "MetricTree post-prune",
+        func: () => {
+            let t = new MetricTree(parseMts("1*4"));
+            t.pruneLeaves();
+            return t.getDepth() === 1;
         }
     },
     {

@@ -1,10 +1,10 @@
-const validMtsCharacters = "[]*,0123456789";
+const validMtsCharacters = "[]*+0123456789";
 const digits = "0123456789"
 const maxActualValue = 1e4;
 const minActualValue = 1;
 const inconsistentDepthErrorMessage = "All numbers must be at the same nesting level (same depth)"
 
-function mtsStringProcessAsterisks(s){
+function mtsStringPreprocess(s){
     let newString = s.slice();
     let iterations = 0;
     const ITERATION_LIMIT = 1000;
@@ -32,20 +32,21 @@ function mtsStringProcessAsterisks(s){
     if (iterations >= ITERATION_LIMIT) {
         throw new Error("Too many loops");
     }
-    return newString;
+    return "[" + newString.replaceAll("+", ",") + "]";
 }
 
 function mtsStringIsValid(s){
     if (s.length === 0) return true;
 
     // mark invalid if any illegal characters are present
-    s.split("").forEach(c => {
+    let chars = s.split("")
+    for (let c of chars) {
         if (!validMtsCharacters.includes(c)){
 
             setMtsErrorMessage(`Invalid character \"${c}\"; only \"${validMtsCharacters}\" are allowed.`);
             return false;
         }
-    });
+    }
 
 
     // asterisk pre-processing
@@ -64,14 +65,14 @@ function mtsStringIsValid(s){
     for (let i = 1; i < s.length; i++){
         if (s[i] === "*"){
             if (!(digits.includes(s[i-1]) || s[i-1] === "]")){
-                setMtsErrorMessage(`Any asterisk must follow either a number or a closing square brace but \"${s[i+1]}\" precedes an asterisk.`);
+                setMtsErrorMessage(`Any asterisk must follow either a number or a closing square brace but \"${s[i-1]}\" precedes an asterisk.`);
                 return false;
             }
         }
     }
 
     try{
-        let mtsObject = JSON.parse(mtsStringProcessAsterisks(s));
+        let mtsObject = JSON.parse(mtsStringPreprocess(s));
 
         if (mtsObjectContainsMultipleMultipliersInARow(mtsObject)){
             setMtsErrorMessage("Multiple multipliers in a row are not allowed.");
@@ -212,14 +213,7 @@ function parseMts(s){
         return [];
     }
 
-    let mtsObj = [];
-
-    if (s[0] === "[") {
-        mtsObj = JSON.parse(mtsStringProcessAsterisks(s));
-    }
-    else {
-        mtsObj = s * 1;
-    }
+    let mtsObj = JSON.parse(mtsStringPreprocess(s));
 
     return convertMtsToNestedLists(applyMtsMultipliersRecursive(mtsObj));
 }

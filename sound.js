@@ -72,7 +72,7 @@ function calculateAudioClipSpeed(leaf){
 
 function calculateAudioClipVolume(leaf){
     let soundDepth = tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf);
-    if (!currentPatch.accentDownbeat) soundDepth = Math.max(1, soundDepth);
+    if (!currentPatch.accentDownbeat) soundDepth = Math.max(1, soundDepth) - 1;
     return Math.pow(currentPatch.volumeFalloff, soundDepth);
 }
 

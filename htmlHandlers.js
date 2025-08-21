@@ -12,7 +12,8 @@ mtsInput.oninput = e => {
         for (let i = 0; i < e.data.length; i++){
             if (!(validMtsCharacters.includes(e.data[i]))){
                 mtsInput.value = mtsInputPreviousContent;
-                setMtsErrorMessage(`Input \"${e.data}\" contains invalid characters. Valid characters: \"${validMtsCharacters}\"`);
+                if (e.data !== " ")
+                    setMtsErrorMessage(`Input \"${e.data}\" contains invalid characters. Valid characters: \"${validMtsCharacters}\"`);
                 mtsInput.selectionStart = initialCursorPosition - e.data.length;
                 mtsInput.selectionEnd = initialCursorPosition - e.data.length;
                 return;

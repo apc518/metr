@@ -60,6 +60,7 @@ function fullRefresh(){
     setPatchUIElementsFromCurrentPatch();
     refreshCanvas();
     tree = new MetricTree(parseMts(currentPatch.tree));
+    tree.pruneLeaves();
     totalLeaves = tree.getLeafNodeCount();
     progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
     writePatchToUrl();

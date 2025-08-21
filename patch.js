@@ -10,7 +10,7 @@ const presets = [
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
-        tree: "4"
+        tree: "1*4"
     },
     {
         name: "Orange Festival (Fizz Inc.)",
@@ -23,20 +23,20 @@ const presets = [
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
-        tree: "[3,2*4]"
+        tree: "3+2*4"
     },
     {
         name: "Threshold (sungazer)",
         nodeNumberMode: "Children",
         hue: 150,
         leafTempo: 33*19,
-        accentDownbeat: true,
+        accentDownbeat: false,
         pitchesHighToLow: true,
-        pitchSpread: 1.5,
-        volumeFalloff: 0.5,
+        pitchSpread: 1.333,
+        volumeFalloff: 0.4,
         audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
-        tree: "[[6,6,7]*4]"
+        tree: "[6+6+7]*4"
     },
     {
         name: "Does She Know (Andy Chamberlain)",
@@ -47,9 +47,9 @@ const presets = [
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[2],
+        audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
-        tree: "[3*7]"
+        tree: "3*7"
     },
     {
         name: "Natalie Has Never Tasted Anything Other Than Mustard (Andy Chamberlain)",
@@ -57,12 +57,12 @@ const presets = [
         hue: 60,
         leafTempo: 128*4,
         accentDownbeat: true,
-        pitchesHighToLow: true,
+        pitchesHighToLow: false,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[0],
+        audioSample: audioSampleOptions[3],
         numLayersMuted: 0,
-        tree: "[7,4]"
+        tree: "7+4"
     }
 ];
 

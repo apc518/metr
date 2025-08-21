@@ -71,12 +71,16 @@ class MetricTree {
         return Array.from(this.children, t => t.getLeafNodeCountsAtDepth(depth + 1, targetDepth)).flat(1);
     }
 
-    getChildCountsAtDepth(depth, targetDepth){
+    getChildCountsAtDepth(targetDepth){
+        return this.getChildCountsAtDepthRecursive(0, targetDepth);
+    }
+
+    getChildCountsAtDepthRecursive(depth, targetDepth){
         if (depth + 1 >= targetDepth){
             return Array.from(this.children, t => t.children.length);
         }
 
-        return Array.from(this.children, t => t.getChildCountsAtDepth(depth + 1, targetDepth)).flat(1);
+        return Array.from(this.children, t => t.getChildCountsAtDepthRecursive(depth + 1, targetDepth)).flat(1);
     }
 
     largestPowerOf2ThatEvenlyDividesEverything(ls){
@@ -149,5 +153,30 @@ class MetricTree {
         }
 
         return thisDepth;
+    }
+
+    pruneLeaves(){
+        let leafParentCounts = this.getChildCountsAtDepth(this.getDepth() - 1);
+        let leafParentsAreAllOnes = true;
+        for (let lpc of leafParentCounts){
+            if (lpc !== 1){
+                leafParentsAreAllOnes = false;
+            }
+        }
+
+        if (leafParentsAreAllOnes){
+            this.removeLeaves();
+        }
+    }
+
+    /** Remove all the leaves from the tree, leaving the parents of the old leaves as the new leaves. */
+    removeLeaves(){
+        if (this.getDepth() === 1){
+            this.children = [];
+            return;
+        }
+        else{
+            this.children.forEach(c => c.removeLeaves());
+        }
     }
 }

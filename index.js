@@ -11,12 +11,8 @@ const FRAMERATE = 60;
 
 // other constants
 const SPACE_KEYCODE = 32;
-
-// patch value constants
-const NODE_NUMBER_MODES = {
-    leaves: "leaves",
-    children: "children"
-}
+const Z_KEYCODE = 90;
+const CTRL_KEYCODE = 17;
 
 let p5canvas = null;
 let tree = null;
@@ -60,6 +56,7 @@ function pause_(){
 
 
 function fullRefresh(){
+    setMtsErrorMessage("");
     setPatchUIElementsFromCurrentPatch();
     refreshCanvas();
     tree = new MetricTree(parseMts(currentPatch.tree));
@@ -129,7 +126,7 @@ function _drawMetricTreeRecursive(tree, depth, totalDepth) {
         fill(tree.on ? getPatchHighlightColor() : OFF_COLOR);
         textSize(textSizeValue);
         textAlign(CENTER);
-        let textValue = `${currentPatch.nodeNumberMode === NODE_NUMBER_MODES.leaves ? (leaf ? 1 : leafCount) : (tree.children.length > 0 ? tree.children.length : 1)}`
+        let textValue = `${currentPatch.nodeNumberMode === "Leaves" ? (leaf ? 1 : leafCount) : (tree.children.length > 0 ? tree.children.length : 1)}`
         text(textValue, tree.pos.x, tree.pos.y);
         pop();
     }

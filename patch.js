@@ -1,9 +1,9 @@
 const presets = [
     {
         name: "Default",
-        nodeNumberMode: NODE_NUMBER_MODES.leaves,
+        nodeNumberMode: "Leaves",
         hue: 300,
-        leafTempo: 100,
+        leafTempo: 120,
         accentDownbeat: true,
         pitchesHighToLow: true,
         pitchSpread: 1.5,
@@ -14,7 +14,7 @@ const presets = [
     },
     {
         name: "Orange Festival (Fizz Inc.)",
-        nodeNumberMode: NODE_NUMBER_MODES.leaves,
+        nodeNumberMode: "Leaves",
         hue: 30,
         leafTempo: 320,
         accentDownbeat: true,
@@ -27,7 +27,7 @@ const presets = [
     },
     {
         name: "Threshold (sungazer)",
-        nodeNumberMode: NODE_NUMBER_MODES.children,
+        nodeNumberMode: "Children",
         hue: 150,
         leafTempo: 33*19,
         accentDownbeat: true,
@@ -40,20 +40,20 @@ const presets = [
     },
     {
         name: "Does She Know (Andy Chamberlain)",
-        nodeNumberMode: NODE_NUMBER_MODES.children,
+        nodeNumberMode: "Children",
         hue: 300,
         leafTempo: 165*3,
         accentDownbeat: true,
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[0],
+        audioSample: audioSampleOptions[2],
         numLayersMuted: 0,
         tree: "[3*7]"
     },
     {
         name: "Natalie Has Never Tasted Anything Other Than Mustard (Andy Chamberlain)",
-        nodeNumberMode: NODE_NUMBER_MODES.leaves,
+        nodeNumberMode: "Leaves",
         hue: 60,
         leafTempo: 128*4,
         accentDownbeat: true,
@@ -62,47 +62,86 @@ const presets = [
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
-        tree: "[7,4,7,4]"
+        tree: "[7,4]"
     }
 ];
 
-const patches = Array.from(presets, item => deepCopy(item));
+const nodeNumberModeOptions = [
+    "Leaves",
+    "Children"
+]
 
 const musicSensitiveParams = ["leafTempo", "tree", "numLayersMuted"];
 
-let currentPatch = patches[0];
+let currentPatch = deepCopy(presets[0]);
+
+const patchParams = [
+    {
+        name: "nodeNumberMode",
+        compress: (x) => nodeNumberModeOptions.indexOf(x),
+        decompress: (x) => nodeNumberModeOptions[x]
+    },
+    {
+        name: "hue",
+        compress: (x) => x,
+        decompress: (x) => x
+    },
+    {
+        name: "leafTempo",
+        compress: (x) => x,
+        decompress: (x) => x,
+        musical: true
+    },
+    {
+        name: "accentDownbeat",
+        compress: (x) => x ? 1 : 0,
+        decompress: (x) => !!x
+    },
+    {
+        name: "pitchesHighToLow",
+        compress: (x) => x ? 1 : 0,
+        decompress: (x) => !!x
+    },
+    {
+        name: "pitchSpread",
+        compress: (x) => x,
+        decompress: (x) => x
+    },
+    {
+        name: "volumeFalloff",
+        compress: (x) => x,
+        decompress: (x) => x
+    },
+    {
+        name: "audioSample",
+        compress: (x) => Array.from(audioSampleOptions, o => o.filename).indexOf(x.filename),
+        decompress: (x) => audioSampleOptions[x]
+    },
+    {
+        name: "numLayersMuted",
+        compress: (x) => x,
+        decompress: (x) => x,
+        musical: true
+    },
+    {
+        name: "tree",
+        compress: (x) => x,
+        decompress: (x) => x,
+        musical: true
+    }
+]
 
 function convertListToPatch(ls){
     let patch = {};
-    patch.name = ls[0];
-    patch.nodeNumberMode = ls[1];
-    patch.hue = ls[2];
-    patch.leafTempo = ls[3];
-    patch.accentDownbeat = !!ls[4];
-    patch.pitchesHighToLow = !!ls[5];
-    patch.pitchSpread = ls[6];
-    patch.volumeFalloff = ls[7];
-    patch.audioSample = audioSampleOptions[ls[8]];
-    patch.numLayersMuted = ls[9];
-    patch.tree = ls[10];
+    for (let [i, patchParam] of patchParams.entries()){
+        patch[patchParam.name] = patchParam.decompress(ls[i]);
+    }
 
     return patch;
 }
 
 function convertPatchToList(patch){
-    return [
-        patch.name,
-        patch.nodeNumberMode,
-        patch.hue,
-        patch.leafTempo,
-        patch.accentDownbeat ? 1 : 0,
-        patch.pitchesHighToLow ? 1 : 0,
-        patch.pitchSpread,
-        patch.volumeFalloff,
-        Array.from(audioSampleOptions, o => o.filename).indexOf(patch.audioSample.filename),
-        patch.numLayersMuted,
-        patch.tree
-    ];
+    return Array.from(patchParams, param => param.compress(patch[param.name]));
 }
 
 function getPatchFromURL(){
@@ -133,25 +172,46 @@ function writePatchToUrl(){
     window.history.pushState({ path: refresh }, '', refresh);
 }
 
-/**
- * returns -1 if the current patch is not a preset, otherwise the index of the preset in the preset list
- */
-function getPatchPresetIdx(){
-    for (let i = 0; i < presetSelectDropdown.children.length; i++){
-        if (patchBase64(presets[i]) === patchBase64(currentPatch)){
-            return i;
+function patchEquals(p1, p2){
+    for (let param of patchParams){
+        if (JSON.stringify(p1[param.name]) !== JSON.stringify(p2[param.name])){
+            return false;
         }
     }
 
-    return -1;
+    return true;
+}
+
+function patchEqualsMusical(p1, p2){
+    for (let param of patchParams){
+        if (param.musical && JSON.stringify(p1[param.name]) !== JSON.stringify(p2[param.name])){
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+
+
+/**
+ * selects the preset from the preset dropdown that matches the current patch, if one exists
+ */
+function trySelectPreset(){
+    for (let i = 0; i < presetSelectDropdown.children.length; i++){
+        if (patchEquals(presets[i], currentPatch)){
+            presetSelectDropdown.selectedIndex = i;
+            presetSelectDropdown.children[i].text = presets[i].name;
+            return;
+        }
+    }
+    
+    presetSelectDropdown.children[presetSelectDropdown.selectedIndex].text = "*" + presets[presetSelectDropdown.selectedIndex].name;
 }
 
 function setPatchParam(param, value){
     currentPatch[param] = value;
-
-    if (getPatchPresetIdx() < 0){
-        presetSelectDropdown.selectedIndex = 0;
-    }
-
+    trySelectPreset();
     writePatchToUrl();
 }

@@ -361,6 +361,21 @@ const GENERIC_TESTS = [
         }
     },
     {
+        name: "MetricTree pre-prune",
+        func: () => {
+            let t = new MetricTree(parseMts("1*4"));
+            return t.getDepth() === 2;
+        }
+    },
+    {
+        name: "MetricTree post-prune",
+        func: () => {
+            let t = new MetricTree(parseMts("1*4"));
+            t.pruneLeaves();
+            return t.getDepth() === 1;
+        }
+    },
+    {
         name: "GENERIC_TESTS duplicate names",
         func: () => {
             let dict = {};

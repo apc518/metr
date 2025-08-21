@@ -265,7 +265,6 @@ function setPresetDisplayNames(){
             presetSelectDropdown.children[i].text = "*" + presets[i].name;
         }
         else{
-            console.log("heloo")
             presetSelectDropdown.children[i].text = presets[i].name;
         }
     }

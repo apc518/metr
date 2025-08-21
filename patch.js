@@ -62,7 +62,7 @@ const presets = [
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
-        tree: "[7,4,7,4]"
+        tree: "[7,4]"
     }
 ];
 

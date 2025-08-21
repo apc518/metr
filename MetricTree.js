@@ -155,6 +155,9 @@ class MetricTree {
         return thisDepth;
     }
 
+    /** prune leaves iff all parents of leaf nodes have only one child. 
+     * This does not really affect the defined meter, but helps visually
+     * for trees representing very simple meters like 4/4 */
     pruneLeaves(){
         let leafParentCounts = this.getChildCountsAtDepth(this.getDepth() - 1);
         let leafParentsAreAllOnes = true;

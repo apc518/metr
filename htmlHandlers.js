@@ -48,8 +48,18 @@ function setMtsErrorMessage(s){
     mtsErrorMessage.textContent = s;
 }
 
+const volumeIcon = document.getElementById("volumeIcon");
 const globalVolumeSlider = document.getElementById("globalVolumeSlider");
 globalVolumeSlider.oninput = () => {
+    if (globalVolumeSlider.valueAsNumber > 50){
+        volumeIcon.src = "assets/images/volume_high_white.png";
+    }
+    else if (globalVolumeSlider.valueAsNumber > 0){
+        volumeIcon.src = "assets/images/volume_low_white.png";
+    }
+    else{
+        volumeIcon.src = "assets/images/volume_off_white.png";
+    }
     doVolumeInput();
 }
 
@@ -65,20 +75,23 @@ function convertSliderValueToAmplitude(sliderVal) {
     return val;
 }
 
-function doVolumeInput() {    
-    const val = convertSliderValueToAmplitude(globalVolumeSlider.value);
+function doVolumeInput() {
+    const val = convertSliderValueToAmplitude(globalVolumeSlider.valueAsNumber);
     globalVolume = val;
 }
 
 
 const playPauseBtn = document.getElementById("playPauseBtn");
+const playPauseBtnIcon = document.getElementById("playPauseBtnIcon");
 const resetBtn = document.getElementById("resetBtn");
 
 playPauseBtn.onclick = () => {
+    playPauseBtn.blur();
     playPause();
 }
 
 resetBtn.onclick = () => {
+    resetBtn.blur();
     pause_();
     globalProgress = 0;
     fullRefresh();
@@ -215,10 +228,12 @@ const hueInput = document.getElementById("hueInput");
 
 function setColorInputsFromCurrentPatch(){
     hueInput.value = currentPatch.hue;
+    hueInput.style.accentColor = getPatchHighlightColor();
 }
 
 hueInput.oninput = () => {
     setPatchParam("hue", hueInput.value);
+    hueInput.style.accentColor = getPatchHighlightColor();
     if (!isLooping()) {
         paint();
     }

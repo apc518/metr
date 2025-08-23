@@ -37,21 +37,23 @@ function framesPerCycle(){
 
 // NOTE: if we add functionality to jump around while playing, we should re-call play_() when we do the jumps
 function play_(){
-    // calculate and set time offset based on globalProgress
-    audioCtxTimeOffset = audioCtx.currentTime - globalProgress * cycleDuration();
-
-    if (!isLooping()){
-        scheduleInitialSounds();
-    }
+    createSounds().then(() => {
+        // calculate and set time offset based on globalProgress
+        audioCtxTimeOffset = audioCtx.currentTime - globalProgress * cycleDuration();
     
-    loop();
-    playPauseBtn.textContent = "Pause";
+        if (!isLooping()){
+            scheduleInitialSounds();
+        }
+        
+        loop();
+        playPauseBtnIcon.src = "assets/images/pause.png";
+    });
 }
 
 
 function pause_(){
     noLoop();
-    playPauseBtn.textContent = "Play";
+    playPauseBtnIcon.src = "assets/images/play.png";
 }
 
 
@@ -78,12 +80,7 @@ function setup(){
     frameRate(FRAMERATE);
     fullRefresh();
 
-    Swal.fire({ title: "Welcome to MeTr!", icon: 'info', text: "Click OK to enable audio" })
-    .then(() => {
-        createSounds();
-        globalVolumeSlider.oninput();
-    });
-
+    globalVolumeSlider.oninput();
     
     if (isDevelopmentEnvironment()){
         runTests();

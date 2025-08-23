@@ -12,8 +12,9 @@
 	<div style="display: flex">
 		<div style="flex: 1">
 			<h1>MeTr</h1>
+			<h3>Metric Trees</h3>
 		</div>
-		<div style="flex: 1; margin: auto;">
+		<div style="flex: 2; margin: auto;">
 			<input type="text" id="mtsInput" class="meterTextInput"/>
 			<p id="mtsError" class="errorMessage"></p>
 		</div>
@@ -33,18 +34,24 @@
 			<div class="settingsCategory">
 				<label for="tempoInput" id="tempoInputLabel" class="settingsCategoryLabel">Tempo</label>
 				<br/>
-				<input type="number" id="tempoInput" class="patchDropdown" />
+				<input type="number" id="tempoInput" class="patchBigNumber" />
 			</div>
 			<div class="settingsCategory">
-				<input type="checkbox" id="accentDownbeatCheckbox"/> <label for="accentDownbeatCheckbox" class="settingsCategoryLabel">Accent Downbeat</label>
-				<br/>
-				<input type="checkbox" id="pitchesHighToLowCheckbox"/> <label for="pitchesHighToLowCheckbox" class="settingsCategoryLabel">High to Low Pitches</label>
-				<br/>
-				<input type="number" id="pitchSpreadInput" step="0.1" style="max-width: 3rem;"/> <label for="pitchSpreadInput" class="settingsCategoryLabel">Pitch Ratio</label>
-				<br/>
-				<input type="number" id="volumeFalloffInput" step="0.1" style="max-width: 3rem;"/> <label for="volumeFalloffInput" class="settingsCategoryLabel">Volume Falloff</label>
-				<br/>
-				<input type="number" id="numLayersMutedInput" step="1" min="0" style="max-width: 3rem;"/> <label for="numLayersMutedInput" class="settingsCategoryLabel">Muted Layers</label>
+				<div class="patchSettingRow">
+					<input type="checkbox" id="accentDownbeatCheckbox" /> <label for="accentDownbeatCheckbox" class="settingsCategoryLabel">Accent Downbeat</label>
+				</div>
+				<div class="patchSettingRow">
+					<input type="checkbox" id="pitchesHighToLowCheckbox" /> <label for="pitchesHighToLowCheckbox" class="settingsCategoryLabel">High to Low Pitches</label>
+				</div>
+				<div class="patchSettingRow">
+					<input type="number" id="pitchSpreadInput" class="patchSmallNumber" step="0.1" /> <label for="pitchSpreadInput" class="settingsCategoryLabel">Pitch Ratio</label>
+				</div>
+				<div class="patchSettingRow">
+					<input type="number" id="volumeFalloffInput" class="patchSmallNumber" step="0.1" /> <label for="volumeFalloffInput" class="settingsCategoryLabel">Volume Falloff</label>
+				</div>
+				<div class="patchSettingRow">
+					<input type="number" id="numLayersMutedInput" class="patchSmallNumber" step="1" min="0" /> <label for="numLayersMutedInput" class="settingsCategoryLabel">Muted Layers</label>
+				</div>
 			</div>
 			<div id="audioSampleSettings" class="settingsCategory">
 				<label for="audioSampleDropdown" class="settingsCategoryLabel">Audio Sample</label>
@@ -65,20 +72,17 @@
 					<input id="hueInput" class="slider" type="range" min="0" max="360" />
 				</div>
 			</div>
-			<div class="appDrawerDivider"></div>
-			<br/>
-			<div id="volumeSliderContainer" class="settingsCategory">
-				<label for="globalVolumeSlider" id="volumeSliderLabel" class="settingsCategoryLabel">Volume</label>
-				<br/>
-				<input type="range" min="0" max="100" id="globalVolumeSlider" class="slider"/> <br/>
-			</div>
 		</div>
 		<div>
 			<div id="p5canvas"></div>
 			<div id="bottomControlBar">
 				<div class="playback-control-bar">
-					<button id="playPauseBtn" class="playbar-button">Play</button>
-					<button id="resetBtn" class="playbar-button">Reset</button>
+					<button id="playPauseBtn" class="playbar-button"><img id="playPauseBtnIcon" src="assets/images/play.png" class="playbar-button-icon"/></button>
+					<button id="resetBtn" class="playbar-button"><img src="assets/images/stop.png" class="playbar-button-icon"/></button>
+					<div id="volumeSliderContainer">
+						<img id="volumeIcon" src="assets/images/volume_high_white.png">
+						<input type="range" min="0" max="100" id="globalVolumeSlider" class="slider"/>
+					</div>
 				</div>
 			</div>
 		</div>

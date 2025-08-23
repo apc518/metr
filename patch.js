@@ -144,10 +144,19 @@ function convertPatchToList(patch){
     return Array.from(patchParams, param => param.compress(patch[param.name]));
 }
 
-function getPatchFromURL(){
+function getPatchBase64FromURL(){
     let urlParts = window.location.toString().split("?p=");
     if (urlParts.length > 1){
-        return convertListToPatch(JSON.parse(window.atob(urlParts[1])));
+        return urlParts[1];
+    }
+
+    return "";
+}
+
+function getPatchFromURL(){
+    let base64String = getPatchBase64FromURL();
+    if (base64String.length > 1){
+        return convertListToPatch(JSON.parse(window.atob(base64String)));
     }
 
     return null;
@@ -167,9 +176,12 @@ function patchBase64(patch){
 }
 
 function writePatchToUrl(){
-    let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname
-                    + `?p=${patchBase64(currentPatch)}`;
-    window.history.pushState({ path: refresh }, '', refresh);
+    const newBase64 = patchBase64(currentPatch);
+    if (newBase64 !== getPatchBase64FromURL()){
+        let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname
+                        + `?p=${patchBase64(currentPatch)}`;
+        window.history.pushState({ path: refresh }, '', refresh);
+    }
 }
 
 function patchEquals(p1, p2){
@@ -213,5 +225,4 @@ function trySelectPreset(){
 function setPatchParam(param, value){
     currentPatch[param] = value;
     trySelectPreset();
-    writePatchToUrl();
 }

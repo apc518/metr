@@ -65,7 +65,6 @@ function fullRefresh(){
     tree.pruneLeaves();
     totalLeaves = tree.getLeafNodeCount();
     progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);
-    writePatchToUrl();
     if (isLooping()) play_();
     paint();
 }
@@ -81,6 +80,8 @@ function setup(){
     fullRefresh();
 
     globalVolumeSlider.oninput();
+
+    setInterval(writePatchToUrl, 100);
     
     if (isDevelopmentEnvironment()){
         runTests();

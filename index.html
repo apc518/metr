@@ -61,16 +61,23 @@
 			<div class="appDrawerDivider"></div>
 			<br/>
 			<div class="settingsCategory">
-				<label for="nodeNumberModeDropdown" id="nodeNumberModeDropdownLabel" class="settingsCategoryLabel">Node Number Mode</label>
+				<label for="nodeNumberModeDropdown" id="nodeNumberModeDropdownLabel" class="settingsCategoryLabel">Node Numbers</label>
 				<br/>
-				<select id="nodeNumberModeDropdown" class="patchDropdown"></select>
+				<!-- <select id="nodeNumberModeDropdown" class="patchDropdown"></select> -->
+				<div id="nodeNumberModeSelectorContainer">
+					<div class="nodeNumberModeOption" id="nodeNumberModeLeaves" style="flex: 1;">Leaves</div>
+					<div class="nodeNumberModeOption" id="nodeNumberModeChildren" style="flex: 1;">Children</div>
+				</div>
 			</div>
 			<div class="settingsCategory">
-				<div style="text-align: left; line-height: 1rem;">
-					<label for="hueInput" class="settingsCategoryLabel">Highlight Hue</label>
-					<br/>
-					<input id="hueInput" class="slider" type="range" min="0" max="360" />
-				</div>
+				<details style="text-align: left; line-height: 1rem;">
+					<summary>Hightlight Hue</summary>
+					<!-- <label for="hueInput" class="settingsCategoryLabel">Highlight Hue</label> -->
+					<div id="hueInput">
+						<div id="hueInputCursor"></div>
+					</div>
+					<!-- <input id="hueInput" class="slider" type="range" min="0" max="360" /> -->
+				</details>
 			</div>
 		</div>
 		<div>

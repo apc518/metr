@@ -4,16 +4,20 @@ const audioSampleOptions = [
         displayName: "Pitched Blip"
     },
     {
-        filename: "Fracture Rim 03.wav",
-        displayName: "Short Click"
-    },
-    {
-        filename: "HouseGen Rim 07.wav",
-        displayName: "Hybrid Click-Blip"
+        filename: "minimal click.wav",
+        displayName: "Minimal Click"
     },
     {
         filename: "Fracture Rim 01.wav",
         displayName: "Loud Rim"
+    },
+    {
+        filename: "Grv CH 05.wav",
+        displayName: "Hi-Hat"
+    },
+    {
+        filename: "custom-cowbell.wav",
+        displayName: "Cowbell"
     }
 ];
 
@@ -44,6 +48,7 @@ async function createSounds(){
             clipList.push(new Clip(decodedData, opt.displayName));
         }
         catch(e){
+            console.log("error:", opt);
             console.error(e);
         }
     }

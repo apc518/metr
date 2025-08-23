@@ -22,6 +22,8 @@ let currentSoundIndex = 0;
 let audioCtx = null;
 
 async function createSounds(){
+    if (audioCtx) return;
+
     audioCtx = new AudioContext();
 
     // clear clip list

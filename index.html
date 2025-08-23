@@ -62,21 +62,23 @@
 			<br/>
 			<div class="settingsCategory">
 				<label for="nodeNumberModeDropdown" id="nodeNumberModeDropdownLabel" class="settingsCategoryLabel">Node Numbers</label>
-				<br/>
-				<!-- <select id="nodeNumberModeDropdown" class="patchDropdown"></select> -->
 				<div id="nodeNumberModeSelectorContainer">
-					<div class="nodeNumberModeOption" id="nodeNumberModeLeaves" style="flex: 1;">Leaves</div>
-					<div class="nodeNumberModeOption" id="nodeNumberModeChildren" style="flex: 1;">Children</div>
+					<div class="nodeNumberModeOption" id="nodeNumberModeLeaves" style="flex: 1;">
+						<div>
+							Leaves
+						</div>
+					</div>
+					<div class="nodeNumberModeOption" id="nodeNumberModeChildren" style="flex: 1;">
+						Children
+					</div>
 				</div>
 			</div>
 			<div class="settingsCategory">
-				<details style="text-align: left; line-height: 1rem;">
+				<details style="text-align: left; line-height: 1rem; user-select: none;" open>
 					<summary>Hightlight Hue</summary>
-					<!-- <label for="hueInput" class="settingsCategoryLabel">Highlight Hue</label> -->
 					<div id="hueInput">
 						<div id="hueInputCursor"></div>
 					</div>
-					<!-- <input id="hueInput" class="slider" type="range" min="0" max="360" /> -->
 				</details>
 			</div>
 		</div>

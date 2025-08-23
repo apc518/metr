@@ -207,17 +207,34 @@ input[type="checkbox"]{
 
 #nodeNumberModeSelectorContainer{
 	display: flex;
+	font-size: 1.1rem;
+	height: 2rem;
 }
 
 .nodeNumberModeOption{
 	background-color: #111;
 	user-select: none;
 	color: #aaa;
+	line-height: 180%;
 }
 
 .nodeNumberModeOption:hover{
+	filter:invert(10%);
+}
+
+.nodeNumberModeOptionSelected{
 	color: white;
-	background-color: blue;
+	background-color: #11f;
+}
+
+#nodeNumberModeLeaves{
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+
+#nodeNumberModeChildren{
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
 }
 
 #hueInput{
@@ -228,12 +245,14 @@ input[type="checkbox"]{
 	background-image: linear-gradient(in hsl to right, hsl(0,100%,50%), hsl(180,100%,50%), hsl(359,100%,50%));
 	display: flex;
 	place-items: center;
+	border-radius: 4px;
 }
 
 #hueInputCursor{
 	width: 3px;
 	height: 100%;
 	border: solid white 1px;
+	border-radius: 4px;
 }
 
 #hueInputCursor:hover{

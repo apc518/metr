@@ -118,25 +118,32 @@ function setTempoInputFromCurrentPatch(){
 //  NODE NUMBER MODE SETTING   //
 /////////////////////////////////
 
-// const nodeNumberModeDropdown = document.getElementById("nodeNumberModeDropdown");
-// for (let item of nodeNumberModeOptions){
-//     let leavesOption = document.createElement('option');
-//     leavesOption.value = item;
-//     leavesOption.innerText = item;
-//     nodeNumberModeDropdown.appendChild(leavesOption);
-// }
-// nodeNumberModeDropdown.oninput = () => {
-//     setPatchParam("nodeNumberMode", nodeNumberModeDropdown.children[nodeNumberModeDropdown.selectedIndex].value);
-//     paint();
-// }
+const nodeNumberModeLeaves = document.getElementById("nodeNumberModeLeaves");
+const nodeNumberModeChildren = document.getElementById("nodeNumberModeChildren");
+
+nodeNumberModeLeaves.onclick = () => {
+    nodeNumberModeLeaves.className = "nodeNumberModeOption nodeNumberModeOptionSelected";
+    nodeNumberModeChildren.className = "nodeNumberModeOption";
+    setPatchParam("nodeNumberMode", "Leaves");
+    if(p5canvas)
+        paint();
+}
+
+nodeNumberModeChildren.onclick = () => {
+    nodeNumberModeChildren.className = "nodeNumberModeOption nodeNumberModeOptionSelected";
+    nodeNumberModeLeaves.className = "nodeNumberModeOption";
+    setPatchParam("nodeNumberMode", "Children");
+    if (p5canvas)
+        paint();
+}
 
 function setNumberModeInputFromCurrentPatch(){
-    // for (let i = 0; i < nodeNumberModeDropdown.children.length; i++){
-    //     if (nodeNumberModeDropdown.children[i].value === currentPatch.nodeNumberMode){
-    //         nodeNumberModeDropdown.selectedIndex = i;
-    //         break;
-    //     }
-    // }
+    if (currentPatch.nodeNumberMode === "Leaves"){
+        nodeNumberModeLeaves.onclick();
+    }
+    else{
+        nodeNumberModeChildren.onclick();
+    }
 }
 
 
@@ -235,7 +242,7 @@ hueInput.onclick = e => {
 function changeHue(e){
     const hueInputX = hueInput.getBoundingClientRect().x;
     const hueInputWidth = hueInput.getBoundingClientRect().width;
-    hueInputCursor.style.marginLeft = `${e.clientX - hueInputX}px`;
+    hueInputCursor.style.marginLeft = `${Math.min(hueInputWidth, e.clientX - hueInputX)}px`;
     setPatchParam("hue", Math.round(360 * (e.clientX - hueInputX) / hueInputWidth));
     if (!isLooping()) {
         paint();

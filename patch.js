@@ -8,7 +8,7 @@ const presets = [
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[0],
+        audioSample: audioSampleOptions[4],
         numLayersMuted: 0,
         tree: "1*4"
     },
@@ -31,10 +31,10 @@ const presets = [
         hue: 150,
         leafTempo: 33*19,
         accentDownbeat: false,
-        pitchesHighToLow: true,
-        pitchSpread: 1.333,
-        volumeFalloff: 0.4,
-        audioSample: audioSampleOptions[0],
+        pitchesHighToLow: false,
+        pitchSpread: 1.3,
+        volumeFalloff: 0.5,
+        audioSample: audioSampleOptions[3],
         numLayersMuted: 0,
         tree: "[6+6+7]*4"
     },
@@ -47,7 +47,7 @@ const presets = [
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[0],
+        audioSample: audioSampleOptions[1],
         numLayersMuted: 0,
         tree: "3*7"
     },
@@ -60,7 +60,7 @@ const presets = [
         pitchesHighToLow: false,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[3],
+        audioSample: audioSampleOptions[2],
         numLayersMuted: 0,
         tree: "7+4"
     }
@@ -215,6 +215,14 @@ function trySelectPreset(){
         if (patchEquals(presets[i], currentPatch)){
             presetSelectDropdown.selectedIndex = i;
             presetSelectDropdown.children[i].text = presets[i].name;
+            return;
+        }
+    }
+
+    for (let i = 0; i < presets.length; i++){
+        if (currentPatch.tree === presets[i].tree && currentPatch.leafTempo === presets[i].leafTempo){
+            presetSelectDropdown.children[i].text = "*" + presets[i].name;
+            presetSelectDropdown.selectedIndex = i;
             return;
         }
     }

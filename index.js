@@ -11,6 +11,7 @@ const FRAMERATE = 60;
 
 // other constants
 const SPACE_KEYCODE = 32;
+const F_KEYCODE = 70;
 const Z_KEYCODE = 90;
 const CTRL_KEYCODE = 17;
 
@@ -70,7 +71,12 @@ function fullRefresh(){
 
 function refreshCanvas(){
     p5canvas = createCanvas(canvasWidth, canvasHeight);
-    p5canvas.parent(document.getElementById("p5canvas"));
+    if (mainDiv.hidden){
+        p5canvas.parent(document.body);
+    }
+    else{
+        p5canvas.parent(document.getElementById("p5canvas"));
+    }
 }
 
 function setup(){
@@ -217,9 +223,12 @@ function draw() {
     globalProgress += progressIncrement;
 }
 
-function keyPressed(e){
+function keyPressed(){
     if (keyCode === SPACE_KEYCODE){
         playPause();
+    }
+    if (keyCode === F_KEYCODE){
+        toggleFullscreen();
     }
 }
 

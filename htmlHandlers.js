@@ -2,6 +2,8 @@ const textFieldErrorColor = "#f88";
 const textFieldOkayColor = "#fff";
 
 
+const mainDiv = document.getElementById("main");
+
 
 //////////////////
 //  MTS INPUT   //
@@ -173,7 +175,6 @@ function calculateDisplayTempo(){
 }
 
 function setTempoInputFromCurrentPatch(){
-    console.log("hello there", calculateDisplayTempo());
     tempoInput.value = calculateDisplayTempo();
 }
 
@@ -323,6 +324,22 @@ function changeHue(e){
 //  PLAYBACK CONTROLS  //
 /////////////////////////
 
+const playPauseBtn = document.getElementById("playPauseBtn");
+const playPauseBtnIcon = document.getElementById("playPauseBtnIcon");
+const resetBtn = document.getElementById("resetBtn");
+
+playPauseBtn.onclick = () => {
+    playPauseBtn.blur();
+    playPause();
+}
+
+resetBtn.onclick = () => {
+    resetBtn.blur();
+    pause_();
+    globalProgress = 0;
+    fullRefresh();
+}
+
 const volumeIcon = document.getElementById("volumeIcon");
 const globalVolumeSlider = document.getElementById("globalVolumeSlider");
 globalVolumeSlider.oninput = () => {
@@ -355,21 +372,21 @@ function doVolumeInput() {
     globalVolume = val;
 }
 
-
-const playPauseBtn = document.getElementById("playPauseBtn");
-const playPauseBtnIcon = document.getElementById("playPauseBtnIcon");
-const resetBtn = document.getElementById("resetBtn");
-
-playPauseBtn.onclick = () => {
-    playPauseBtn.blur();
-    playPause();
-}
-
-resetBtn.onclick = () => {
-    resetBtn.blur();
-    pause_();
-    globalProgress = 0;
-    fullRefresh();
+function toggleFullscreen(){
+    if (mainDiv.hidden){
+        mainDiv.hidden = false;
+        canvasHeight = CANVAS_HEIGHT_DEFAULT;
+        windowResized();
+        refreshCanvas();
+        paint();
+    }
+    else {
+        mainDiv.hidden = true;
+        canvasWidth = document.body.getBoundingClientRect().width;
+        canvasHeight = window.innerHeight;
+        refreshCanvas();
+        paint();
+    }
 }
 
 

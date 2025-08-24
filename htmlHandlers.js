@@ -1,6 +1,11 @@
 const textFieldErrorColor = "#f88";
 const textFieldOkayColor = "#fff";
 
+
+//////////////////
+//  MTS INPUT   //
+//////////////////
+
 const mtsInput = document.getElementById("mtsInput");
 const mtsErrorMessage = document.getElementById("mtsError");
 
@@ -48,53 +53,50 @@ function setMtsErrorMessage(s){
     mtsErrorMessage.textContent = s;
 }
 
-const volumeIcon = document.getElementById("volumeIcon");
-const globalVolumeSlider = document.getElementById("globalVolumeSlider");
-globalVolumeSlider.oninput = () => {
-    if (globalVolumeSlider.valueAsNumber > 50){
-        volumeIcon.src = "assets/images/volume_high_white.png";
+
+
+///////////////////////
+//  Preset Selection //
+///////////////////////
+
+const presetSelectDropdown = document.getElementById("presetSelectDropdown");
+
+presetSelectDropdown.oninput = () => {
+    for (let i = 0; i < presets.length; i++){
+        if (presets[i].name === presetSelectDropdown.children[presetSelectDropdown.selectedIndex].value){
+            currentPatch = deepCopy(presets[i]);
+            mtsInputPreviousContent = currentPatch.tree;
+            fullRefresh();
+            break;
+        }
     }
-    else if (globalVolumeSlider.valueAsNumber > 0){
-        volumeIcon.src = "assets/images/volume_low_white.png";
+
+    trySelectPreset();
+}
+
+function populatepresetSelectDropdown(){
+    presetSelectDropdown.replaceChildren([]);
+    for (let preset of presets){
+        let elem = document.createElement("option");
+        elem.value = preset.name;
+        elem.text = preset.name;
+
+        presetSelectDropdown.appendChild(elem);
     }
-    else{
-        volumeIcon.src = "assets/images/volume_off_white.png";
+}
+
+populatepresetSelectDropdown();
+
+
+function setPresetDisplayNames(){
+    for (let i = 0; i < presetSelectDropdown.children.length; i++){
+        if (i === presetSelectDropdown.selectedIndex){
+            presetSelectDropdown.children[i].text = "*" + presets[i].name;
+        }
+        else{
+            presetSelectDropdown.children[i].text = presets[i].name;
+        }
     }
-    doVolumeInput();
-}
-
-const logb = (base, x) => {
-    return Math.log(x) / Math.log(base);
-}
-
-function convertSliderValueToAmplitude(sliderVal) {
-    // use exponential scale to go from 0 to 1 so the volume slider feels more natural
-    const tension = 10; // how extreme the curve is (higher = more extreme, slower start faster end)
-    const n = 1 / (1 - logb(1 / tension, 1 + (1 / tension)));         
-    const val = Math.pow(1 / tension, 1 - ((sliderVal * 1.25) / 100) / n) - 1 / tension;
-    return val;
-}
-
-function doVolumeInput() {
-    const val = convertSliderValueToAmplitude(globalVolumeSlider.valueAsNumber);
-    globalVolume = val;
-}
-
-
-const playPauseBtn = document.getElementById("playPauseBtn");
-const playPauseBtnIcon = document.getElementById("playPauseBtnIcon");
-const resetBtn = document.getElementById("resetBtn");
-
-playPauseBtn.onclick = () => {
-    playPauseBtn.blur();
-    playPause();
-}
-
-resetBtn.onclick = () => {
-    resetBtn.blur();
-    pause_();
-    globalProgress = 0;
-    fullRefresh();
 }
 
 
@@ -113,38 +115,6 @@ function setTempoInputFromCurrentPatch(){
     tempoInput.value = currentPatch.leafTempo;
 }
 
-
-/////////////////////////////////
-//  NODE NUMBER MODE SETTING   //
-/////////////////////////////////
-
-const nodeNumberModeLeaves = document.getElementById("nodeNumberModeLeaves");
-const nodeNumberModeChildren = document.getElementById("nodeNumberModeChildren");
-
-nodeNumberModeLeaves.onclick = () => {
-    nodeNumberModeLeaves.className = "nodeNumberModeOption nodeNumberModeOptionSelected";
-    nodeNumberModeChildren.className = "nodeNumberModeOption";
-    setPatchParam("nodeNumberMode", "Leaves");
-    if(p5canvas)
-        paint();
-}
-
-nodeNumberModeChildren.onclick = () => {
-    nodeNumberModeChildren.className = "nodeNumberModeOption nodeNumberModeOptionSelected";
-    nodeNumberModeLeaves.className = "nodeNumberModeOption";
-    setPatchParam("nodeNumberMode", "Children");
-    if (p5canvas)
-        paint();
-}
-
-function setNumberModeInputFromCurrentPatch(){
-    if (currentPatch.nodeNumberMode === "Leaves"){
-        nodeNumberModeLeaves.onclick();
-    }
-    else{
-        nodeNumberModeChildren.onclick();
-    }
-}
 
 
 /////////////////////////////
@@ -206,6 +176,40 @@ function setClickSoundSettingsFromCurrentPatch(){
 
 
 
+/////////////////////////////////
+//  NODE NUMBER MODE SETTING   //
+/////////////////////////////////
+
+const nodeNumberModeLeaves = document.getElementById("nodeNumberModeLeaves");
+const nodeNumberModeChildren = document.getElementById("nodeNumberModeChildren");
+
+nodeNumberModeLeaves.onclick = () => {
+    nodeNumberModeLeaves.className = "nodeNumberModeOption nodeNumberModeOptionSelected";
+    nodeNumberModeChildren.className = "nodeNumberModeOption";
+    setPatchParam("nodeNumberMode", "Leaves");
+    if(p5canvas)
+        paint();
+}
+
+nodeNumberModeChildren.onclick = () => {
+    nodeNumberModeChildren.className = "nodeNumberModeOption nodeNumberModeOptionSelected";
+    nodeNumberModeLeaves.className = "nodeNumberModeOption";
+    setPatchParam("nodeNumberMode", "Children");
+    if (p5canvas)
+        paint();
+}
+
+function setNumberModeInputFromCurrentPatch(){
+    if (currentPatch.nodeNumberMode === "Leaves"){
+        nodeNumberModeLeaves.onclick();
+    }
+    else{
+        nodeNumberModeChildren.onclick();
+    }
+}
+
+
+
 //////////////
 //  COLOR   //
 //////////////
@@ -251,50 +255,64 @@ function changeHue(e){
 
 
 
+/////////////////////////
+//  PLAYBACK CONTROLS  //
+/////////////////////////
 
-///////////////////////
-//  Preset Selection //
-///////////////////////
-
-const presetSelectDropdown = document.getElementById("presetSelectDropdown");
-
-presetSelectDropdown.oninput = () => {
-    for (let i = 0; i < presets.length; i++){
-        if (presets[i].name === presetSelectDropdown.children[presetSelectDropdown.selectedIndex].value){
-            currentPatch = deepCopy(presets[i]);
-            mtsInputPreviousContent = currentPatch.tree;
-            fullRefresh();
-            break;
-        }
+const volumeIcon = document.getElementById("volumeIcon");
+const globalVolumeSlider = document.getElementById("globalVolumeSlider");
+globalVolumeSlider.oninput = () => {
+    if (globalVolumeSlider.valueAsNumber > 50){
+        volumeIcon.src = "assets/images/volume_high_white.png";
     }
-
-    trySelectPreset();
+    else if (globalVolumeSlider.valueAsNumber > 0){
+        volumeIcon.src = "assets/images/volume_low_white.png";
+    }
+    else{
+        volumeIcon.src = "assets/images/volume_off_white.png";
+    }
+    doVolumeInput();
 }
 
-function populatepresetSelectDropdown(){
-    presetSelectDropdown.replaceChildren([]);
-    for (let preset of presets){
-        let elem = document.createElement("option");
-        elem.value = preset.name;
-        elem.text = preset.name;
-
-        presetSelectDropdown.appendChild(elem);
-    }
+const logb = (base, x) => {
+    return Math.log(x) / Math.log(base);
 }
 
-populatepresetSelectDropdown();
-
-
-function setPresetDisplayNames(){
-    for (let i = 0; i < presetSelectDropdown.children.length; i++){
-        if (i === presetSelectDropdown.selectedIndex){
-            presetSelectDropdown.children[i].text = "*" + presets[i].name;
-        }
-        else{
-            presetSelectDropdown.children[i].text = presets[i].name;
-        }
-    }
+function convertSliderValueToAmplitude(sliderVal) {
+    // use exponential scale to go from 0 to 1 so the volume slider feels more natural
+    const tension = 10; // how extreme the curve is (higher = more extreme, slower start faster end)
+    const n = 1 / (1 - logb(1 / tension, 1 + (1 / tension)));         
+    const val = Math.pow(1 / tension, 1 - ((sliderVal * 1.25) / 100) / n) - 1 / tension;
+    return val;
 }
+
+function doVolumeInput() {
+    const val = convertSliderValueToAmplitude(globalVolumeSlider.valueAsNumber);
+    globalVolume = val;
+}
+
+
+const playPauseBtn = document.getElementById("playPauseBtn");
+const playPauseBtnIcon = document.getElementById("playPauseBtnIcon");
+const resetBtn = document.getElementById("resetBtn");
+
+playPauseBtn.onclick = () => {
+    playPauseBtn.blur();
+    playPause();
+}
+
+resetBtn.onclick = () => {
+    resetBtn.blur();
+    pause_();
+    globalProgress = 0;
+    fullRefresh();
+}
+
+
+
+/////////////////////////
+//  SET EVERYTHING UP  //
+/////////////////////////
 
 function setPatchUIElementsFromCurrentPatch(){
     setClickSoundSettingsFromCurrentPatch();

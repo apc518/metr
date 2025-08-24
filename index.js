@@ -82,6 +82,11 @@ function setup(){
     globalVolumeSlider.oninput();
 
     setInterval(writePatchToUrl, 100);
+
+    window.addEventListener("popstate", () => {
+        setPatchFromURL();
+        fullRefresh();
+    });
     
     if (isDevelopmentEnvironment()){
         runTests();

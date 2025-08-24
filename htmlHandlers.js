@@ -127,6 +127,7 @@ function setLeafTempoBasedOnDisplayTempo(){
 
 displayTempoDropdown.oninput = () => {
     setPatchParam("displayTempoMode", displayTempoOptions[displayTempoDropdown.selectedIndex]);
+    setLeafTempoBasedOnDisplayTempo();
     fullRefresh();
 }
 

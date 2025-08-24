@@ -1,33 +1,46 @@
+const nodeNumberModeOptions = [
+    "Leaves",
+    "Children"
+];
+
+const displayTempoOptions = [
+    "Leaves",
+    "Smallest Beat",
+    "Largest Beat"
+];
+
 const presets = [
     {
         name: "Default",
-        nodeNumberMode: "Leaves",
+        nodeNumberMode: nodeNumberModeOptions[0],
         hue: 300,
         leafTempo: 120,
         accentDownbeat: true,
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[4],
+        audioSample: audioSampleOptions[1],
         numLayersMuted: 0,
-        tree: "1*4"
+        mts: "1*4",
+        displayTempoMode: displayTempoOptions[0]
     },
     {
         name: "Orange Festival (Fizz Inc.)",
-        nodeNumberMode: "Leaves",
+        nodeNumberMode: nodeNumberModeOptions[0],
         hue: 30,
-        leafTempo: 320,
+        leafTempo: 160*2,
         accentDownbeat: true,
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
-        tree: "3+2*4"
+        mts: "3+2*4",
+        displayTempoMode: displayTempoOptions[0]
     },
     {
         name: "Threshold (sungazer)",
-        nodeNumberMode: "Children",
+        nodeNumberMode: nodeNumberModeOptions[1],
         hue: 150,
         leafTempo: 33*19,
         accentDownbeat: false,
@@ -36,24 +49,26 @@ const presets = [
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[3],
         numLayersMuted: 0,
-        tree: "[6+6+7]*4"
+        mts: "[6+6+7]*4",
+        displayTempoMode: displayTempoOptions[1]
     },
     {
         name: "Does She Know (Andy Chamberlain)",
-        nodeNumberMode: "Children",
+        nodeNumberMode: nodeNumberModeOptions[1],
         hue: 300,
         leafTempo: 165*3,
         accentDownbeat: true,
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[1],
+        audioSample: audioSampleOptions[4],
         numLayersMuted: 0,
-        tree: "3*7"
+        mts: "3*7",
+        displayTempoMode: displayTempoOptions[2]
     },
     {
         name: "Natalie Has Never Tasted Anything Other Than Mustard (Andy Chamberlain)",
-        nodeNumberMode: "Leaves",
+        nodeNumberMode: nodeNumberModeOptions[0],
         hue: 60,
         leafTempo: 128*4,
         accentDownbeat: true,
@@ -62,14 +77,10 @@ const presets = [
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[2],
         numLayersMuted: 0,
-        tree: "7+4"
+        mts: "7+4",
+        displayTempoMode: displayTempoOptions[0]
     }
 ];
-
-const nodeNumberModeOptions = [
-    "Leaves",
-    "Children"
-]
 
 const musicSensitiveParams = ["leafTempo", "tree", "numLayersMuted"];
 
@@ -78,56 +89,61 @@ let currentPatch = deepCopy(presets[0]);
 const patchParams = [
     {
         name: "nodeNumberMode",
-        compress: (x) => nodeNumberModeOptions.indexOf(x),
-        decompress: (x) => nodeNumberModeOptions[x]
+        compress: x => nodeNumberModeOptions.indexOf(x),
+        decompress: x => nodeNumberModeOptions[x]
     },
     {
         name: "hue",
-        compress: (x) => x,
-        decompress: (x) => x
+        compress: x => x,
+        decompress: x => x
     },
     {
         name: "leafTempo",
-        compress: (x) => x,
-        decompress: (x) => x,
+        compress: x => x,
+        decompress: x => x,
         musical: true
     },
     {
         name: "accentDownbeat",
-        compress: (x) => x ? 1 : 0,
-        decompress: (x) => !!x
+        compress: x => x ? 1 : 0,
+        decompress: x => !!x
     },
     {
         name: "pitchesHighToLow",
-        compress: (x) => x ? 1 : 0,
-        decompress: (x) => !!x
+        compress: x => x ? 1 : 0,
+        decompress: x => !!x
     },
     {
         name: "pitchSpread",
-        compress: (x) => x,
-        decompress: (x) => x
+        compress: x => x,
+        decompress: x => x
     },
     {
         name: "volumeFalloff",
-        compress: (x) => x,
-        decompress: (x) => x
+        compress: x => x,
+        decompress: x => x
     },
     {
         name: "audioSample",
-        compress: (x) => Array.from(audioSampleOptions, o => o.filename).indexOf(x.filename),
-        decompress: (x) => audioSampleOptions[x]
+        compress: x => Array.from(audioSampleOptions, o => o.filename).indexOf(x.filename),
+        decompress: x => audioSampleOptions[x]
     },
     {
         name: "numLayersMuted",
-        compress: (x) => x,
-        decompress: (x) => x,
+        compress: x => x,
+        decompress: x => x,
         musical: true
     },
     {
-        name: "tree",
-        compress: (x) => x,
-        decompress: (x) => x,
+        name: "mts",
+        compress: x => x,
+        decompress: x => x,
         musical: true
+    },
+    {
+        name: "displayTempoMode",
+        compress: x => displayTempoOptions.indexOf(x),
+        decompress: x => displayTempoOptions[x]
     }
 ]
 
@@ -220,7 +236,7 @@ function trySelectPreset(){
     }
 
     for (let i = 0; i < presets.length; i++){
-        if (currentPatch.tree === presets[i].tree && currentPatch.leafTempo === presets[i].leafTempo){
+        if (currentPatch.mts === presets[i].tree && currentPatch.leafTempo === presets[i].leafTempo){
             presetSelectDropdown.children[i].text = "*" + presets[i].name;
             presetSelectDropdown.selectedIndex = i;
             return;

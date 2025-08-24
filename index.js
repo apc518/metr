@@ -59,9 +59,8 @@ function pause_(){
 
 function fullRefresh(){
     setMtsErrorMessage("");
-    setPatchUIElementsFromCurrentPatch();
     refreshCanvas();
-    tree = new MetricTree(parseMts(currentPatch.tree));
+    tree = new MetricTree(parseMts(currentPatch.mts));
     tree.pruneLeaves();
     totalLeaves = tree.getLeafNodeCount();
     progressIncrement = currentPatch.leafTempo / (FRAMERATE * totalLeaves * 60);

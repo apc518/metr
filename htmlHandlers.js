@@ -2,13 +2,13 @@ const textFieldErrorColor = "#f88";
 const textFieldOkayColor = "#fff";
 
 
+
 //////////////////
 //  MTS INPUT   //
 //////////////////
 
 const mtsInput = document.getElementById("mtsInput");
 const mtsErrorMessage = document.getElementById("mtsError");
-
 
 mtsInput.oninput = e => {
     // remove invalid characters immediately
@@ -36,18 +36,18 @@ mtsInput.oninput = e => {
     
     setMtsErrorMessage("");
     
-    setPatchParam("tree", mtsInput.value);
+    setPatchParam("mts", mtsInput.value);
+    setLeafTempoBasedOnDisplayTempo();
     if (p5canvas){
         fullRefresh();
     }
 }
 
-let mtsInputPreviousContent = currentPatch.tree;
+let mtsInputPreviousContent = currentPatch.mts;
 
 function setMtsInputFromCurrentPatch(){
-    mtsInput.value = currentPatch.tree;
+    mtsInput.value = currentPatch.mts;
 }
-
 
 function setMtsErrorMessage(s){
     mtsErrorMessage.textContent = s;
@@ -65,8 +65,9 @@ presetSelectDropdown.oninput = () => {
     for (let i = 0; i < presets.length; i++){
         if (presets[i].name === presetSelectDropdown.children[presetSelectDropdown.selectedIndex].value){
             currentPatch = deepCopy(presets[i]);
-            mtsInputPreviousContent = currentPatch.tree;
+            mtsInputPreviousContent = currentPatch.mts;
             fullRefresh();
+            setPatchUIElementsFromCurrentPatch();
             break;
         }
     }
@@ -87,7 +88,6 @@ function populatepresetSelectDropdown(){
 
 populatepresetSelectDropdown();
 
-
 function setPresetDisplayNames(){
     for (let i = 0; i < presetSelectDropdown.children.length; i++){
         if (i === presetSelectDropdown.selectedIndex){
@@ -107,15 +107,79 @@ function setPresetDisplayNames(){
 
 const tempoInput = document.getElementById("tempoInput");
 tempoInput.oninput = () => {
-    setPatchParam("leafTempo", tempoInput.valueAsNumber);
+    setPatchParam("leafTempo", calculateLeafTempo(tempoInput.valueAsNumber));
     fullRefresh();
 }
 
-function setTempoInputFromCurrentPatch(){
-    tempoInput.value = currentPatch.leafTempo;
+const displayTempoDropdown = document.getElementById("displayTempoDropdown");
+for (let option of displayTempoOptions){
+    let elem = document.createElement('option');
+    elem.value = option;
+    elem.innerText = option;
+    displayTempoDropdown.appendChild(elem);
 }
 
+function setLeafTempoBasedOnDisplayTempo(){
+    setPatchParam("leafTempo", calculateLeafTempo(tempoInput.valueAsNumber));
+}
 
+displayTempoDropdown.oninput = () => {
+    setPatchParam("displayTempoMode", displayTempoOptions[displayTempoDropdown.selectedIndex]);
+    fullRefresh();
+}
+
+function calculateLeafTempo(displayTempoValue){
+    const tree = new MetricTree(parseMts(currentPatch.mts));
+    const leafCounts = tree.getChildrensLeafNodeCounts();
+    if (currentPatch.displayTempoMode === "Largest Beat"){
+        let maxBeatSize = 0;
+        for (let count of leafCounts){
+            maxBeatSize = Math.max(maxBeatSize, count);
+        }
+        return displayTempoValue * maxBeatSize;
+    }
+    else if (currentPatch.displayTempoMode === "Smallest Beat"){
+        let minBeatSize = Infinity;
+        for (let count of leafCounts){
+            minBeatSize = Math.min(minBeatSize, count);
+        }
+        return displayTempoValue * minBeatSize;
+    }
+    else{
+        return displayTempoValue;
+    }
+}
+
+function calculateDisplayTempo(){
+    const tree = new MetricTree(parseMts(currentPatch.mts));
+    const leafCounts = tree.getChildrensLeafNodeCounts();
+    if (currentPatch.displayTempoMode === "Largest Beat"){
+        let maxBeatSize = 0;
+        for (let count of leafCounts){
+            maxBeatSize = Math.max(maxBeatSize, count);
+        }
+        return (currentPatch.leafTempo / maxBeatSize);
+    }
+    else if (currentPatch.displayTempoMode === "Smallest Beat"){
+        let minBeatSize = Infinity;
+        for (let count of leafCounts){
+            minBeatSize = Math.min(minBeatSize, count);
+        }
+        return currentPatch.leafTempo / minBeatSize;
+    }
+    else{
+        return currentPatch.leafTempo;
+    }
+}
+
+function setTempoInputFromCurrentPatch(){
+    console.log("hello there", calculateDisplayTempo());
+    tempoInput.value = calculateDisplayTempo();
+}
+
+function setTempoDisplayModeFromCurrentPatch(){
+    displayTempoDropdown.selectedIndex = displayTempoOptions.indexOf(currentPatch.displayTempoMode);
+}
 
 /////////////////////////////
 //  CLICK SOUND SETTINGS   //
@@ -320,6 +384,7 @@ function setPatchUIElementsFromCurrentPatch(){
     setMtsInputFromCurrentPatch();
     setNumberModeInputFromCurrentPatch();
     setTempoInputFromCurrentPatch();
+    setTempoDisplayModeFromCurrentPatch();
     setPresetDisplayNames();
     trySelectPreset();
 }

@@ -90,6 +90,7 @@ function setup(){
 
     window.addEventListener("popstate", () => {
         setPatchFromURL();
+        setPatchUIElementsFromCurrentPatch();
         fullRefresh();
     });
     

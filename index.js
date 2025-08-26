@@ -236,5 +236,5 @@ function keyPressed(){
 function windowResized(){
     canvasWidth = windowWidth - document.getElementById("patchSettings").clientWidth;
     p5canvas.resize(canvasWidth, canvasHeight);
-    paint();
+    fullRefresh();
 }

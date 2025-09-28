@@ -27,5 +27,17 @@ function makeTree(){
 
     tree_.addChild(lastBeat);
 
+    // tree_.addChild(new MetricTree(2/3));
+    // tree_.addChild(new MetricTree());
+
+    // tree_.children[0].addChild(new MetricTree())
+    // tree_.children[0].addChild(new MetricTree())
+
+    // tree_.children[1].addChild(new MetricTree())
+    // tree_.children[1].addChild(new MetricTree())
+    // tree_.children[1].addChild(new MetricTree())
+
+    // tree_.addChild(new MetricTree())
+
     return tree_;
 }

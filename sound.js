@@ -113,7 +113,7 @@ function scheduleInitialSounds(){
             if (leafHitsNext(leaf, globalProgress, i)){
                 let playTime = audioCtxTimeOffset
                     + epsilonFloor(globalProgress + progressIncrement * i) * cycleDuration()
-                    + leaf * 60 / currentPatch.leafTempo;
+                    + cycleDuration() * leafProgressValues[leaf];
 
                 // console.log(JSON.stringify({playTime, frameCount, globalProgress, leaf}));
 
@@ -139,7 +139,7 @@ function scheduleSounds(){
             
             let playTime = audioCtxTimeOffset
                 + cycle * cycleDuration()
-                + leaf * 60 / currentPatch.leafTempo;
+                + cycleDuration() * leafProgressValues[leaf];
             
             if (tree.getDepth() - tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf) < currentPatch.numLayersMuted){
                 continue;

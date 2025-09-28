@@ -160,25 +160,16 @@ class MetricTree {
         return Array.from(this.children, t => t.getChildCountsAtDepthRecursive(depth + 1, targetDepth)).flat(1);
     }
 
-    largestPowerOf2ThatEvenlyDividesEverything(ls){
-        let power = 0;
-        let iterations = 0;
-        const ITERATION_LIMIT = 100;
-        while (typeof ls.length === "number" && ls.length > 0 && iterations < ITERATION_LIMIT){
-            if (Array.from(ls, n => n / Math.pow(2, power + 1)).every(item => Math.floor(item) === item)){
-                power += 1;
-            }
-            else{
-                break;
-            }
+    getTrueWidthsAtDepth(targetDepth){
+        return this.getTrueWidthsAtDepthRecursive(0, targetDepth);
+    }
 
-            iterations += 1;
-        }
-        if (iterations >= ITERATION_LIMIT){
-            throw new Error("Too many loops");
+    getTrueWidthsAtDepthRecursive(depth, targetDepth){
+        if (depth + 1 >= targetDepth){
+            return Array.from(this.children, t => t.trueWidth());
         }
 
-        return power;
+        return Array.from(this.children, t => t.getChildCountsAtDepthRecursive(depth + 1, targetDepth)).flat(1);
     }
 
     /**
@@ -191,7 +182,7 @@ class MetricTree {
         
         let beatSizes = this.getChildrensTrueWidths();
         let layer = floor(Math.log2(max(beatSizes)));
-        let ignorePowersOf2MakeupExponent = this.largestPowerOf2ThatEvenlyDividesEverything(beatSizes);
+        let ignorePowersOf2MakeupExponent = largestPowerOf2ThatEvenlyDividesEverything(beatSizes);
         return `${this.trueWidth() / Math.pow(2, ignorePowersOf2MakeupExponent)}/${Math.pow(2, layer - ignorePowersOf2MakeupExponent + 2)}`
     }
 
@@ -236,7 +227,7 @@ class MetricTree {
      * This does not really affect the defined meter, but helps visually
      * for trees representing very simple meters like 4/4 */
     pruneLeaves(){
-        let leafParentCounts = this.getChildCountsAtDepth(this.getDepth() - 1);
+        let leafParentCounts = this.getTrueWidthsAtDepth(this.getDepth() - 1);
         let leafParentsAreAllOnes = true;
         for (let lpc of leafParentCounts){
             if (lpc !== 1){

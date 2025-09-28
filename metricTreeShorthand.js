@@ -11,6 +11,7 @@ function makeTree(){
     // tree_ = createTreeFromMts("[[4*2+3]:12+[5:6*2+5]:16]+5");
     // tree_ = createTreeFromMts("[5+4+5]:16 + [5+6:5+5]:16");
     tree_ = createTreeFromMts("3:4*2+4*3");
+    tree_ = createTreeFromMts("1:3+1:3");
     // tree_ = createTreeFromMts("[[2+2]+[2+2]]+[[2+2]+[2+2]]");
     // tree_ = createTreeFromMts("[[4+3]*2]     + [[4*2]+[4+3]]");
     // tree_ = createTreeFromMts("[[4+3]+[4+3]] + [[4+4]+[4+3]]");
@@ -98,8 +99,9 @@ function makeTree(){
     return tree_;
 }
 
-const maxActualValue = 1e3;
-const minActualValue = 1;
+const maxNodeNumber = 500;
+const minNodeNumber = 1;
+const maxValueAll = 1000;
 const minValueAll = 0;
 
 const SUBTREE_SCOPE_OPEN = "[";
@@ -108,6 +110,8 @@ const ADDITION_OPERATOR = "+";
 const TUPLET_OPERATOR = ":";
 const MULTIPLY_OPERATOR = "*";
 const DIGITS = "0123456789";
+
+const SPACING_CHARACTERS = " "; // characters that wont be parsed into tokens but are allowed in between tokens
 
 /**
  * Returns a list of tokens from a raw mts string.
@@ -141,7 +145,7 @@ function parseTokens(mts){
             if (val !== Math.floor(val)){
                 throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is not an integer.`);
             }
-            if (val > maxActualValue){
+            if (val > maxValueAll){
                 throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too large (max ${maxActualValue})`);
             }
             if (val < minValueAll){
@@ -154,7 +158,9 @@ function parseTokens(mts){
                 length: digitString.length
             });
         }
-        // console.log(`tokens is now ${JSON.stringify(tokens)}`);
+        else if (!SPACING_CHARACTERS.includes(mts[charIdx])){
+            throw new Error(`Invalid character \"${mts[charIdx]}\" at index ${charIdx}`);
+        }
     }
 
     return tokens;
@@ -177,6 +183,18 @@ function createTreeFromMts(mts){
 
         if (typeof tokens[i].value === "number"){
             // console.log(`Parsing i=${i}, token: ${tokens[i].value}`);
+            if (i > 0 && !([ADDITION_OPERATOR, SUBTREE_SCOPE_OPEN].includes(tokens[i-1].value))){
+                throw new Error("This error shouldnt be possible, please report to Andy what triggered it! Regular number parsing block entered but previous token was not addition operator or subtree scope open");
+            }
+
+            if (tokens[i].value < minNodeNumber){
+                throw new Error(`Node number too small: ${tokens[i].value} at index ${tokens[i].idx}. Node number must be at least ${minNodeNumber}`)
+            }
+            
+            if (tokens[i].value > maxNodeNumber){
+                throw new Error(`Node number too big: ${tokens[i].value} at index ${tokens[i].idx}. Node number must be at least ${minNodeNumber}`)
+            }
+
             const child = new MetricTree();
             Array.from({length: tokens[i].value}, () => child.addChild(new MetricTree()));
             tree.addChild(child);
@@ -188,7 +206,7 @@ function createTreeFromMts(mts){
             tree.addChild(child);
         }
         else{
-            throw new Error(`Expected number or open bracket at index ${tokens[i].idx} in \"${mts}\"`);
+            throw new Error(`Expected number or open bracket at index ${tokens[i].idx}`);
         }
 
         increment();
@@ -198,7 +216,7 @@ function createTreeFromMts(mts){
         if (tokens[i].value === TUPLET_OPERATOR){
             increment();
             if (typeof tokens[i].value !== "number"){
-                throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`)
+                throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`)
             }
             const lastChild = tree.children[tree.children.length - 1];
             lastChild.ratio = lastChild.trueWidth() / tokens[i].value;
@@ -238,7 +256,7 @@ function createTreeFromMts(mts){
             return;
         }
         else{
-            throw new Error(`Expected scope close or addition operator at idx ${tokens[i].idx} in \"${mts}\"`);
+            throw new Error(`Expected scope close or addition operator at idx ${tokens[i].idx}`);
         }
     }
 

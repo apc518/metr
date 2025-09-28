@@ -197,10 +197,10 @@ const GENERIC_TESTS = [
         }
     },
     {
-        name: "mts number too big",
+        name: "mts node number too big",
         func: () => {
             try{
-                createTreeFromMts(`[${maxActualValue+1},3]`);
+                createTreeFromMts(`[${maxNodeNumber+1}+3]`);
                 return false;
             }
             catch{
@@ -209,10 +209,10 @@ const GENERIC_TESTS = [
         }
     },
     {
-        name: "mts number too small",
+        name: "mts node number too small",
         func: () => {
             try{
-                createTreeFromMts(`[${minActualValue-1}+3]`);
+                createTreeFromMts(`${minNodeNumber-1}+3`);
                 return false;
             }
             catch{
@@ -261,6 +261,14 @@ const GENERIC_TESTS = [
         }
     },
     {
+        name: "Prune with tuplets",
+        func: () => {
+            let t = createTreeFromMts("1:3+1:3");
+            t.pruneLeaves();
+            return t.getDepth() === 2;
+        }
+    },
+    {
         name: "GENERIC_TESTS duplicate names",
         func: () => {
             let dict = {};
@@ -304,7 +312,43 @@ const GENERIC_TESTS = [
         }
     },
     {
-        name: "Tokenizing test",
+        name: "Tokenizing invalid character",
+        func: () => {
+            try{
+                parseTokens("n");
+                return false;
+            } 
+            catch{
+                return true;
+            }
+        }
+    },
+    {
+        name: "Tokenizing invalid character within otherwise valid mts",
+        func: () => {
+            try{
+                parseTokens("3+4n+3");
+                return false;
+            } 
+            catch{
+                return true;
+            }
+        }
+    },
+    {
+        name: "Tokenizing max number",
+        func: () => {
+            try{
+                parseTokens(`[${maxValueAll+1}+3]`);
+                return false;
+            }
+            catch{
+                return true;
+            }
+        }
+    },
+    {
+        name: "Tokenizing complex",
         func: () => {
             return JSON.stringify(parseTokens(" [ 6+6:5 +5*2]:19 + [4*5]")) === "[{\"value\":\"[\",\"idx\":1,\"length\":1},{\"value\":6,\"idx\":3,\"length\":1},{\"value\":\"+\",\"idx\":4,\"length\":1},{\"value\":6,\"idx\":5,\"length\":1},{\"value\":\":\",\"idx\":6,\"length\":1},{\"value\":5,\"idx\":7,\"length\":1},{\"value\":\"+\",\"idx\":9,\"length\":1},{\"value\":5,\"idx\":10,\"length\":1},{\"value\":\"*\",\"idx\":11,\"length\":1},{\"value\":2,\"idx\":12,\"length\":1},{\"value\":\"]\",\"idx\":13,\"length\":1},{\"value\":\":\",\"idx\":14,\"length\":1},{\"value\":19,\"idx\":15,\"length\":2},{\"value\":\"+\",\"idx\":18,\"length\":1},{\"value\":\"[\",\"idx\":20,\"length\":1},{\"value\":4,\"idx\":21,\"length\":1},{\"value\":\"*\",\"idx\":22,\"length\":1},{\"value\":5,\"idx\":23,\"length\":1},{\"value\":\"]\",\"idx\":24,\"length\":1}]";
         }
@@ -321,7 +365,7 @@ function runTimeSignatureTests(){
                 console.log(`%cTest \"${test.name}\" FAILED:`, consoleErrorStyle, test);
             }
             else{
-                console.log(`%cTest \"${test.name}\" succeeded:`, consoleGoodStyle, test);
+                // console.log(`%cTest \"${test.name}\" succeeded:`, consoleGoodStyle, test);
                 passedCount += 1;
             }
         }
@@ -345,7 +389,7 @@ function runGenericTests(){
                 console.log(`%cTest \"${test.name}\" FAILED:`, consoleErrorStyle, test);
             }
             else{
-                console.log(`%cTest \"${test.name}\" succeeded:`, consoleGoodStyle, test);
+                // console.log(`%cTest \"${test.name}\" succeeded:`, consoleGoodStyle, test);
                 passedCount += 1;
             }
         }

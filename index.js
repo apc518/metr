@@ -96,8 +96,7 @@ function setup(){
     });
     
     if (isDevelopmentEnvironment()){
-        // console.log(makeTree());
-        // runTests();
+        runTests();
         setMtsErrorMessage("");
     }
 }

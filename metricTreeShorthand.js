@@ -6,8 +6,14 @@ function makeTree(){
     let tree_ = new MetricTree();
 
     // tree_ = createTreeFromMts("4:3*2+4*2");
-    tree_ = createTreeFromMts("[[4*2+3]:12+[5:6*2+5]:16]+[[3*3]+[4*3]]");
+    // tree_ = createTreeFromMts("[[4*2+3]:12+[5:6*2+5]:16]+5");
     // tree_ = createTreeFromMts("[5+4+5]:16 + [5+6+5]");
+    // tree_ = createTreeFromMts("[[2+2]+[2+2]]+[[2+2]+[2+2]]");
+    // tree_ = createTreeFromMts("[[4*2+3]:12+[5:6*2+5+6+7+6+5]:48]+[[3*3]+[4*3]]");
+    tree_ = createTreeFromMts("3*0+2");
+    tree_ = createTreeFromMts("[2*3*3]");
+    tree_ = createTreeFromMts("4:3+4");
+    // tree_ = createTreeFromMts(BINARY_TREE_LARGE);
 
     // tree_.addChild(new MetricTree());
     // for (let k = 0; k < 3; k++){
@@ -86,6 +92,9 @@ function makeTree(){
     return tree_;
 }
 
+const maxActualValue = 1e3;
+const minActualValue = 1;
+const minValueAll = 0;
 
 const SUBTREE_SCOPE_OPEN = "[";
 const SUBTREE_SCOPE_CLOSE = "]";
@@ -118,8 +127,23 @@ function parseTokens(mts){
                 charIdx += 1;
             }
 
+            const val = parseInt(digitString);
+
+            if (typeof val !== "number"){
+                throw new Error(`\"${digitString}\" at index ${charIdx - digitString.length + 1} could not be parsed as a number`);
+            }
+            if (val !== Math.floor(val)){
+                throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is not an integer.`);
+            }
+            if (val > maxActualValue){
+                throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too large (max ${maxActualValue})`);
+            }
+            if (val < minValueAll){
+                throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too small (min ${minValueAll})`);
+            }
+
             tokens.push({
-                value: parseInt(digitString),
+                value: val,
                 idx: charIdx - digitString.length + 1,
                 length: digitString.length
             });
@@ -151,7 +175,7 @@ function createTreeFromMts(mts){
                 if (tokens[i]?.value === TUPLET_OPERATOR){
                     increment();
                     if (typeof tokens[i].value !== "number"){
-                        throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`)
+                        throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`)
                     }
                     child.ratio = tokens[i-2].value / tokens[i].value;
                     increment();
@@ -160,9 +184,17 @@ function createTreeFromMts(mts){
                 if (tokens[i]?.value === MULTIPLY_OPERATOR){
                     increment();
                     if (typeof tokens[i].value !== "number"){
-                        throw new Error(`Number expected after \"${tokens[i-2].value}\" at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`)
+                        throw new Error(`Number expected after \"${tokens[i-2].value}\" at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`)
                     }
-                    Array.from({length:tokens[i].value - 1}, () => tree.addChild(child.copy()));
+                    if (tokens[i].value > 0){
+                        Array.from({length:tokens[i].value - 1}, () => tree.addChild(child.copy()));
+                    }
+                    else if (tokens[i].value === 0){
+                        tree.children.pop();
+                    }
+                    else{
+                        throw new Error(`Negative multiplier \"${tokens[i].value}\" at index ${tokens[i].idx} in \"${mts}\"`);
+                    }
                     increment();
                 }
     
@@ -181,7 +213,7 @@ function createTreeFromMts(mts){
                 increment();
     
                 if (typeof tokens[i]?.value !== "number" && tokens[i]?.value !== SUBTREE_SCOPE_OPEN){
-                    throw new Error(`Number or bracket expected after bracket at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`);
+                    throw new Error(`Number or bracket expected after bracket at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`);
                 }
     
                 const child = new MetricTree();
@@ -192,7 +224,7 @@ function createTreeFromMts(mts){
                 if (tokens[i]?.value === TUPLET_OPERATOR){
                     increment();
                     if (typeof tokens[i].value !== "number"){
-                        throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`)
+                        throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`)
                     }
                     child.ratio = child.childrensTrueWidthSum() / tokens[i].value;
                     increment();
@@ -201,9 +233,17 @@ function createTreeFromMts(mts){
                 if (tokens[i]?.value === MULTIPLY_OPERATOR){
                     increment();
                     if (typeof tokens[i].value !== "number"){
-                        throw new Error(`Number expected after \"${tokens[i-2].value}\" at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`)
+                        throw new Error(`Number expected after \"${tokens[i-2].value}\" at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`)
                     }
-                    Array.from({length:tokens[i].value - 1}, () => tree.addChild(child.copy()));
+                    if (tokens[i].value > 0){
+                        Array.from({ length: tokens[i].value - 1 }, () => tree.addChild(child.copy()));
+                    }
+                    else if (tokens[i].value === 0){
+                        tree.children.pop();
+                    }
+                    else{
+                        throw new Error(`Negative multiplier \"${tokens[i].value}\" at index ${tokens[i].idx} in \"${mts}\"`);
+                    }
                     increment();
                 }
 
@@ -211,8 +251,11 @@ function createTreeFromMts(mts){
 
                 if (tokens[i]?.value === ADDITION_OPERATOR) {
                     increment();
-                    if (tokens[i]?.value !== SUBTREE_SCOPE_OPEN){
-                        throw new Error(`Open bracket expected at index ${tokens[i] ? tokens[i].idx : tokens.length - 1}`);
+                    if (typeof tokens[i]?.value !== "number" && tokens[i]?.value !== SUBTREE_SCOPE_OPEN){
+                        throw new Error(`Open bracket or number expected at index ${tokens[i] ? tokens[i].idx : tokens.length - 1} in \"${mts}\"`);
+                    }
+                    if (typeof tokens[i]?.value === "number"){
+                        makeTreeRecursive(tree);
                     }
                 }
             }

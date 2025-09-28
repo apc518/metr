@@ -118,15 +118,8 @@ function _drawMetricTreeRecursive(tree, depth) {
     let leaf = tree.isLeaf();
 
     if (leaf){ 
-        if (totalLeaves > 1){
-            tree.pos.x = canvasWidth * leafProgressValues[1] / 2 + canvasWidth * leafProgressValues[leafCounter];
-            tree.on = leafProgressValues[leafCounter] <= globalProgress % 1 && globalProgress % 1 < (leafProgressValues[leafCounter + 1] ?? 1);
-        }
-        else{
-            tree.pos.x = canvasWidth / 2;
-            tree.on = true;
-        }
-
+        tree.pos.x = canvasWidth * (leafProgressValues[leafCounter] + (leafProgressValues[leafCounter + 1] ?? 1)) / 2;
+        tree.on = leafProgressValues[leafCounter] <= globalProgress % 1 && globalProgress % 1 < (leafProgressValues[leafCounter + 1] ?? 1);
         tree.index = leafCounter;
     }
     else{

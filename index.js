@@ -16,7 +16,7 @@ const Z_KEYCODE = 90;
 const CTRL_KEYCODE = 17;
 
 let p5canvas = null;
-let tree = null;
+let globalTree = null;
 
 function playPause(){
     if (isLooping()) pause_();
@@ -28,7 +28,7 @@ function epsilonFloor(num){
 }
 
 function cycleDuration(){
-    return tree.trueWidth() * 60 / currentPatch.leafTempo;
+    return globalTree.trueWidth() * 60 / currentPatch.leafTempo;
 }
 
 function framesPerCycle(){
@@ -62,10 +62,10 @@ function fullRefresh(){
     setMtsErrorMessage("");
     refreshCanvas();
     // tree = new MetricTree(parseMts(currentPatch.mts));
-    tree = makeTree();
-    tree.pruneLeaves();
-    totalLeaves = tree.getLeafNodeCount();
-    progressIncrement = currentPatch.leafTempo / (FRAMERATE * tree.trueWidth() * 60);
+    globalTree = makeTree();
+    globalTree.pruneLeaves();
+    totalLeaves = globalTree.getLeafNodeCount();
+    progressIncrement = currentPatch.leafTempo / (FRAMERATE * globalTree.trueWidth() * 60);
     if (isLooping()) play_();
     paint();
 }
@@ -140,7 +140,7 @@ function _drawMetricTreeRecursive(tree, depth) {
         textAlign("center");
         let textValue = `${currentPatch.nodeNumberMode === "Leaves" ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.childrensTrueWidthSum() / tree.ratio}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
         text(textValue, tree.pos.x, tree.pos.y);
-        ellipse(tree.pos.x, tree.pos.y, 3, 3);
+        // ellipse(tree.pos.x, tree.pos.y, 3, 3); // show anchor point of text
         pop();
     }
     if (depth < totalDepth - currentPatch.numLayersMuted){
@@ -212,9 +212,9 @@ function paint(){
     background(0);
 
     leafCounter = 0;
-    drawMetricTree(tree, 0);
+    drawMetricTree(globalTree, 0);
 
-    document.getElementById("timeSigDisplay").innerText = tree.getTimeSignature();
+    document.getElementById("timeSigDisplay").innerText = globalTree.getTimeSignature();
 }
 
 let globalProgress = 0; // 0 -> beginning, 1 -> one full cycle has passed, 2 -> two full cycles have passed, etc

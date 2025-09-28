@@ -417,6 +417,18 @@ const GENERIC_TESTS = [
 
             return JSON.stringify(tree_.getLeafNodeCyclePortionValues()) === JSON.stringify([0, 0.125, 0.25, 0.375, 0.5, 0.65, 0.8, 0.9]);
         }
+    },
+    {
+        name: "Tokenizing test 1",
+        func: () => {
+            return JSON.stringify(parseTokens(" [ 6+6:5 +5*2]:19 + [4*5]")) === "[{\"value\":\"[\",\"idx\":1,\"length\":1},{\"value\":6,\"idx\":3,\"length\":1},{\"value\":\"+\",\"idx\":4,\"length\":1},{\"value\":6,\"idx\":5,\"length\":1},{\"value\":\":\",\"idx\":6,\"length\":1},{\"value\":5,\"idx\":7,\"length\":1},{\"value\":\"+\",\"idx\":9,\"length\":1},{\"value\":5,\"idx\":10,\"length\":1},{\"value\":\"*\",\"idx\":11,\"length\":1},{\"value\":2,\"idx\":12,\"length\":1},{\"value\":\"]\",\"idx\":13,\"length\":1},{\"value\":\":\",\"idx\":14,\"length\":1},{\"value\":19,\"idx\":15,\"length\":2},{\"value\":\"+\",\"idx\":18,\"length\":1},{\"value\":\"[\",\"idx\":20,\"length\":1},{\"value\":4,\"idx\":21,\"length\":1},{\"value\":\"*\",\"idx\":22,\"length\":1},{\"value\":5,\"idx\":23,\"length\":1},{\"value\":\"]\",\"idx\":24,\"length\":1}]";
+        }
+    },
+    {
+        name: "Parsing MTS test 1",
+        func: () => {
+            return JSON.stringify(createTreeFromMts("[[4*2+3]:12+[5:6*2+5]:16]+[[3*3]+[4*3]]")) === '{"children":[{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":0.9166666666666666},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.8333333333333334},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.8333333333333334},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1.0625}],"ratio":1},{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
+        }
     }
 ]
 

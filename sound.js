@@ -68,8 +68,8 @@ function leafHitsNext(leaf, progress, latencyFrames){
 }
 
 function calculateAudioClipSpeed(leaf){
-    let soundDepth = tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf);
-    let totalDepth = tree.getDepth();
+    let soundDepth = globalTree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf);
+    let totalDepth = globalTree.getDepth();
     if (!currentPatch.accentDownbeat) {
         totalDepth -= 1;
         soundDepth = Math.max(0, soundDepth - 1);
@@ -78,7 +78,7 @@ function calculateAudioClipSpeed(leaf){
 }
 
 function calculateAudioClipVolume(leaf){
-    let soundDepth = tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf);
+    let soundDepth = globalTree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf);
     if (!currentPatch.accentDownbeat) soundDepth = Math.max(1, soundDepth) - 1;
     return Math.pow(currentPatch.volumeFalloff, soundDepth);
 }
@@ -141,7 +141,7 @@ function scheduleSounds(){
                 + cycle * cycleDuration()
                 + cycleDuration() * leafProgressValues[leaf];
             
-            if (tree.getDepth() - tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf) < currentPatch.numLayersMuted){
+            if (globalTree.getDepth() - globalTree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf) < currentPatch.numLayersMuted){
                 continue;
             }
 

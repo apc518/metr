@@ -218,8 +218,8 @@ audioSampleDropdown.oninput = () => {
 
 const numLayersMutedInput = document.getElementById("numLayersMutedInput");
 numLayersMutedInput.oninput = () => {
-    if (numLayersMutedInput.value > tree.getDepth()){
-        numLayersMutedInput.value = tree.getDepth();
+    if (numLayersMutedInput.value > globalTree.getDepth()){
+        numLayersMutedInput.value = globalTree.getDepth();
     }
     setPatchParam("numLayersMuted", numLayersMutedInput.valueAsNumber);
     paint();

@@ -7,6 +7,17 @@ class MetricTree {
         this.ratio = ratio;
     }
 
+    copy(){
+        if (this.isLeaf()){
+            return new MetricTree();
+        }
+
+        const newTree = new MetricTree(this.ratio);
+        this.children.forEach(c => newTree.children.push(c.copy()));
+
+        return newTree;
+    }
+
     addChild(metricTree){
         this.children.push(metricTree);
     }
@@ -109,6 +120,10 @@ class MetricTree {
         return Array.from(this.children, t => t.children.length);
     }
 
+    getChildrensTrueWidths(){
+        return Array.from(this.children, t => t.trueWidth());
+    }
+
     /**
      * Returns the exponent for the power of 2 that all children have as their number of descendants
      * if all children have the same power of 2 for their number of children.
@@ -174,10 +189,10 @@ class MetricTree {
             return "?";
         }
         
-        let beatSizes = this.getChildrensLeafNodeCounts();
+        let beatSizes = this.getChildrensTrueWidths();
         let layer = floor(Math.log2(max(beatSizes)));
         let ignorePowersOf2MakeupExponent = this.largestPowerOf2ThatEvenlyDividesEverything(beatSizes);
-        return `${this.getLeafNodeCount() / Math.pow(2, ignorePowersOf2MakeupExponent)}/${Math.pow(2, layer - ignorePowersOf2MakeupExponent + 2)}`
+        return `${this.trueWidth() / Math.pow(2, ignorePowersOf2MakeupExponent)}/${Math.pow(2, layer - ignorePowersOf2MakeupExponent + 2)}`
     }
 
     isLeaf(){

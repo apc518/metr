@@ -118,7 +118,7 @@ function _drawMetricTreeRecursive(tree, depth) {
     let leaf = tree.isLeaf();
 
     if (leaf){ 
-        tree.pos.x = canvasWidth * (leafProgressValues[leafCounter] + (leafProgressValues[leafCounter + 1] ?? 1)) / 2;
+        tree.pos.x = HORIZONTAL_PADDING / 2 + (canvasWidth - HORIZONTAL_PADDING) * (leafProgressValues[leafCounter] + (leafProgressValues[leafCounter + 1] ?? 1)) / 2;
         tree.on = leafProgressValues[leafCounter] <= globalProgress % 1 && globalProgress % 1 < (leafProgressValues[leafCounter + 1] ?? 1);
         tree.index = leafCounter;
     }
@@ -182,6 +182,7 @@ let totalLeaves = 0;
 
 const OFF_COLOR = "hsl(0, 0%, 30%)"
 const VERTICAL_PADDING = 25;
+const HORIZONTAL_PADDING = 30;
 let verticalSpacing = 160;
 let horizontalSpacing = 50;
 let textSizeValue = 50;

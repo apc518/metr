@@ -132,18 +132,18 @@ displayTempoDropdown.oninput = () => {
 }
 
 function calculateLeafTempo(displayTempoValue){
-    const tree = new MetricTree(parseMts(currentPatch.mts));
-    const leafCounts = tree.getChildrensLeafNodeCounts();
+    const tree = createTreeFromMts(currentPatch.mts);
+    const trueWidths = tree.getChildrensTrueWidths();
     if (currentPatch.displayTempoMode === "Largest Beat"){
         let maxBeatSize = 0;
-        for (let count of leafCounts){
+        for (let count of trueWidths){
             maxBeatSize = Math.max(maxBeatSize, count);
         }
         return displayTempoValue * maxBeatSize;
     }
     else if (currentPatch.displayTempoMode === "Smallest Beat"){
         let minBeatSize = Infinity;
-        for (let count of leafCounts){
+        for (let count of trueWidths){
             minBeatSize = Math.min(minBeatSize, count);
         }
         return displayTempoValue * minBeatSize;
@@ -154,18 +154,18 @@ function calculateLeafTempo(displayTempoValue){
 }
 
 function calculateDisplayTempo(){
-    const tree = new MetricTree(parseMts(currentPatch.mts));
-    const leafCounts = tree.getChildrensLeafNodeCounts();
+    const tree = createTreeFromMts(currentPatch.mts);
+    const trueWidths = tree.getChildrensTrueWidths();
     if (currentPatch.displayTempoMode === "Largest Beat"){
         let maxBeatSize = 0;
-        for (let count of leafCounts){
+        for (let count of trueWidths){
             maxBeatSize = Math.max(maxBeatSize, count);
         }
         return (currentPatch.leafTempo / maxBeatSize);
     }
     else if (currentPatch.displayTempoMode === "Smallest Beat"){
         let minBeatSize = Infinity;
-        for (let count of leafCounts){
+        for (let count of trueWidths){
             minBeatSize = Math.min(minBeatSize, count);
         }
         return currentPatch.leafTempo / minBeatSize;
@@ -176,7 +176,7 @@ function calculateDisplayTempo(){
 }
 
 function setTempoInputFromCurrentPatch(){
-    // tempoInput.value = calculateDisplayTempo();
+    tempoInput.value = calculateDisplayTempo();
 }
 
 function setTempoDisplayModeFromCurrentPatch(){

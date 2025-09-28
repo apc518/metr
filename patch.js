@@ -14,7 +14,7 @@ const presets = [
         name: "Default",
         nodeNumberMode: nodeNumberModeOptions[0],
         hue: 300,
-        leafTempo: 170,
+        leafTempo: 140,
         accentDownbeat: true,
         pitchesHighToLow: true,
         pitchSpread: 1.5,

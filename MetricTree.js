@@ -109,36 +109,10 @@ class MetricTree {
         return sum;
     }
 
-    /**
-     * get the subdivision groupings below this node; aka if this was the root of a 7/8, you might get [2,2,3], [2,3,2], or [3,2,2]
-     */
-    getChildrensLeafNodeCounts(){
-        return Array.from(this.children, t => t.getLeafNodeCount());
-    }
-
-    getChildrensChildCounts(){
-        return Array.from(this.children, t => t.children.length);
-    }
-
     getChildrensTrueWidths(){
         return Array.from(this.children, t => t.trueWidth());
     }
 
-    /**
-     * Returns the exponent for the power of 2 that all children have as their number of descendants
-     * if all children have the same power of 2 for their number of children.
-     * Otherwise returns 0
-     */
-    unanimousPowerOf2Exponent(ls){
-        if (ls.every(n => n === ls[0])){
-            let num = ls[0];
-            if (Math.pow(2, floor(Math.log2(num))) === num){
-                return Math.log2(num);
-            }
-        }
-
-        return 0;
-    }
 
     getLeafNodeCountsAtDepth(depth, targetDepth){
         if (depth + 1 >= targetDepth){
@@ -146,18 +120,6 @@ class MetricTree {
         }
 
         return Array.from(this.children, t => t.getLeafNodeCountsAtDepth(depth + 1, targetDepth)).flat(1);
-    }
-
-    getChildCountsAtDepth(targetDepth){
-        return this.getChildCountsAtDepthRecursive(0, targetDepth);
-    }
-
-    getChildCountsAtDepthRecursive(depth, targetDepth){
-        if (depth + 1 >= targetDepth){
-            return Array.from(this.children, t => t.children.length);
-        }
-
-        return Array.from(this.children, t => t.getChildCountsAtDepthRecursive(depth + 1, targetDepth)).flat(1);
     }
 
     getTrueWidthsAtDepth(targetDepth){
@@ -169,7 +131,7 @@ class MetricTree {
             return Array.from(this.children, t => t.trueWidth());
         }
 
-        return Array.from(this.children, t => t.getChildCountsAtDepthRecursive(depth + 1, targetDepth)).flat(1);
+        return Array.from(this.children, t => t.getTrueWidthsAtDepthRecursive(depth + 1, targetDepth)).flat(1);
     }
 
     /**

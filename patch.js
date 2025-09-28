@@ -36,7 +36,7 @@ const presets = [
         audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
         mts: "3+2*4",
-        displayTempoMode: displayTempoOptions[0]
+        displayTempoMode: displayTempoOptions[1]
     },
     {
         name: "Threshold (sungazer)",

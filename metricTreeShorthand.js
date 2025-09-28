@@ -5,14 +5,20 @@ function deepCopy(obj){
 function makeTree(){
     let tree_ = new MetricTree();
 
+    tree_ = createTreeFromMts("3+2");
+    tree_ = createTreeFromMts("[4]");
     // tree_ = createTreeFromMts("4:3*2+4*2");
     // tree_ = createTreeFromMts("[[4*2+3]:12+[5:6*2+5]:16]+5");
-    // tree_ = createTreeFromMts("[5+4+5]:16 + [5+6+5]");
+    // tree_ = createTreeFromMts("[5+4+5]:16 + [5+6:5+5]:16");
+    tree_ = createTreeFromMts("3:4*2+4*3");
     // tree_ = createTreeFromMts("[[2+2]+[2+2]]+[[2+2]+[2+2]]");
+    // tree_ = createTreeFromMts("[[4+3]*2]     + [[4*2]+[4+3]]");
+    // tree_ = createTreeFromMts("[[4+3]+[4+3]] + [[4+4]+[4+3]]");
+    // tree_ = createTreeFromMts("2*3*3");
     // tree_ = createTreeFromMts("[[4*2+3]:12+[5:6*2+5+6+7+6+5]:48]+[[3*3]+[4*3]]");
-    tree_ = createTreeFromMts("3*0+2");
-    tree_ = createTreeFromMts("[2*3*3]");
-    tree_ = createTreeFromMts("4:3+4");
+    // tree_ = createTreeFromMts("3*0+2");
+    // tree_ = createTreeFromMts("[2*3*3]");
+    // tree_ = createTreeFromMts("4:3+4");
     // tree_ = createTreeFromMts(BINARY_TREE_LARGE);
 
     // tree_.addChild(new MetricTree());
@@ -156,6 +162,8 @@ function parseTokens(mts){
 
 function createTreeFromMts(mts){
     const tokens = parseTokens(mts);
+
+    // console.log("tokens:", tokens);
     
     let i = 0;
 
@@ -163,102 +171,74 @@ function createTreeFromMts(mts){
         i += 1;
         // console.log(`tokens[${i}]: \"${tokens[i]?.value}\"`);
     }
-    
+
     function makeTreeRecursive(tree){
-        if (typeof tokens[i]?.value === "number"){
-            while (tokens[i] && tokens[i].value !== SUBTREE_SCOPE_CLOSE){
-                const child = new MetricTree();
-                Array.from({length: tokens[i].value}, () => child.addChild(new MetricTree()));
-    
+        if (!tokens[i]) return;
+
+        if (typeof tokens[i].value === "number"){
+            // console.log(`Parsing i=${i}, token: ${tokens[i].value}`);
+            const child = new MetricTree();
+            Array.from({length: tokens[i].value}, () => child.addChild(new MetricTree()));
+            tree.addChild(child);
+        }
+        else if (tokens[i].value === SUBTREE_SCOPE_OPEN){
+            const child = new MetricTree();
+            increment();
+            makeTreeRecursive(child);
+            tree.addChild(child);
+        }
+        else{
+            throw new Error(`Expected number or open bracket at index ${tokens[i].idx} in \"${mts}\"`);
+        }
+
+        increment();
+
+        if (!tokens[i]) return;
+
+        if (tokens[i].value === TUPLET_OPERATOR){
+            increment();
+            if (typeof tokens[i].value !== "number"){
+                throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`)
+            }
+            const lastChild = tree.children[tree.children.length - 1];
+            lastChild.ratio = lastChild.trueWidth() / tokens[i].value;
+            increment();
+        }
+
+        if (!tokens[i]) return;
+        
+        if (tokens[i].value === MULTIPLY_OPERATOR){
+            increment();
+            if (typeof tokens[i]?.value === "number"){
+                const multiplier = tokens[i].value;
+                if (multiplier > 0){
+                    const lastChild = tree.children[tree.children.length - 1];
+                    Array.from({ length: multiplier - 1 }, () => tree.addChild(lastChild.copy()));
+                }
+                else if (multiplier === 0){
+                    tree.children.pop();
+                }
+
                 increment();
-
-                if (tokens[i]?.value === TUPLET_OPERATOR){
-                    increment();
-                    if (typeof tokens[i].value !== "number"){
-                        throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`)
-                    }
-                    child.ratio = tokens[i-2].value / tokens[i].value;
-                    increment();
-                }
-
-                if (tokens[i]?.value === MULTIPLY_OPERATOR){
-                    increment();
-                    if (typeof tokens[i].value !== "number"){
-                        throw new Error(`Number expected after \"${tokens[i-2].value}\" at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`)
-                    }
-                    if (tokens[i].value > 0){
-                        Array.from({length:tokens[i].value - 1}, () => tree.addChild(child.copy()));
-                    }
-                    else if (tokens[i].value === 0){
-                        tree.children.pop();
-                    }
-                    else{
-                        throw new Error(`Negative multiplier \"${tokens[i].value}\" at index ${tokens[i].idx} in \"${mts}\"`);
-                    }
-                    increment();
-                }
-    
-                tree.addChild(child);
-
-                if (tokens[i]?.value === ADDITION_OPERATOR) {
-                    increment();
-                    if (typeof tokens[i]?.value !== "number"){
-                        throw new Error(`Number expected at index ${tokens[i] ? tokens[i].idx : tokens.length - 1}`);
-                    }
-                }
+            }
+            else{
+                throw new Error(`Expected number after multiplier at index ${tokens[i-1].idx}`);
             }
         }
-        else if (tokens[i]?.value === SUBTREE_SCOPE_OPEN){
-            while (tokens[i]?.value === SUBTREE_SCOPE_OPEN){
-                increment();
-    
-                if (typeof tokens[i]?.value !== "number" && tokens[i]?.value !== SUBTREE_SCOPE_OPEN){
-                    throw new Error(`Number or bracket expected after bracket at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`);
-                }
-    
-                const child = new MetricTree();
-                makeTreeRecursive(child);
 
-                increment();
+        if (!tokens[i]) return;
+        
+        if (tokens[i].value === ADDITION_OPERATOR){
+            // console.log(`Parsing i=${i}, token: ${tokens[i].value}`);
 
-                if (tokens[i]?.value === TUPLET_OPERATOR){
-                    increment();
-                    if (typeof tokens[i].value !== "number"){
-                        throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`)
-                    }
-                    child.ratio = child.childrensTrueWidthSum() / tokens[i].value;
-                    increment();
-                }
-
-                if (tokens[i]?.value === MULTIPLY_OPERATOR){
-                    increment();
-                    if (typeof tokens[i].value !== "number"){
-                        throw new Error(`Number expected after \"${tokens[i-2].value}\" at index ${tokens[i].idx} in \"${mts}\", instead got: \"${tokens[i].value}\"`)
-                    }
-                    if (tokens[i].value > 0){
-                        Array.from({ length: tokens[i].value - 1 }, () => tree.addChild(child.copy()));
-                    }
-                    else if (tokens[i].value === 0){
-                        tree.children.pop();
-                    }
-                    else{
-                        throw new Error(`Negative multiplier \"${tokens[i].value}\" at index ${tokens[i].idx} in \"${mts}\"`);
-                    }
-                    increment();
-                }
-
-                tree.addChild(child);
-
-                if (tokens[i]?.value === ADDITION_OPERATOR) {
-                    increment();
-                    if (typeof tokens[i]?.value !== "number" && tokens[i]?.value !== SUBTREE_SCOPE_OPEN){
-                        throw new Error(`Open bracket or number expected at index ${tokens[i] ? tokens[i].idx : tokens.length - 1} in \"${mts}\"`);
-                    }
-                    if (typeof tokens[i]?.value === "number"){
-                        makeTreeRecursive(tree);
-                    }
-                }
-            }
+            increment();
+            makeTreeRecursive(tree);
+        }
+        else if (tokens[i].value === SUBTREE_SCOPE_CLOSE){
+            return;
+        }
+        else{
+            throw new Error(`Expected scope close or addition operator at idx ${tokens[i].idx} in \"${mts}\"`);
         }
     }
 

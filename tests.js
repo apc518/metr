@@ -121,31 +121,47 @@ const GENERIC_TESTS = [
         func: () => JSON.stringify(createTreeFromMts("4+3")) === '{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mts brackets",
+        name: "mts brackets basic",
+        func: () => JSON.stringify(createTreeFromMts("[4]")) === '{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
+    },
+    {
+        name: "mts brackets medium",
         func: () => JSON.stringify(createTreeFromMts("[4+3]+[3+4]")) === '{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mts with spaces",
-        func: () => {
-            return JSON.stringify(createTreeFromMts(" [4 +3 ]   +                 [ 3+ 4]")) === '{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
-        }
+        name: "mts brackets nested",
+        func: () => JSON.stringify(createTreeFromMts("[[4+3]+[3+4]]+[[3+4]+[4+3]]")) === '{"children":[{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mts multiplier",
+        name: "mts with spaces",
+        func: () => JSON.stringify(createTreeFromMts(" [4 +3 ]   +                 [ 3+ 4]")) === '{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
+    },
+    {
+        name: "mts multiplier basic",
+        func: () => JSON.stringify(createTreeFromMts("3*2")) === '{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}'
+    },
+    {
+        name: "mts multiplier medium",
         func: () => JSON.stringify(createTreeFromMts("4*2+3*3")) === '{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}'
+    },
+    {
+        name: "mts multiplier with nesting",
+        func: () => JSON.stringify(createTreeFromMts("[[4+3]*2] + [[4*2]+[4+3]]")) === JSON.stringify(createTreeFromMts("[[4+3]+[4+3]] + [[4+4]+[4+3]]"))
     },
     {
         name: "mts tuplet",
         func: () => JSON.stringify(createTreeFromMts("4:3+4")) === '{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1.3333333333333333},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mts with everything",
-        func: () => {
-            return JSON.stringify(createTreeFromMts("[[4*2+3]:12+[5:6*2+5+6+7+6+5]:48]+[[3*3]+[4*3]]")) === '{"children":[{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":0.9166666666666666},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.8333333333333334},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.8333333333333334},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":0.8541666666666666}],"ratio":1},{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}';
-        }
+        name: "mts tuplet + multiplier",
+        func: () => JSON.stringify(createTreeFromMts("3:4*2+4*3")) === '{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.75},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.75},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsStringIsValid asterisk without something to multiply",
+        name: "mts with everything",
+        func: () => JSON.stringify(createTreeFromMts("[[4*2+3]:12+[5:6*2+5+6+7+6+5]:48]+[[3*3]+[4*3]]")) === '{"children":[{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":0.9166666666666666},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.8333333333333334},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.8333333333333334},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":0.8541666666666666}],"ratio":1},{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
+    },
+    {
+        name: "mts asterisk without something to multiply",
         func: () => {
             try{
                 createTreeFromMts("*[2]");
@@ -157,7 +173,7 @@ const GENERIC_TESTS = [
         }
     },
     {
-        name: "mtsStringIsValid asterisk without a multiplier",
+        name: "mts asterisk without a multiplier",
         func: () => {
             try{
                 createTreeFromMts("[2*]");
@@ -193,10 +209,10 @@ const GENERIC_TESTS = [
         }
     },
     {
-        name: "mtsStringIsValid number too small",
+        name: "mts number too small",
         func: () => {
             try{
-                createTreeFromMts(`[${minActualValue-1},3]`);
+                createTreeFromMts(`[${minActualValue-1}+3]`);
                 return false;
             }
             catch{
@@ -205,7 +221,7 @@ const GENERIC_TESTS = [
         }
     },
     {
-        name: "mtsStringIsValid inconsistent depths",
+        name: "mts inconsistent depths",
         func: () => {
             createTreeFromMts("[[2+3]+[[3+2]+[2+3]]]");
             return true;
@@ -305,6 +321,7 @@ function runTimeSignatureTests(){
                 console.log(`%cTest \"${test.name}\" FAILED:`, consoleErrorStyle, test);
             }
             else{
+                console.log(`%cTest \"${test.name}\" succeeded:`, consoleGoodStyle, test);
                 passedCount += 1;
             }
         }
@@ -328,6 +345,7 @@ function runGenericTests(){
                 console.log(`%cTest \"${test.name}\" FAILED:`, consoleErrorStyle, test);
             }
             else{
+                console.log(`%cTest \"${test.name}\" succeeded:`, consoleGoodStyle, test);
                 passedCount += 1;
             }
         }

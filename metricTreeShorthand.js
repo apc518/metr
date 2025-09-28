@@ -99,7 +99,7 @@ function makeTree(){
     return tree_;
 }
 
-const maxNodeNumber = 500;
+const maxNodeNumber = 1000;
 const minNodeNumber = 1;
 const maxValueAll = 1000;
 const minValueAll = 0;
@@ -146,7 +146,7 @@ function parseTokens(mts){
                 throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is not an integer.`);
             }
             if (val > maxValueAll){
-                throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too large (max ${maxActualValue})`);
+                throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too large (max ${maxValueAll})`);
             }
             if (val < minValueAll){
                 throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too small (min ${minValueAll})`);
@@ -188,11 +188,11 @@ function createTreeFromMts(mts){
             }
 
             if (tokens[i].value < minNodeNumber){
-                throw new Error(`Node number too small: ${tokens[i].value} at index ${tokens[i].idx}. Node number must be at least ${minNodeNumber}`)
+                throw new Error(`Node number too small: ${tokens[i].value} at index ${tokens[i].idx} (min ${minNodeNumber})`)
             }
             
             if (tokens[i].value > maxNodeNumber){
-                throw new Error(`Node number too big: ${tokens[i].value} at index ${tokens[i].idx}. Node number must be at least ${minNodeNumber}`)
+                throw new Error(`Node number too big: ${tokens[i].value} at index ${tokens[i].idx} (max ${maxNodeNumber})`)
             }
 
             const child = new MetricTree();
@@ -256,7 +256,7 @@ function createTreeFromMts(mts){
             return;
         }
         else{
-            throw new Error(`Expected scope close or addition operator at idx ${tokens[i].idx}`);
+            throw new Error(`Expected scope close or addition operator at index ${tokens[i].idx}`);
         }
     }
 

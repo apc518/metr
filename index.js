@@ -230,11 +230,13 @@ function draw() {
 }
 
 function keyPressed(){
-    if (keyCode === SPACE_KEYCODE){
-        playPause();
-    }
-    if (keyCode === F_KEYCODE){
-        toggleFullscreen();
+    if (document.activeElement.tagName !== "INPUT"){
+        if (keyCode === SPACE_KEYCODE){
+            playPause();
+        }
+        if (keyCode === F_KEYCODE){
+            toggleFullscreen();
+        }
     }
 }
 

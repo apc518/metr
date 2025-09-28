@@ -1,8 +1,21 @@
-const textFieldErrorColor = "#f88";
-const textFieldOkayColor = "#fff";
+const textFieldErrorColorLight = "#f88";
+const textFieldOkayColorLight = "#fff";
+const textFieldErrorColorDark = "#811";
+const textFieldOkayColorDark = "#111";
 
 
 const mainDiv = document.getElementById("main");
+
+
+function setPatchParamFromNumberInput(paramName, elem, func=(n => n)){
+    if (typeof elem.valueAsNumber === "number" && !isNaN(elem.valueAsNumber)){
+        setPatchParam(paramName, func(elem.valueAsNumber));
+        elem.style.backgroundColor = textFieldOkayColorDark;
+    }
+    else{
+        elem.style.backgroundColor = textFieldErrorColorDark;
+    }
+}
 
 
 //////////////////
@@ -12,40 +25,21 @@ const mainDiv = document.getElementById("main");
 const mtsInput = document.getElementById("mtsInput");
 const mtsErrorMessage = document.getElementById("mtsError");
 
-mtsInput.oninput = e => {
-    // remove invalid characters immediately
-    if (e.data){
-        let initialCursorPosition = mtsInput.selectionStart;
-        for (let i = 0; i < e.data.length; i++){
-            if (!(validMtsCharacters.includes(e.data[i]))){
-                mtsInput.value = mtsInputPreviousContent;
-                if (e.data !== " ")
-                    setMtsErrorMessage(`Input \"${e.data}\" contains invalid characters. Valid characters: \"${validMtsCharacters}\"`);
-                mtsInput.selectionStart = initialCursorPosition - e.data.length;
-                mtsInput.selectionEnd = initialCursorPosition - e.data.length;
-                return;
-            }
+mtsInput.oninput = () => {
+    try{
+        const newTree = createTreeFromMts(mtsInput.value);
+        globalTree = newTree;
+        setMtsErrorMessage("");
+        setPatchParam("mts", mtsInput.value);
+        setLeafTempoBasedOnDisplayTempo();
+        if (p5canvas){
+            fullRefresh();
         }
     }
-    
-    mtsInputPreviousContent = mtsInput.value.slice();
-    
-    mtsInput.inputIsValid = mtsStringIsValid(mtsInput.value);
-    
-    mtsInput.style.backgroundColor = mtsInput.inputIsValid ? textFieldOkayColor : textFieldErrorColor;
-    
-    if (!mtsInput.inputIsValid) return;
-    
-    setMtsErrorMessage("");
-    
-    setPatchParam("mts", mtsInput.value);
-    setLeafTempoBasedOnDisplayTempo();
-    if (p5canvas){
-        fullRefresh();
+    catch (e){
+        setMtsErrorMessage(e.message);
     }
 }
-
-let mtsInputPreviousContent = currentPatch.mts;
 
 function setMtsInputFromCurrentPatch(){
     mtsInput.value = currentPatch.mts;
@@ -53,6 +47,7 @@ function setMtsInputFromCurrentPatch(){
 
 function setMtsErrorMessage(s){
     mtsErrorMessage.textContent = s;
+    mtsInput.style.backgroundColor = s.length === 0 ? textFieldOkayColorLight : textFieldErrorColorLight;
 }
 
 
@@ -67,7 +62,6 @@ presetSelectDropdown.oninput = () => {
     for (let i = 0; i < presets.length; i++){
         if (presets[i].name === presetSelectDropdown.children[presetSelectDropdown.selectedIndex].value){
             currentPatch = deepCopy(presets[i]);
-            mtsInputPreviousContent = currentPatch.mts;
             fullRefresh();
             setPatchUIElementsFromCurrentPatch();
             break;
@@ -109,7 +103,7 @@ function setPresetDisplayNames(){
 
 const tempoInput = document.getElementById("tempoInput");
 tempoInput.oninput = () => {
-    setPatchParam("leafTempo", calculateLeafTempo(tempoInput.valueAsNumber));
+    setPatchParamFromNumberInput("leafTempo", tempoInput, calculateLeafTempo);
     fullRefresh();
 }
 
@@ -122,7 +116,7 @@ for (let option of displayTempoOptions){
 }
 
 function setLeafTempoBasedOnDisplayTempo(){
-    setPatchParam("leafTempo", calculateLeafTempo(tempoInput.valueAsNumber));
+    setPatchParamFromNumberInput("leafTempo", tempoInput, calculateLeafTempo);
 }
 
 displayTempoDropdown.oninput = () => {
@@ -199,10 +193,10 @@ pitchesHighToLowCheckbox.oninput = () => {
 const pitchSpreadInput = document.getElementById("pitchSpreadInput");
 const volumeFalloffInput = document.getElementById("volumeFalloffInput");
 pitchSpreadInput.oninput = () => {
-    setPatchParam("pitchSpread", pitchSpreadInput.valueAsNumber);
+    setPatchParamFromNumberInput("pitchSpread", pitchSpreadInput);
 }
 volumeFalloffInput.oninput = () => {
-    setPatchParam("volumeFalloff", volumeFalloffInput.valueAsNumber);
+    setPatchParamFromNumberInput("volumeFalloff", volumeFalloffInput);
 }
 
 const audioSampleDropdown = document.getElementById("audioSampleDropdown");
@@ -221,7 +215,7 @@ numLayersMutedInput.oninput = () => {
     if (numLayersMutedInput.value > globalTree.getDepth()){
         numLayersMutedInput.value = globalTree.getDepth();
     }
-    setPatchParam("numLayersMuted", numLayersMutedInput.valueAsNumber);
+    setPatchParamFromNumberInput("numLayersMuted", numLayersMutedInput);
     paint();
 }
 

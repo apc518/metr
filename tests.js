@@ -388,19 +388,53 @@ const GENERIC_TESTS = [
 
             return true;
         }
+    },
+    {
+        name: "Leaf node portion values test 1",
+        func: () => {
+            let tree_ = new MetricTree();
+
+            tree_.addChild(new MetricTree());
+            for (let k = 0; k < 2; k++){
+                const child = new MetricTree();
+                for (let w = 0; w < 2; w++){
+                    child.addChild(new MetricTree());
+                }
+                tree_.children[0].addChild(child);
+            }
+
+            const lastBeat = new MetricTree(5/4);
+            const lastBeatSubDiv1 = new MetricTree(2/3);
+            const lastBeatSubDiv2 = new MetricTree();
+            for (let i = 0; i < 2; i++){
+                lastBeatSubDiv1.addChild(new MetricTree());
+                lastBeatSubDiv2.addChild(new MetricTree());
+            }
+            lastBeat.addChild(lastBeatSubDiv1);
+            lastBeat.addChild(lastBeatSubDiv2);
+
+            tree_.addChild(lastBeat);
+
+            return JSON.stringify(tree_.getLeafNodeCyclePortionValues()) === JSON.stringify([0, 0.125, 0.25, 0.375, 0.5, 0.65, 0.8, 0.9]);
+        }
     }
 ]
 
 function runTimeSignatureTests(){
     let passedCount = 0;
     TIME_SIGNATURE_TESTS.forEach(test => {
-        let tree = new MetricTree(test.tree);
-        let passed = tree.getTimeSignature() === test.expectedResult;
-        if (!passed){
-            console.log(`%cTest \"${test.name}\" FAILED:`, consoleErrorStyle, test);
+        try{
+            let tree = new MetricTree(test.tree);
+            let passed = tree.getTimeSignature() === test.expectedResult;
+            if (!passed){
+                console.log(`%cTest \"${test.name}\" FAILED:`, consoleErrorStyle, test);
+            }
+            else{
+                passedCount += 1;
+            }
         }
-        else{
-            passedCount += 1;
+        catch(e){
+            console.error(`Test \"${test.name}\" FAILED (ERROR): ${e}`);
         }
     })
     if (passedCount === TIME_SIGNATURE_TESTS.length){
@@ -423,7 +457,7 @@ function runGenericTests(){
             }
         }
         catch(e){
-            console.error(`Test \"${test.name}\" FAILED: ${e}`);
+            console.error(`Test \"${test.name}\" FAILED (ERROR): ${e}`);
         }
     });
     if (passedCount === GENERIC_TESTS.length){

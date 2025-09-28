@@ -176,7 +176,7 @@ function calculateDisplayTempo(){
 }
 
 function setTempoInputFromCurrentPatch(){
-    tempoInput.value = calculateDisplayTempo();
+    // tempoInput.value = calculateDisplayTempo();
 }
 
 function setTempoDisplayModeFromCurrentPatch(){

@@ -59,7 +59,7 @@ let audioCtxTimeOffset = 0;  // globalProgress * cycle time + audioCtxTimeOffset
 const AUDIO_LOOKAHEAD_FRAMES = 3;
 
 function leafHitsNext(leaf, progress, latencyFrames){
-    let leafProgress = leaf / totalLeaves;
+    let leafProgress = leafProgressValues[leaf];
     let targetFrameProgress = (progress + latencyFrames * progressIncrement) % 1;
     if (1 - targetFrameProgress < progressIncrement){
         targetFrameProgress = 0;

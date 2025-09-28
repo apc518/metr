@@ -1,17 +1,14 @@
 class MetricTree {
     /**
-     * Takes a nested list (a list of lists of lists of lists... etc.) and creates a MetricTree with the same topology
+     * Creates a metric tree node, optionally with a ratio passed in for tuplets
      */
-    constructor(ls){
-        if (typeof ls === "object"){
-            this.children = []
-            ls.forEach(sublist => {
-                this.children.push(new MetricTree(sublist));
-            })
-        }
-        else{
-            console.error(`Argument to MetricTree constructor was an unsupported type \"${typeof ls}\" Argument in question: `, ls);
-        }
+    constructor(ratio=1){
+        this.children = [];
+        this.ratio = ratio;
+    }
+
+    addChild(metricTree){
+        this.children.push(metricTree);
     }
 
     getDepth(){
@@ -20,6 +17,71 @@ class MetricTree {
         }
         
         return 1 + max(Array.from(this.children, t => t.getDepth()));
+    }
+
+    /**
+     * Returns the true width of the tree, taking into account tuplets
+     * This is not necessarily the number of leaf nodes, but it will be
+     * the same as the number of leaf nodes if there are no tuplets in the tree.
+     * 
+     * For instance, for tree `1*3`, trueWidth() returns 3.
+     * For tree `[2+3]*3` trueWidth() returns 15.
+     * For tree `3:4*2` trueWidth() returns 8, despite `3:4*2` only having 6 leaf nodes
+     */
+    trueWidth(){
+        if (this.isLeaf()) {
+            return 1;
+        }
+
+        let sum = 0;
+        for (let child of this.children){
+            sum += child.trueWidth() / this.ratio;
+        }
+
+        return sum;
+    }
+
+    /**
+     * Only different from trueWidth() if this node has a ratio != 1
+     */
+    childrensTrueWidthSum(){
+        let total = 0;
+        for (let child of this.children){
+            total += child.trueWidth();
+        }
+        return total;
+    }
+
+    /**
+     * returns a list with the same number of elements as the number of leaf nodes on this tree
+     * where each value represents the portion of the cycle at which that leaf node resides.
+     * 
+     * e.g. for a simple tree with a root node and four children, it would return [0, 0.25, 0.5, 0.75]
+     */
+    getLeafNodeCyclePortionValues(){
+        if (this.isLeaf()){
+            return [0];
+        }
+        
+        let childRelativeSizes = [];
+        
+        for (let child of this.children){
+            childRelativeSizes.push(child.trueWidth() / this.childrensTrueWidthSum());
+        }
+        
+        const portionValues = [];
+        
+        let offset = 0;
+        
+        for (let [i, child] of this.children.entries()){
+            for (let val of child.getLeafNodeCyclePortionValues()){
+                portionValues.push(val * childRelativeSizes[i] + offset)
+            }
+            
+            offset += childRelativeSizes[i];
+        }
+        
+        return portionValues;
     }
 
     /**

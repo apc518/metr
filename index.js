@@ -79,6 +79,8 @@ function refreshCanvas(){
     }
 }
 
+let writePatchToUrlInterval;
+
 function setup(){
     noLoop();
     frameRate(FRAMERATE);
@@ -86,7 +88,7 @@ function setup(){
 
     globalVolumeSlider.oninput();
 
-    setInterval(writePatchToUrl, 100);
+    writePatchToUrlInterval = setInterval(writePatchToUrl, 100);
 
     window.addEventListener("popstate", () => {
         setPatchFromURL();

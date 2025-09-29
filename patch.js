@@ -170,9 +170,17 @@ function getPatchBase64FromURL(){
 }
 
 function getPatchFromURL(){
-    let base64String = getPatchBase64FromURL();
-    if (base64String.length > 1){
-        return convertListToPatch(JSON.parse(window.atob(base64String)));
+    try{
+        let base64String = getPatchBase64FromURL();
+        if (base64String.length > 1){
+            return convertListToPatch(JSON.parse(window.atob(base64String)));
+        }
+    }
+    catch{
+        let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        alert("Corrupt patch; press okay to refresh the page");
+        window.history.pushState({ path: refresh }, '', refresh);
+        location.reload();
     }
 
     return null;
@@ -192,11 +200,20 @@ function patchBase64(patch){
 }
 
 function writePatchToUrl(){
-    const newBase64 = patchBase64(currentPatch);
-    if (newBase64 !== getPatchBase64FromURL()){
-        let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname
-                        + `?p=${patchBase64(currentPatch)}`;
+    try{
+        const newBase64 = patchBase64(currentPatch);
+        if (newBase64 !== getPatchBase64FromURL()){
+            let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname
+                            + `?p=${patchBase64(currentPatch)}`;
+            window.history.pushState({ path: refresh }, '', refresh);
+        }
+    }
+    catch(e){
+        clearInterval(writePatchToUrlInterval);
+        let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        alert("Corrupt patch; press okay to refresh the page");
         window.history.pushState({ path: refresh }, '', refresh);
+        location.reload();
     }
 }
 

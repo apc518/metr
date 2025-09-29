@@ -1,233 +1,268 @@
-const validMtsCharacters = "[]*+0123456789";
-const digits = "0123456789"
-const maxActualValue = 1e4;
-const minActualValue = 1;
-const inconsistentDepthErrorMessage = "All numbers must be at the same nesting level (same depth)"
-
-function mtsStringPreprocess(s){
-    let newString = s.slice();
-    let iterations = 0;
-    const ITERATION_LIMIT = 1000;
-    while(newString.includes("*") && iterations < ITERATION_LIMIT){
-        let multiplierStartingIndex = -1;
-        for (let i = 0; i < newString.length; i++){
-            if (newString[i] === "*"){
-                multiplierStartingIndex = i+1;
-                break;
-            }
-        }
-        let multiplierEndingIndex = -1;
-        for (let i = multiplierStartingIndex; i < newString.length + 1; i++){
-            if (!(digits.includes(newString[i]))){
-                multiplierEndingIndex = i;
-                break;
-            }
-        }
-
-        let multiplier = Number(newString.slice(multiplierStartingIndex, multiplierEndingIndex));
-
-        newString = newString.replace(`*${multiplier}`, `,{\"multiplier\":${multiplier}}`);
-        iterations += 1;
-    }
-    if (iterations >= ITERATION_LIMIT) {
-        throw new Error("Too many loops");
-    }
-    return "[" + newString.replaceAll("+", ",") + "]";
-}
-
-function mtsStringIsValid(s){
-    if (s.length === 0) return true;
-
-    // mark invalid if any illegal characters are present
-    let chars = s.split("")
-    for (let c of chars) {
-        if (!validMtsCharacters.includes(c)){
-
-            setMtsErrorMessage(`Invalid character \"${c}\"; only \"${validMtsCharacters}\" are allowed.`);
-            return false;
-        }
-    }
-
-
-    // asterisk pre-processing
-
-    // ensure any asterisks are immediately followed by a digit and nothing else
-    for (let i = 0; i < s.length - 1; i++){
-        if (s[i] === "*"){
-            if (!(digits.includes(s[i+1]))){
-                setMtsErrorMessage(`Any asterisk must be followed by a number but \"${s[i+1]}\" follows an asterisk.`);
-                return false;
-            }
-        }
-    }
-
-    // ensure any asterisks immediately follow either a digit or a closing square brace
-    for (let i = 1; i < s.length; i++){
-        if (s[i] === "*"){
-            if (!(digits.includes(s[i-1]) || s[i-1] === "]")){
-                setMtsErrorMessage(`Any asterisk must follow either a number or a closing square brace but \"${s[i-1]}\" precedes an asterisk.`);
-                return false;
-            }
-        }
-    }
-
-    try{
-        let mtsObject = JSON.parse(mtsStringPreprocess(s));
-
-        if (mtsObjectContainsMultipleMultipliersInARow(mtsObject)){
-            setMtsErrorMessage("Multiple multipliers in a row are not allowed.");
-            return false;
-        }
-
-        let mtsObjectMultiplied = applyMtsMultipliersRecursive(mtsObject);
-
-        mtsObjectUniformDepth(mtsObjectMultiplied);
-
-        // do recursive check
-        return mtsObjectIsValid(mtsObjectMultiplied);
-    }
-    catch(e){
-        setMtsErrorMessage(`${e.toString().replaceAll("at line 1 column", "at index").replaceAll(" of the JSON data", "")}`);
-        return false;
-    }
-}
-
-function mtsObjectContainsMultipleMultipliersInARow(mtsObject){
-    if (typeof mtsObject === "number"){
-        return false;
-    }
-    else{
-        for (let i = 0; i < mtsObject.length; i++){
-            if (typeof mtsObject[i] === "object" &&
-                            typeof mtsObject[i].multiplier === "number" &&
-                            typeof mtsObject[i+1] === "object" &&
-                            typeof mtsObject[i+1].multiplier === "number"){
-                return true;
-            }
-        }
-
-        for (let i = 0; i < mtsObject.length; i++){
-            if (mtsObjectContainsMultipleMultipliersInARow(mtsObject[i])){
-                return true;
-            }
-        }
-
-        return false;
-    }
-}
-
-/**
- * takes a post-multiplication MTS object
- */
-function mtsObjectUniformDepth(mtsObject){
-    if (typeof mtsObject === "number"){
-        return 0;
-    }
-    else if (typeof mtsObject.length === "number"){
-        let childDepths = Array.from(mtsObject, item => mtsObjectUniformDepth(item));
-        for (let i = 0; i < childDepths.length; i++){
-            if (childDepths[i] !== childDepths[0]){
-                throw new Error(inconsistentDepthErrorMessage);
-            }
-        }
-
-        return childDepths[0] + 1;
-    }
-}
-
-/**
- * Takes a post-multiplication MTS object
- */
-function mtsObjectIsValid(mtsObject){
-    if (typeof mtsObject === "number"){
-        if (mtsObject > maxActualValue){
-            setMtsErrorMessage(`Numbers bigger than ${maxActualValue} are not supported`);
-            return false;
-        }
-        if (mtsObject < minActualValue){
-            setMtsErrorMessage(`Numbers smaller than ${minActualValue} are not supported`);
-            return false;
-        }
-        return true;
-    }
-    else if (typeof mtsObject === "object"){
-        if (typeof mtsObject.length === "number"){
-            for (let i = 0; i < mtsObject.length; i++){
-                if (!mtsObjectIsValid(mtsObject[i])){
-                    return false;
-                }
-            }
-
-            if (mtsObject.length < 1) {
-                setMtsErrorMessage(`All layers must be non-empty.`);
-                return false;
-            }
-
-            return true;
-        }
-        else{
-            throw new Error("Object that is neither list nor number in mtsObject");
-        }
-    }
-    else{
-        throw new Error("Unexpected type for mtsObject");
-    }
-}
-
 function deepCopy(obj){
     return JSON.parse(JSON.stringify(obj));
 }
 
-function applyMtsMultipliersFlat(ls){
-    let newList = [];
-    for (let i = 0; i < ls.length; i++){
-        if (typeof ls[i] === "object" && typeof ls[i].multiplier === "number"){
-            for (let k = 0; k < ls[i].multiplier; k++){
-                newList.push(deepCopy(ls[i-1]));
+function makeTree(){
+    let tree_ = new MetricTree();
+
+    tree_ = createTreeFromMts("3+2");
+    tree_ = createTreeFromMts("[4]");
+    // tree_ = createTreeFromMts("4:3*2+4*2");
+    // tree_ = createTreeFromMts("[[4*2+3]:12+[5:6*2+5]:16]+5");
+    // tree_ = createTreeFromMts("[5+4+5]:16 + [5+6:5+5]:16");
+    tree_ = createTreeFromMts("3:4*2+4*3");
+    tree_ = createTreeFromMts("1:3+1:3");
+    // tree_ = createTreeFromMts("[[2+2]+[2+2]]+[[2+2]+[2+2]]");
+    // tree_ = createTreeFromMts("[[4+3]*2]     + [[4*2]+[4+3]]");
+    // tree_ = createTreeFromMts("[[4+3]+[4+3]] + [[4+4]+[4+3]]");
+    // tree_ = createTreeFromMts("2*3*3");
+    // tree_ = createTreeFromMts("[[4*2+3]:12+[5:6*2+5+6+7+6+5]:48]+[[3*3]+[4*3]]");
+    // tree_ = createTreeFromMts("3*0+2");
+    // tree_ = createTreeFromMts("[2*3*3]");
+    // tree_ = createTreeFromMts("4:3+4");
+    // tree_ = createTreeFromMts(BINARY_TREE_LARGE);
+
+    // tree_.addChild(new MetricTree());
+    // for (let k = 0; k < 3; k++){
+    //     const child = new MetricTree();
+    //     for (let w = 0; w < 2; w++){
+    //         child.addChild(new MetricTree());
+    //     }
+    //     tree_.children[0].addChild(child);
+    // }
+
+    // const lastBeat = new MetricTree(6/5);
+    // const lastBeatSubDiv1 = new MetricTree(2/3);
+    // const lastBeatSubDiv2 = new MetricTree();
+    // for (let i = 0; i < 2; i++){
+    //     lastBeatSubDiv1.addChild(new MetricTree());
+    //     lastBeatSubDiv2.addChild(new MetricTree());
+    // }
+    // lastBeatSubDiv2.addChild(new MetricTree());
+    // lastBeat.addChild(lastBeatSubDiv1);
+    // lastBeat.addChild(lastBeatSubDiv2);
+
+    // tree_.addChild(lastBeat);
+
+    // tree_.addChild(new MetricTree(2/3));
+    // tree_.addChild(new MetricTree());
+
+    // tree_.children[0].addChild(new MetricTree())
+    // tree_.children[0].addChild(new MetricTree())
+
+    // tree_.children[1].addChild(new MetricTree())
+    // tree_.children[1].addChild(new MetricTree())
+    // tree_.children[1].addChild(new MetricTree())
+
+    // tree_.addChild(new MetricTree())
+
+
+    //// [5+4+5]:16 + [5+6+5]
+
+    // const child1 = new MetricTree(7/8);
+    // const child2 = new MetricTree();
+
+    // const child1child1 = new MetricTree();
+    // const child1child2 = new MetricTree();
+    // const child1child3 = new MetricTree();
+
+    // const child2child1 = new MetricTree();
+    // const child2child2 = new MetricTree();
+    // const child2child3 = new MetricTree();
+
+    // Array.from({length: 5}, () => {
+    //     child1child1.addChild(new MetricTree());
+    //     child1child3.addChild(new MetricTree());
+    //     child2child1.addChild(new MetricTree());
+    //     child2child3.addChild(new MetricTree());
+    // })
+
+    // Array.from({length: 4}, () => {
+    //     child1child2.addChild(new MetricTree());
+    // })
+
+    // Array.from({length: 6}, () => {
+    //     child2child2.addChild(new MetricTree());
+    // })
+
+    // child1.addChild(child1child1);
+    // child1.addChild(child1child2);
+    // child1.addChild(child1child3);
+
+    // child2.addChild(child2child1);
+    // child2.addChild(child2child2);
+    // child2.addChild(child2child3);
+
+    // tree_.addChild(child1);
+    // tree_.addChild(child2);
+
+    return tree_;
+}
+
+const maxNodeNumber = 1000;
+const minNodeNumber = 1;
+const maxValueAll = 1000;
+const minValueAll = 0;
+
+const SUBTREE_SCOPE_OPEN = "[";
+const SUBTREE_SCOPE_CLOSE = "]";
+const ADDITION_OPERATOR = "+";
+const TUPLET_OPERATOR = ":";
+const MULTIPLY_OPERATOR = "*";
+const DIGITS = "0123456789";
+
+const SPACING_CHARACTERS = " "; // characters that wont be parsed into tokens but are allowed in between tokens
+
+/**
+ * Returns a list of tokens from a raw mts string.
+ * 
+ * Tokens have the form { value, idx, length }
+ */
+function parseTokens(mts){
+    const tokens = [];
+
+    for (let charIdx = 0; charIdx < mts.length; charIdx++){
+        // console.log(`looking at charIdx=${charIdx} (\"${mts[charIdx]}\")`);
+        if ([SUBTREE_SCOPE_OPEN, SUBTREE_SCOPE_CLOSE, ADDITION_OPERATOR, TUPLET_OPERATOR, MULTIPLY_OPERATOR].includes(mts[charIdx])){
+            tokens.push({
+                value: mts[charIdx],
+                idx: charIdx,
+                length: 1
+            });
+        }
+        else if (DIGITS.includes(mts[charIdx])){
+            let digitString = mts[charIdx];
+            while (DIGITS.includes(mts[charIdx+1])){
+                digitString = digitString + mts[charIdx+1];
+                charIdx += 1;
+            }
+
+            const val = parseInt(digitString);
+
+            if (typeof val !== "number"){
+                throw new Error(`\"${digitString}\" at index ${charIdx - digitString.length + 1} could not be parsed as a number`);
+            }
+            if (val !== Math.floor(val)){
+                throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is not an integer.`);
+            }
+            if (val > maxValueAll){
+                throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too large (max ${maxValueAll})`);
+            }
+            if (val < minValueAll){
+                throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too small (min ${minValueAll})`);
+            }
+
+            tokens.push({
+                value: val,
+                idx: charIdx - digitString.length + 1,
+                length: digitString.length
+            });
+        }
+        else if (!SPACING_CHARACTERS.includes(mts[charIdx])){
+            throw new Error(`Invalid character \"${mts[charIdx]}\" at index ${charIdx}`);
+        }
+    }
+
+    return tokens;
+}
+
+function createTreeFromMts(mts){
+    const tokens = parseTokens(mts);
+
+    // console.log("tokens:", tokens);
+    
+    let i = 0;
+
+    function increment(){
+        i += 1;
+        // console.log(`tokens[${i}]: \"${tokens[i]?.value}\"`);
+    }
+
+    function makeTreeRecursive(tree){
+        if (!tokens[i]) return;
+
+        if (typeof tokens[i].value === "number"){
+            // console.log(`Parsing i=${i}, token: ${tokens[i].value}`);
+            if (i > 0 && !([ADDITION_OPERATOR, SUBTREE_SCOPE_OPEN].includes(tokens[i-1].value))){
+                throw new Error("This error shouldnt be possible, please report to Andy what triggered it! Regular number parsing block entered but previous token was not addition operator or subtree scope open");
+            }
+
+            if (tokens[i].value < minNodeNumber){
+                throw new Error(`Node number too small: ${tokens[i].value} at index ${tokens[i].idx} (min ${minNodeNumber})`)
+            }
+            
+            if (tokens[i].value > maxNodeNumber){
+                throw new Error(`Node number too big: ${tokens[i].value} at index ${tokens[i].idx} (max ${maxNodeNumber})`)
+            }
+
+            const child = new MetricTree();
+            Array.from({length: tokens[i].value}, () => child.addChild(new MetricTree()));
+            tree.addChild(child);
+        }
+        else if (tokens[i].value === SUBTREE_SCOPE_OPEN){
+            const child = new MetricTree();
+            increment();
+            makeTreeRecursive(child);
+            tree.addChild(child);
+        }
+        else{
+            throw new Error(`Expected number or open bracket at index ${tokens[i].idx}`);
+        }
+
+        increment();
+
+        if (!tokens[i]) return;
+
+        if (tokens[i].value === TUPLET_OPERATOR){
+            increment();
+            if (typeof tokens[i].value !== "number"){
+                throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`)
+            }
+            const lastChild = tree.children[tree.children.length - 1];
+            lastChild.ratio = lastChild.trueWidth() / tokens[i].value;
+            increment();
+        }
+
+        if (!tokens[i]) return;
+        
+        if (tokens[i].value === MULTIPLY_OPERATOR){
+            increment();
+            if (typeof tokens[i]?.value === "number"){
+                const multiplier = tokens[i].value;
+                if (multiplier > 0){
+                    const lastChild = tree.children[tree.children.length - 1];
+                    Array.from({ length: multiplier - 1 }, () => tree.addChild(lastChild.copy()));
+                }
+                else if (multiplier === 0){
+                    tree.children.pop();
+                }
+
+                increment();
+            }
+            else{
+                throw new Error(`Expected number after multiplier at index ${tokens[i-1].idx}`);
             }
         }
-        else if (!(typeof ls[i+1] === "object" && typeof ls[i+1].multiplier === "number")){
-            newList.push(deepCopy(ls[i]));
+
+        if (!tokens[i]) return;
+        
+        if (tokens[i].value === ADDITION_OPERATOR){
+            // console.log(`Parsing i=${i}, token: ${tokens[i].value}`);
+
+            increment();
+            makeTreeRecursive(tree);
+        }
+        else if (tokens[i].value === SUBTREE_SCOPE_CLOSE){
+            return;
+        }
+        else{
+            throw new Error(`Expected scope close or addition operator at index ${tokens[i].idx}`);
         }
     }
-    
-    return newList;
-}
 
+    const createdTree = new MetricTree();
 
-function applyMtsMultipliersRecursive(mtsObject){
-    if (typeof mtsObject === "number"){
-        return mtsObject;
-    }
-    else if (typeof mtsObject === "object" && typeof mtsObject.length === "number"){
-        return Array.from(applyMtsMultipliersFlat(mtsObject), item => applyMtsMultipliersRecursive(item));
-    }
-    else{
-        throw new Error("Unrecognized type for mtsObject");
-    }
-}
+    makeTreeRecursive(createdTree);
 
-
-function parseMts(s){
-    if (s.length === 0){
-        return [];
-    }
-
-    let mtsObj = JSON.parse(mtsStringPreprocess(s));
-
-    return convertMtsToNestedLists(applyMtsMultipliersRecursive(mtsObj));
-}
-
-
-function convertMtsToNestedLists(mtsObject){
-    if (typeof mtsObject === "number"){
-        return Array.from({length: mtsObject}, () => []);
-    }
-    
-    if (mtsObject.length > 0) {
-        return Array.from(mtsObject, item => convertMtsToNestedLists(item));
-    }
-    else{
-        console.error("something has gone wrong");
-    }
+    return createdTree;
 }

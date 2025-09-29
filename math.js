@@ -1,3 +1,24 @@
+function largestPowerOf2ThatEvenlyDividesEverything(ls){
+    let power = 0;
+    let iterations = 0;
+    const ITERATION_LIMIT = 100;
+    while (typeof ls.length === "number" && ls.length > 0 && iterations < ITERATION_LIMIT){
+        if (Array.from(ls, n => n / Math.pow(2, power + 1)).every(item => Math.floor(item) === item)){
+            power += 1;
+        }
+        else{
+            break;
+        }
+
+        iterations += 1;
+    }
+    if (iterations >= ITERATION_LIMIT){
+        throw new Error("Too many loops");
+    }
+
+    return power;
+}
+
 function factorial(n) {
     let result = 1;
     while (n > 1) {

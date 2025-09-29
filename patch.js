@@ -14,7 +14,7 @@ const presets = [
         name: "Default",
         nodeNumberMode: nodeNumberModeOptions[0],
         hue: 300,
-        leafTempo: 120,
+        leafTempo: 140,
         accentDownbeat: true,
         pitchesHighToLow: true,
         pitchSpread: 1.5,
@@ -36,7 +36,7 @@ const presets = [
         audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
         mts: "3+2*4",
-        displayTempoMode: displayTempoOptions[0]
+        displayTempoMode: displayTempoOptions[1]
     },
     {
         name: "Threshold (sungazer)",

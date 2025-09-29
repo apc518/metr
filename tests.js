@@ -12,55 +12,47 @@ const TIME_SIGNATURE_TESTS = [
     },
     {
         name: "4+4+3 11/16",
-        tree: lls_11_16,
+        tree: LLS_11_16,
         expectedResult: "11/16"
     },
     {
         name: "Basic 3/4",
-        tree: [[],[],[]],
+        tree: "1*3",
         expectedResult: "3/4"
     },
     {
         name: "Duple Subdivided 3/4",
-        tree: [[[],[]],[[],[]],[[],[]]],
+        tree: "2*3",
         expectedResult: "3/4"
     },
     {
         name: "Quadruple Subdivided 3/4",
-        tree: [
-            [[],[],[],[]],
-            [[],[],[],[]],
-            [[],[],[],[]]
-        ],
+        tree: "4*3",
         expectedResult: "3/4"
     },
     {
         name: "Doubly duple Subdivided 3/4",
-        tree: [
-            [[[],[]],[[],[]]],
-            [[[],[]],[[],[]]],
-            [[[],[]],[[],[]]]
-        ],
+        tree: "[2*2]*3",
         expectedResult: "3/4"
     },
     {
         name: "Basic 4/4",
-        tree: [[],[],[],[]],
+        tree: "1*4",
         expectedResult: "4/4"
     },
     {
         name: "Duple then quadruple subdivided 4/4",
-        tree: [
-            [[[],[],[],[]],[[],[],[],[]]],
-            [[[],[],[],[]],[[],[],[],[]]],
-            [[[],[],[],[]],[[],[],[],[]]],
-            [[[],[],[],[]],[[],[],[],[]]]
-        ],
+        tree: "[4+4]*4",
         expectedResult: "4/4"
     },
     {
         name: "Five layer binary tree",
         tree: BINARY_TREE,
+        expectedResult: "2/4"
+    },
+    {
+        name: "Eight layer binary tree",
+        tree: BINARY_TREE_LARGE,
         expectedResult: "2/4"
     },
     {
@@ -75,56 +67,37 @@ const TIME_SIGNATURE_TESTS = [
     },
     {
         name: "4+4+4+3",
-        tree: [
-            [[],[],[],[]],
-            [[],[],[],[]],
-            [[],[],[],[]],
-            [[],[],[]],
-        ],
+        tree: "4+4+4+3",
         expectedResult: "15/16"
     },
     {
         name: "3+3+3+3+3",
-        tree: [
-            [[],[],[]],
-            [[],[],[]],
-            [[],[],[]],
-            [[],[],[]],
-            [[],[],[]]
-        ],
+        tree: "3+3+3+3+3",
         expectedResult: "15/8"
     },
     {
         name: "Untitled Odd Time Combo Tune",
-        tree: [
-            [[[],[]],[[],[]],[[],[],[]]],
-            [[[],[]],[[],[],[]]],
-            [[[],[]],[[],[],[]]],
-        ],
+        tree: "[2+2+3] + [2+3] + [2+3]",
         expectedResult: "17/16"
     },
     {
         name: "Untitled Odd Time Combo Tune Low-res",
-        tree: [
-            [[],[],[],[],[],[],[]],
-            [[],[],[],[],[]],
-            [[],[],[],[],[]],
-        ],
+        tree: "7+5+5",
         expectedResult: "17/16"
     },
     {
         name: "Quintuplet Swing 4/4",
-        tree: [[[[],[],[]],[[],[]]],[[[],[],[]],[[],[]]],[[[],[],[]],[[],[]]],[[[],[],[]],[[],[]]]],
+        tree: "[3+2]*4",
         expectedResult: "20/16"
     },
     {
         name: "3+2 5/16",
-        tree: [[[[],[],[]],[[],[]]]],
+        tree: "[3+2]",
         expectedResult: "5/16"
     },
     {
         name: "12/8 but in sextuplets",
-        tree: [[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]]],
+        tree: "6*4",
         expectedResult: "12/8"
     },
     {
@@ -136,124 +109,62 @@ const TIME_SIGNATURE_TESTS = [
 
 const GENERIC_TESTS = [
     {
-        name: "mtsStringIsValid empty string",
-        func: () => {
-            return mtsStringIsValid("") === true;
-        }
+        name: "mts empty string",
+        func: () => JSON.stringify(createTreeFromMts("")) === '{"children":[],"ratio":1}'
     },
     {
-        name: "mtsStringIsValid single number",
-        func: () => {
-            return mtsStringIsValid("4") === true;
-        }
+        name: "mts single number",
+        func: () => JSON.stringify(createTreeFromMts("4")) === '{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsStringIsValid empty list",
-        func: () => {
-            return mtsStringIsValid("[]") === false;
-        }
+        name: "mts two numbers",
+        func: () => JSON.stringify(createTreeFromMts("4+3")) === '{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsStringIsValid asterisk without something to multiply",
-        func: () => {
-            return mtsStringIsValid("*[2]") === false;
-        }
+        name: "mts brackets basic",
+        func: () => JSON.stringify(createTreeFromMts("[4]")) === '{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsStringIsValid asterisk without a multiplier",
-        func: () => {
-            return mtsStringIsValid("[2*]") === false;
-        }
+        name: "mts brackets medium",
+        func: () => JSON.stringify(createTreeFromMts("[4+3]+[3+4]")) === '{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsStringIsValid good multiplier",
-        func: () => {
-            return mtsStringIsValid("[2*3]") === true;
-        }
+        name: "mts brackets nested",
+        func: () => JSON.stringify(createTreeFromMts("[[4+3]+[3+4]]+[[3+4]+[4+3]]")) === '{"children":[{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsStringIsValid multiple multipliers",
-        func: () => {
-            return mtsStringIsValid("[2*3*3]") === false;
-        }
+        name: "mts with spaces",
+        func: () => JSON.stringify(createTreeFromMts(" [4 +3 ]   +                 [ 3+ 4]")) === '{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsStringIsValid number too big",
-        func: () => {
-            return mtsStringIsValid(`[${maxActualValue+1},3]`) === false;
-        }
+        name: "mts multiplier basic",
+        func: () => JSON.stringify(createTreeFromMts("3*2")) === '{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsStringIsValid number too small",
-        func: () => {
-            return mtsStringIsValid(`[${minActualValue-1},3]`) === false;
-        }
+        name: "mts multiplier medium",
+        func: () => JSON.stringify(createTreeFromMts("4*2+3*3")) === '{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsStringIsValid inconsistent depths",
-        func: () => {
-            return mtsStringIsValid("[[2,3],[[3,2],[2,3]]]") === false;
-        }
+        name: "mts multiplier with nesting",
+        func: () => JSON.stringify(createTreeFromMts("[[4+3]*2] + [[4*2]+[4+3]]")) === JSON.stringify(createTreeFromMts("[[4+3]+[4+3]] + [[4+4]+[4+3]]"))
     },
     {
-        name: "mtsObjectContainsMultipleMultipliersInARow test 1",
-        func: () => {
-            return mtsObjectContainsMultipleMultipliersInARow([{multiplier:3}, {multiplier:3}]) === true;
-        }
+        name: "mts tuplet",
+        func: () => JSON.stringify(createTreeFromMts("4:3+4")) === '{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1.3333333333333333},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsObjectContainsMultipleMultipliersInARow test 2",
-        func: () => {
-            return mtsObjectContainsMultipleMultipliersInARow([2, {multiplier:1}]) === false;
-        }
+        name: "mts tuplet + multiplier",
+        func: () => JSON.stringify(createTreeFromMts("3:4*2+4*3")) === '{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.75},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.75},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsObjectContainsMultipleMultipliersInARow test 3",
-        func: () => {
-            return mtsObjectContainsMultipleMultipliersInARow([[[2,3],{multiplier:2},[3,2]],{multiplier:3}]) === false;
-        }
+        name: "mts with everything",
+        func: () => JSON.stringify(createTreeFromMts("[[4*2+3]:12+[5:6*2+5+6+7+6+5]:48]+[[3*3]+[4*3]]")) === '{"children":[{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":0.9166666666666666},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.8333333333333334},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":0.8333333333333334},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":0.8541666666666666}],"ratio":1},{"children":[{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1},{"children":[{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1},{"children":[{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1},{"children":[],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}],"ratio":1}'
     },
     {
-        name: "mtsObjectContainsMultipleMultipliersInARow test 4",
-        func: () => {
-            return mtsObjectContainsMultipleMultipliersInARow([[[2,3],{multiplier:2},{multiplier:7},[3,2]],{multiplier:3}]) === true;
-        }
-    },
-    {
-        name: "mtsObjectIsValid single number",
-        func: () => {
-            return mtsObjectIsValid(4) === true;
-        }
-    },
-    {
-        name: "mtsObjectIsValid empty list",
-        func: () => {
-            return mtsObjectIsValid([]) === false;
-        }
-    },
-    {
-        name: "mtsObjectIsValid nested lists",
-        func: () => {
-            return mtsObjectIsValid([[2,3],[3,4]]) === true;
-        }
-    },
-    {
-        name: "mtsObjectIsValid value too big",
-        func: () => {
-            return mtsObjectIsValid([[2,maxActualValue+1],[3,4]]) === false;
-        }
-    },
-    {
-        name: "mtsObjectIsValid value just barely small enough",
-        func: () => {
-            return mtsObjectIsValid([[2,maxActualValue-1],[3,4]]) === true;
-        }
-    },
-    {
-        name: "mtsObjectIsValid leaf nodes at different depths via leaf and nonleaf children on the same node",
+        name: "mts asterisk without something to multiply",
         func: () => {
             try{
-                mtsObjectUniformDepth([2,[3,4]]) === false;
+                createTreeFromMts("*[2]");
                 return false;
             }
             catch{
@@ -262,10 +173,10 @@ const GENERIC_TESTS = [
         }
     },
     {
-        name: "mtsObjectIsValid leaf nodes at different depths without any nodes having a leaf and nonleaf child",
+        name: "mts asterisk without a multiplier",
         func: () => {
             try{
-                mtsObjectUniformDepth([[2,3],[[3,2],[2,3]]])
+                createTreeFromMts("[2*]");
                 return false;
             }
             catch{
@@ -274,105 +185,87 @@ const GENERIC_TESTS = [
         }
     },
     {
-        name: "convertRepeatedStructureFlat shallow",
+        name: "mts multiple multipliers",
         func: () => {
-            return JSON.stringify(applyMtsMultipliersFlat([3,{multiplier:3}])) === "[3,3,3]";
+            try{
+                createTreeFromMts("[2*3*3]");
+                return false;
+            }
+            catch{
+                return true;
+            }
         }
     },
     {
-        name: "convertRepeatedStructureFlat deep",
+        name: "mts node number too big",
         func: () => {
-            return JSON.stringify(applyMtsMultipliersFlat([[[3,3],[2,2,3]],{multiplier:2}])) 
-                === "[[[3,3],[2,2,3]],[[3,3],[2,2,3]]]";
+            try{
+                createTreeFromMts(`[${maxNodeNumber+1}+3]`);
+                return false;
+            }
+            catch{
+                return true;
+            }
         }
     },
     {
-        name: "convertRepeatedStructureRecursive shallow",
+        name: "mts node number too small",
         func: () => {
-            return JSON.stringify(applyMtsMultipliersRecursive([3,{multiplier:3}])) === "[3,3,3]";
+            try{
+                createTreeFromMts(`${minNodeNumber-1}+3`);
+                return false;
+            }
+            catch{
+                return true;
+            }
         }
     },
     {
-        name: "convertRepeatedStructureRecursive deep",
+        name: "mts inconsistent depths",
         func: () => {
-            return JSON.stringify(applyMtsMultipliersRecursive([[[3,{multiplier:2}],[5,6],{multiplier:3}],{multiplier:2}])) 
-                === "[[[3,3],[5,6],[5,6],[5,6]],[[3,3],[5,6],[5,6],[5,6]]]";
+            createTreeFromMts("[[2+3]+[[3+2]+[2+3]]]");
+            return true;
         }
     },
     {
-        name: "convertMtsToNestedLists single number",
+        name: "mts multiple multipliers in a row",
         func: () => {
-            return JSON.stringify(convertMtsToNestedLists(2)) === "[[],[]]";
+            try{
+                createTreeFromMts("2**3")
+                return false;
+            }
+            catch{
+                return true;
+            }
         }
     },
     {
-        name: "convertMtsToNestedLists several numbers",
+        name: "mts zero multiplier",
         func: () => {
-            return JSON.stringify(convertMtsToNestedLists([3,4,4])) === "[[[],[],[]],[[],[],[],[]],[[],[],[],[]]]";
-        }
-    },
-    {
-        name: "convertMtsToNestedLists threshold detailed",
-        func: () => {
-            return JSON.stringify(convertMtsToNestedLists([[6,6,7],[6,6,7],[6,6,7],[6,6,7]])) === JSON.stringify(THRESHOLD_DETAILED);
-        }
-    },
-    {
-        name: "parseMts empty string",
-        func: () => {
-            return JSON.stringify(parseMts("")) === "[]";
-        }
-    },
-    {
-        name: "parseMts single number",
-        func: () => {
-            return JSON.stringify(parseMts("14")) === "[[[],[],[],[],[],[],[],[],[],[],[],[],[],[]]]";
-        }
-    },
-    {
-        name: "parseMts single multiplier",
-        func: () => {
-            return JSON.stringify(parseMts("2*3")) === "[[[],[]],[[],[]],[[],[]]]";
-        }
-    },
-    {
-        name: "parseMts two multipliers",
-        func: () => {
-            return JSON.stringify(parseMts("2*3+3*2")) === "[[[],[]],[[],[]],[[],[]],[[],[],[]],[[],[],[]]]";
-        }
-    },
-    {
-        name: "parseMts complex example 1",
-        func: () => {
-            return JSON.stringify(parseMts("[2+3*2]*2+[3+2*2]*3"))
-                === "[[[[],[]],[[],[],[]],[[],[],[]]],[[[],[]],[[],[],[]],[[],[],[]]],[[[],[],[]],[[],[]],[[],[]]],[[[],[],[]],[[],[]],[[],[]]],[[[],[],[]],[[],[]],[[],[]]]]";
-        }
-    },
-    {
-        name: "parseMts 12-bar-blues",
-        func: () => {
-            return JSON.stringify(parseMts("[[3*4]*4]*3")) === JSON.stringify(BLUES_12_BARS);
-        }
-    },
-    {
-        name: "parseMts zero multiplier",
-        func: () => {
-            return JSON.stringify(parseMts("3+2*0")) === JSON.stringify([[[],[],[]]]);
+            return JSON.stringify(createTreeFromMts("3+2*0")) === JSON.stringify(createTreeFromMts("3"));
         }
     },
     {
         name: "MetricTree pre-prune",
         func: () => {
-            let t = new MetricTree(parseMts("1*4"));
+            let t = createTreeFromMts("1*4");
             return t.getDepth() === 2;
         }
     },
     {
         name: "MetricTree post-prune",
         func: () => {
-            let t = new MetricTree(parseMts("1*4"));
+            let t = createTreeFromMts("1*4");
             t.pruneLeaves();
             return t.getDepth() === 1;
+        }
+    },
+    {
+        name: "Prune with tuplets",
+        func: () => {
+            let t = createTreeFromMts("1:3+1:3");
+            t.pruneLeaves();
+            return t.getDepth() === 2;
         }
     },
     {
@@ -388,19 +281,96 @@ const GENERIC_TESTS = [
 
             return true;
         }
+    },
+    {
+        name: "Leaf node portion values",
+        func: () => {
+            let tree_ = new MetricTree();
+
+            tree_.addChild(new MetricTree());
+            for (let k = 0; k < 2; k++){
+                const child = new MetricTree();
+                for (let w = 0; w < 2; w++){
+                    child.addChild(new MetricTree());
+                }
+                tree_.children[0].addChild(child);
+            }
+
+            const lastBeat = new MetricTree(5/4);
+            const lastBeatSubDiv1 = new MetricTree(2/3);
+            const lastBeatSubDiv2 = new MetricTree();
+            for (let i = 0; i < 2; i++){
+                lastBeatSubDiv1.addChild(new MetricTree());
+                lastBeatSubDiv2.addChild(new MetricTree());
+            }
+            lastBeat.addChild(lastBeatSubDiv1);
+            lastBeat.addChild(lastBeatSubDiv2);
+
+            tree_.addChild(lastBeat);
+
+            return JSON.stringify(tree_.getLeafNodeCyclePortionValues()) === JSON.stringify([0, 0.125, 0.25, 0.375, 0.5, 0.65, 0.8, 0.9]);
+        }
+    },
+    {
+        name: "Tokenizing invalid character",
+        func: () => {
+            try{
+                parseTokens("n");
+                return false;
+            } 
+            catch{
+                return true;
+            }
+        }
+    },
+    {
+        name: "Tokenizing invalid character within otherwise valid mts",
+        func: () => {
+            try{
+                parseTokens("3+4n+3");
+                return false;
+            } 
+            catch{
+                return true;
+            }
+        }
+    },
+    {
+        name: "Tokenizing max number",
+        func: () => {
+            try{
+                parseTokens(`[${maxValueAll+1}+3]`);
+                return false;
+            }
+            catch{
+                return true;
+            }
+        }
+    },
+    {
+        name: "Tokenizing complex",
+        func: () => {
+            return JSON.stringify(parseTokens(" [ 6+6:5 +5*2]:19 + [4*5]")) === "[{\"value\":\"[\",\"idx\":1,\"length\":1},{\"value\":6,\"idx\":3,\"length\":1},{\"value\":\"+\",\"idx\":4,\"length\":1},{\"value\":6,\"idx\":5,\"length\":1},{\"value\":\":\",\"idx\":6,\"length\":1},{\"value\":5,\"idx\":7,\"length\":1},{\"value\":\"+\",\"idx\":9,\"length\":1},{\"value\":5,\"idx\":10,\"length\":1},{\"value\":\"*\",\"idx\":11,\"length\":1},{\"value\":2,\"idx\":12,\"length\":1},{\"value\":\"]\",\"idx\":13,\"length\":1},{\"value\":\":\",\"idx\":14,\"length\":1},{\"value\":19,\"idx\":15,\"length\":2},{\"value\":\"+\",\"idx\":18,\"length\":1},{\"value\":\"[\",\"idx\":20,\"length\":1},{\"value\":4,\"idx\":21,\"length\":1},{\"value\":\"*\",\"idx\":22,\"length\":1},{\"value\":5,\"idx\":23,\"length\":1},{\"value\":\"]\",\"idx\":24,\"length\":1}]";
+        }
     }
 ]
 
 function runTimeSignatureTests(){
     let passedCount = 0;
     TIME_SIGNATURE_TESTS.forEach(test => {
-        let tree = new MetricTree(test.tree);
-        let passed = tree.getTimeSignature() === test.expectedResult;
-        if (!passed){
-            console.log(`%cTest \"${test.name}\" FAILED:`, consoleErrorStyle, test);
+        try{
+            let tree = createTreeFromMts(test.tree);
+            let passed = tree.getTimeSignature() === test.expectedResult;
+            if (!passed){
+                console.log(`%cTest \"${test.name}\" FAILED:`, consoleErrorStyle, test);
+            }
+            else{
+                // console.log(`%cTest \"${test.name}\" succeeded:`, consoleGoodStyle, test);
+                passedCount += 1;
+            }
         }
-        else{
-            passedCount += 1;
+        catch(e){
+            console.error(`Test \"${test.name}\" FAILED (ERROR): ${e}`);
         }
     })
     if (passedCount === TIME_SIGNATURE_TESTS.length){
@@ -419,11 +389,12 @@ function runGenericTests(){
                 console.log(`%cTest \"${test.name}\" FAILED:`, consoleErrorStyle, test);
             }
             else{
+                // console.log(`%cTest \"${test.name}\" succeeded:`, consoleGoodStyle, test);
                 passedCount += 1;
             }
         }
         catch(e){
-            console.error(`Test \"${test.name}\" FAILED: ${e}`);
+            console.error(`Test \"${test.name}\" FAILED (ERROR): ${e}`);
         }
     });
     if (passedCount === GENERIC_TESTS.length){

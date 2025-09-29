@@ -49,7 +49,7 @@ class MetricTree {
             sum += child.trueWidth() / this.ratio;
         }
 
-        return sum;
+        return Math.round(sum);
     }
 
     /**
@@ -60,7 +60,7 @@ class MetricTree {
         for (let child of this.children){
             total += child.trueWidth();
         }
-        return total;
+        return Math.round(total);
     }
 
     /**

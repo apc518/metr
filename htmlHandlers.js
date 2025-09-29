@@ -150,22 +150,27 @@ function calculateLeafTempo(displayTempoValue){
 function calculateDisplayTempo(){
     const tree = createTreeFromMts(currentPatch.mts);
     const trueWidths = tree.getChildrensTrueWidths();
+    let returnValue = null;
     if (currentPatch.displayTempoMode === "Largest Beat"){
         let maxBeatSize = 0;
         for (let count of trueWidths){
             maxBeatSize = Math.max(maxBeatSize, count);
         }
-        return (currentPatch.leafTempo / maxBeatSize);
+        returnValue = (currentPatch.leafTempo / maxBeatSize);
     }
     else if (currentPatch.displayTempoMode === "Smallest Beat"){
         let minBeatSize = Infinity;
         for (let count of trueWidths){
             minBeatSize = Math.min(minBeatSize, count);
         }
-        return currentPatch.leafTempo / minBeatSize;
+        returnValue = currentPatch.leafTempo / minBeatSize;
     }
     else{
-        return currentPatch.leafTempo;
+        returnValue = currentPatch.leafTempo;
+    }
+
+    if (Math.abs(returnValue - Math.round(returnValue)) < 0.000001){
+        return Math.round(returnValue);
     }
 }
 

@@ -136,7 +136,7 @@ function _drawMetricTreeRecursive(tree, depth) {
         fill(tree.on ? getPatchHighlightColor() : OFF_COLOR);
         textSize(textSizeValue);
         textAlign("center");
-        let textValue = `${currentPatch.nodeNumberMode === "Leaves" ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.childrensTrueWidthSum() / tree.ratio}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
+        let textValue = `${currentPatch.nodeNumberMode === "Leaves" ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.trueWidth()}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
         text(textValue, tree.pos.x, tree.pos.y);
         // ellipse(tree.pos.x, tree.pos.y, 3, 3); // show anchor point of text
         pop();

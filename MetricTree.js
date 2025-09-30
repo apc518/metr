@@ -123,7 +123,7 @@ class MetricTree {
 
     getLeafParentCounts(){
         if (this.isLeaf()){
-            throw new Error("Call to get leaf parent counts on a leaf node");
+            return [];
         }
         if (this.getMaxDepth() === 1){
             return [this.children.length];
@@ -134,7 +134,7 @@ class MetricTree {
 
     getLeafParentWidths(){
         if (this.isLeaf()){
-            throw new Error("Call to get leaf parent widths on a leaf node");
+            return [];
         }
         if (this.getMaxDepth() === 1){
             return [this.trueWidth()];

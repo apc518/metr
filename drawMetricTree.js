@@ -12,19 +12,19 @@ let verticalSpacing = 160;
 let horizontalSpacing = 50;
 let textSizeValue = 50;
 let lineThickness = 4;
-let totalDepth = 1;
+let totalMaxDepth = 1;
 let leafProgressValues = [];
 
 
 function drawMetricTree(tree, depth){
-    totalDepth = max(1, tree.getMaxDepth());
+    totalMaxDepth = max(1, tree.getMaxDepth());
     leafProgressValues = tree.getLeafNodeCyclePortionValues();
 
     let leafCountForDisplay = tree.getLeafNodeCount() + 1;
-    let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalDepth;
+    let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalMaxDepth;
 
     textSizeValue = min(layerHeight * 1 / 4, 1.3 * canvasWidth / leafCountForDisplay);
-    verticalSpacing = (layerHeight * 3 / 4) - (textSizeValue / totalDepth);
+    verticalSpacing = (layerHeight * 3 / 4) - (textSizeValue / totalMaxDepth);
     horizontalSpacing = (canvasWidth - 2) / leafCountForDisplay;
     lineThickness = max(1, textSizeValue / 15);
 
@@ -37,15 +37,16 @@ function _drawMetricTreeRecursive(tree, depth) {
     let leafCount = 0;
 
     for (let i = 0; i < tree.children.length; i++){
-        leafCount += _drawMetricTreeRecursive(tree.children[i], depth + 1, totalDepth);
+        leafCount += _drawMetricTreeRecursive(tree.children[i], depth + 1, totalMaxDepth);
     }
 
     tree.pos = {x: null, y: VERTICAL_PADDING + textSizeValue + depth * verticalSpacing}
 
     let leaf = tree.isLeaf();
 
-    if (leaf){ 
+    if (leaf){
         tree.pos.x = HORIZONTAL_PADDING / 2 + (canvasWidth - HORIZONTAL_PADDING) * (leafProgressValues[leafCounter] + (leafProgressValues[leafCounter + 1] ?? 1)) / 2;
+        tree.pos.y = VERTICAL_PADDING + textSizeValue + totalMaxDepth * verticalSpacing;
         tree.on = leafProgressValues[leafCounter] <= globalProgress % 1 && globalProgress % 1 < (leafProgressValues[leafCounter + 1] ?? 1);
         tree.index = leafCounter;
     }
@@ -59,7 +60,7 @@ function _drawMetricTreeRecursive(tree, depth) {
         tree.pos.x = sumOfChildXPositions / tree.children.length;
     }
 
-    if (depth <= totalDepth - currentPatch.numLayersMuted){
+    if (depth <= totalMaxDepth - currentPatch.numLayersMuted){
         push();
         noStroke();
         fill(tree.on ? getPatchHighlightColor() : OFF_COLOR);
@@ -70,7 +71,7 @@ function _drawMetricTreeRecursive(tree, depth) {
         // ellipse(tree.pos.x, tree.pos.y, 3, 3); // show anchor point of text
         pop();
     }
-    if (depth < totalDepth - currentPatch.numLayersMuted){
+    if (depth < totalMaxDepth - currentPatch.numLayersMuted){
         if (!leaf){
             push();
             noFill();

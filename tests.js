@@ -249,7 +249,7 @@ const GENERIC_TESTS = [
         name: "MetricTree pre-prune",
         func: () => {
             let t = createTreeFromMts("1*4");
-            return t.getDepth() === 2;
+            return t.getMaxDepth() === 2;
         }
     },
     {
@@ -257,7 +257,7 @@ const GENERIC_TESTS = [
         func: () => {
             let t = createTreeFromMts("1*4");
             t.pruneLeaves();
-            return t.getDepth() === 1;
+            return t.getMaxDepth() === 1;
         }
     },
     {
@@ -265,7 +265,47 @@ const GENERIC_TESTS = [
         func: () => {
             let t = createTreeFromMts("1:3+1:3");
             t.pruneLeaves();
-            return t.getDepth() === 2;
+            return t.getMaxDepth() === 2;
+        }
+    },
+    {
+        name: "Prune with n:1 where n > 1",
+        func: () => {
+            let t = createTreeFromMts("1+3:1");
+            t.pruneLeaves();
+            return t.getMaxDepth() === 2;
+        }
+    },
+    {
+        name: "Prune with variable depth",
+        func: () => {
+            let t = createTreeFromMts("4+[1]");
+            t.pruneLeaves();
+            return t.getMaxDepth() === 3;
+        }
+    },
+    {
+        name: "Prune [1]:2",
+        func: () => {
+            let t = createTreeFromMts("[1]:2");
+            t.pruneLeaves();
+            return t.getMaxDepth() === 2;
+        }
+    },
+    {
+        name: "Prune [1:2]",
+        func: () => {
+            let t = createTreeFromMts("[1:2]");
+            t.pruneLeaves();
+            return t.getMaxDepth() === 3;
+        }
+    },
+    {
+        name: "Prune complex",
+        func: () => {
+            let t = createTreeFromMts("4+5:1+[1]");
+            t.pruneLeaves();
+            return t.getMaxDepth() === 3;
         }
     },
     {

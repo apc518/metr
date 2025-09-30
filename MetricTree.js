@@ -22,12 +22,20 @@ class MetricTree {
         this.children.push(metricTree);
     }
 
-    getDepth(){
+    getMaxDepth(){
         if (this.isLeaf()){
             return 0;
         }
         
-        return 1 + max(Array.from(this.children, t => t.getDepth()));
+        return 1 + max(Array.from(this.children, t => t.getMaxDepth()));
+    }
+
+    getMinDepth(){
+        if (this.isLeaf()){
+            return 0;
+        }
+
+        return 1 + min(Array.from(this.children, t => t.getMinDepth()));
     }
 
     /**
@@ -113,13 +121,26 @@ class MetricTree {
         return Array.from(this.children, t => t.trueWidth());
     }
 
-
-    getLeafNodeCountsAtDepth(depth, targetDepth){
-        if (depth + 1 >= targetDepth){
-            return Array.from(this.children, t => t.getLeafNodeCount());
+    getLeafParentCounts(){
+        if (this.isLeaf()){
+            throw new Error("Call to get leaf parent counts on a leaf node");
+        }
+        if (this.getMaxDepth() === 1){
+            return [this.children.length];
         }
 
-        return Array.from(this.children, t => t.getLeafNodeCountsAtDepth(depth + 1, targetDepth)).flat(1);
+        return Array.from(this.children, c => c.getLeafParentCounts()).flat(1);
+    }
+
+    getLeafParentWidths(){
+        if (this.isLeaf()){
+            throw new Error("Call to get leaf parent widths on a leaf node");
+        }
+        if (this.getMaxDepth() === 1){
+            return [this.trueWidth()];
+        }
+
+        return Array.from(this.children, c => c.getLeafParentWidths()).flat(1);
     }
 
     getTrueWidthsAtDepth(targetDepth){
@@ -173,7 +194,7 @@ class MetricTree {
     }
 
     minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf){
-        let thisDepth = this.getDepth();
+        let thisDepth = this.getMaxDepth();
 
         for (let depth = 0; depth < thisDepth; depth++){
             // console.log(`this.leafIsLeftmostAtDepth(${leaf}, ${depth}, ${0}) -> ${this.leafIsLeftmostAtDepth(leaf, depth, 0)}`);
@@ -189,10 +210,16 @@ class MetricTree {
      * This does not really affect the defined meter, but helps visually
      * for trees representing very simple meters like 4/4 */
     pruneLeaves(){
-        let leafParentCounts = this.getTrueWidthsAtDepth(this.getDepth() - 1);
+        let leafParentWidths = this.getLeafParentWidths();
+        let leafParentCounts = this.getLeafParentCounts();
         let leafParentsAreAllOnes = true;
-        for (let lpc of leafParentCounts){
-            if (lpc !== 1){
+        for (let count of leafParentCounts){
+            if (count !== 1){
+                leafParentsAreAllOnes = false;
+            }
+        }
+        for (let width of leafParentWidths){
+            if (width !== 1){
                 leafParentsAreAllOnes = false;
             }
         }
@@ -204,7 +231,7 @@ class MetricTree {
 
     /** Remove all the leaves from the tree, leaving the parents of the old leaves as the new leaves. */
     removeLeaves(){
-        if (this.getDepth() === 1){
+        if (this.getMaxDepth() === 1){
             this.children = [];
             return;
         }

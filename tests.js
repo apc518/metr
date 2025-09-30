@@ -249,7 +249,7 @@ const GENERIC_TESTS = [
         name: "MetricTree pre-prune",
         func: () => {
             let t = createTreeFromMts("1*4");
-            return t.getDepth() === 2;
+            return t.getMaxDepth() === 2;
         }
     },
     {
@@ -257,7 +257,7 @@ const GENERIC_TESTS = [
         func: () => {
             let t = createTreeFromMts("1*4");
             t.pruneLeaves();
-            return t.getDepth() === 1;
+            return t.getMaxDepth() === 1;
         }
     },
     {
@@ -265,7 +265,7 @@ const GENERIC_TESTS = [
         func: () => {
             let t = createTreeFromMts("1:3+1:3");
             t.pruneLeaves();
-            return t.getDepth() === 2;
+            return t.getMaxDepth() === 2;
         }
     },
     {

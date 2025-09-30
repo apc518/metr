@@ -192,7 +192,7 @@ let leafProgressValues = [];
 
 
 function drawMetricTree(tree, depth){
-    totalDepth = max(1, tree.getDepth());
+    totalDepth = max(1, tree.getMaxDepth());
     leafProgressValues = tree.getLeafNodeCyclePortionValues();
 
     let leafCountForDisplay = tree.getLeafNodeCount() + 1;

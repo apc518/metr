@@ -172,6 +172,8 @@ function calculateDisplayTempo(){
     if (Math.abs(returnValue - Math.round(returnValue)) < 0.000001){
         return Math.round(returnValue);
     }
+
+    return returnValue;
 }
 
 function setTempoInputFromCurrentPatch(){

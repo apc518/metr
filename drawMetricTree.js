@@ -1,3 +1,38 @@
+function getPatchHighlightColor(){
+    return `hsl(${currentPatch.hue}, 100%, 50%)`;
+}
+
+let leafCounter = 0;
+let totalLeaves = 0;
+
+const OFF_COLOR = "hsl(0, 0%, 30%)"
+const VERTICAL_PADDING = 25;
+const HORIZONTAL_PADDING = 30;
+let verticalSpacing = 160;
+let horizontalSpacing = 50;
+let textSizeValue = 50;
+let lineThickness = 4;
+let totalDepth = 1;
+let leafProgressValues = [];
+
+
+function drawMetricTree(tree, depth){
+    totalDepth = max(1, tree.getMaxDepth());
+    leafProgressValues = tree.getLeafNodeCyclePortionValues();
+
+    let leafCountForDisplay = tree.getLeafNodeCount() + 1;
+    let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalDepth;
+
+    textSizeValue = min(layerHeight * 1 / 4, 1.3 * canvasWidth / leafCountForDisplay);
+    verticalSpacing = (layerHeight * 3 / 4) - (textSizeValue / totalDepth);
+    horizontalSpacing = (canvasWidth - 2) / leafCountForDisplay;
+    lineThickness = max(1, textSizeValue / 15);
+
+    
+    _drawMetricTreeRecursive(tree, depth);
+}
+
+
 function _drawMetricTreeRecursive(tree, depth) {
     let leafCount = 0;
 
@@ -63,38 +98,4 @@ function _drawMetricTreeRecursive(tree, depth) {
     }
 
     return leaf ? 1 : leafCount;
-}
-
-function getPatchHighlightColor(){
-    return `hsl(${currentPatch.hue}, 100%, 50%)`;
-}
-
-let leafCounter = 0;
-let totalLeaves = 0;
-
-const OFF_COLOR = "hsl(0, 0%, 30%)"
-const VERTICAL_PADDING = 25;
-const HORIZONTAL_PADDING = 30;
-let verticalSpacing = 160;
-let horizontalSpacing = 50;
-let textSizeValue = 50;
-let lineThickness = 4;
-let totalDepth = 1;
-let leafProgressValues = [];
-
-
-function drawMetricTree(tree, depth){
-    totalDepth = max(1, tree.getMaxDepth());
-    leafProgressValues = tree.getLeafNodeCyclePortionValues();
-
-    let leafCountForDisplay = tree.getLeafNodeCount() + 1;
-    let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalDepth;
-
-    textSizeValue = min(layerHeight * 1 / 4, 1.3 * canvasWidth / leafCountForDisplay);
-    verticalSpacing = (layerHeight * 3 / 4) - (textSizeValue / totalDepth);
-    horizontalSpacing = (canvasWidth - 2) / leafCountForDisplay;
-    lineThickness = max(1, textSizeValue / 15);
-
-    
-    _drawMetricTreeRecursive(tree, depth);
 }

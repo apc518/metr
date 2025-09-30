@@ -285,6 +285,22 @@ const GENERIC_TESTS = [
         }
     },
     {
+        name: "Prune [1]:2",
+        func: () => {
+            let t = createTreeFromMts("[1]:2");
+            t.pruneLeaves();
+            return t.getMaxDepth() === 2;
+        }
+    },
+    {
+        name: "Prune [1:2]",
+        func: () => {
+            let t = createTreeFromMts("[1:2]");
+            t.pruneLeaves();
+            return t.getMaxDepth() === 3;
+        }
+    },
+    {
         name: "Prune complex",
         func: () => {
             let t = createTreeFromMts("4+5:1+[1]");

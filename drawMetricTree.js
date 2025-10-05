@@ -8,9 +8,9 @@ let totalLeaves = 0;
 const OFF_COLOR = "hsl(0, 0%, 30%)"
 const VERTICAL_PADDING = 25;
 const HORIZONTAL_PADDING = 30;
-let verticalSpacing = 160;
-let horizontalSpacing = 50;
-let textSizeValue = 50;
+let verticalSpacing;
+let horizontalSpacing;
+let textSizeValue;
 let lineThickness = 4;
 let totalMaxDepth = 1;
 let leafProgressValues = [];
@@ -23,7 +23,7 @@ function drawMetricTree(tree, depth){
     let leafCountForDisplay = tree.getLeafNodeCount() + 1;
     let layerHeight = (canvasHeight - 2 * VERTICAL_PADDING) / totalMaxDepth;
 
-    textSizeValue = min(layerHeight * 1 / 4, 1.3 * canvasWidth / leafCountForDisplay);
+    textSizeValue = min(layerHeight * 1 / 4, 1.3 * canvasWidth / leafCountForDisplay) + 10;
     verticalSpacing = (layerHeight * 3 / 4) - (textSizeValue / totalMaxDepth);
     horizontalSpacing = (canvasWidth - 2) / leafCountForDisplay;
     lineThickness = max(1, textSizeValue / 15);
@@ -40,13 +40,15 @@ function _drawMetricTreeRecursive(tree, depth) {
         leafCount += _drawMetricTreeRecursive(tree.children[i], depth + 1, totalMaxDepth);
     }
 
-    tree.pos = {x: null, y: VERTICAL_PADDING + textSizeValue + depth * verticalSpacing}
+    tree.pos = {x: null, y: canvasHeight - (VERTICAL_PADDING + textSizeValue + depth * verticalSpacing)}
+    // tree.pos = {x: null, y: (VERTICAL_PADDING + textSizeValue + depth * verticalSpacing)}
 
     let leaf = tree.isLeaf();
 
     if (leaf){
         tree.pos.x = HORIZONTAL_PADDING / 2 + (canvasWidth - HORIZONTAL_PADDING) * (leafProgressValues[leafCounter] + (leafProgressValues[leafCounter + 1] ?? 1)) / 2;
-        tree.pos.y = VERTICAL_PADDING + textSizeValue + totalMaxDepth * verticalSpacing;
+        tree.pos.y = canvasHeight - (VERTICAL_PADDING + textSizeValue + totalMaxDepth * verticalSpacing);
+        // tree.pos.y = (VERTICAL_PADDING + textSizeValue + totalMaxDepth * verticalSpacing);
         tree.on = leafProgressValues[leafCounter] <= globalProgress % 1 && globalProgress % 1 < (leafProgressValues[leafCounter + 1] ?? 1);
         tree.index = leafCounter;
     }
@@ -64,7 +66,7 @@ function _drawMetricTreeRecursive(tree, depth) {
         push();
         noStroke();
         fill(tree.on ? getPatchHighlightColor() : OFF_COLOR);
-        textSize(textSizeValue);
+        textSize(textSizeValue - (leaf ? 10 : 0));
         textAlign("center");
         let textValue = `${currentPatch.nodeNumberMode === "Leaves" ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.trueWidth()}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
         text(textValue, tree.pos.x, tree.pos.y);
@@ -76,19 +78,23 @@ function _drawMetricTreeRecursive(tree, depth) {
             push();
             noFill();
             strokeWeight(lineThickness);
-            let lineThatIsOnIdx = -1;
+            let highlightedLineIdx = -1;
             for (let i = 0; i < tree.children.length; i++){
                 let t = tree.children[i];
                 if (t.on){ 
-                    lineThatIsOnIdx = i;
+                    highlightedLineIdx = i;
                     continue;
                 }
                 stroke(OFF_COLOR);
-                line(tree.pos.x, tree.pos.y + textSizeValue / 5, t.pos.x, t.pos.y - textSizeValue);
+                // line(tree.pos.x, tree.pos.y + textSizeValue / 5, t.pos.x, t.pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)));
+                line(tree.pos.x, tree.pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)), t.pos.x, t.pos.y + textSizeValue / 5);
             }
-            if (lineThatIsOnIdx >= 0){
+
+            // draw highlighted line now (after all the others) so it's always on top
+            if (highlightedLineIdx >= 0){
                 stroke(getPatchHighlightColor());
-                line(tree.pos.x, tree.pos.y + textSizeValue / 5, tree.children[lineThatIsOnIdx].pos.x, tree.children[lineThatIsOnIdx].pos.y - textSizeValue);
+                // line(tree.pos.x, tree.pos.y + textSizeValue / 5, tree.children[highlightedLineIdx].pos.x, tree.children[highlightedLineIdx].pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)));
+                line(tree.pos.x, tree.pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)), tree.children[highlightedLineIdx].pos.x, tree.children[highlightedLineIdx].pos.y + textSizeValue / 5);
                 pop();
             }
         }

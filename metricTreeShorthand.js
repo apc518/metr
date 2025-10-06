@@ -219,7 +219,7 @@ function createTreeFromMts(mts){
                 throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`)
             }
             const lastChild = tree.children[tree.children.length - 1];
-            lastChild.ratio = lastChild.trueWidth() / tokens[i].value;
+            lastChild.ratio = lastChild.getTrueWidth() / tokens[i].value;
             increment();
         }
 

@@ -338,7 +338,8 @@ playPauseBtn.onclick = () => {
 resetBtn.onclick = () => {
     resetBtn.blur();
     pause_();
-    globalProgress = 0;
+    resetAudio();
+    totalTimeSpentPausedUntilLastPlay = 0;
     fullRefresh();
 }
 

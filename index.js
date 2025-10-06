@@ -27,32 +27,34 @@ function epsilonFloor(num){
     return Math.floor(num + 0.0000001);
 }
 
-function cycleDuration(){
-    return globalTree.trueWidth() * 60 / currentPatch.leafTempo;
+function getCycleDuration(){
+    // depends on `totalWidth` being accurate, which has to be set any time the tree changes (it is so in fullRefresh)
+    return totalWidth * 60 / currentPatch.leafTempo;
+
+    // less stateful but takes around twice as long
+    // return globalTree.getTrueWidth() * 60 / currentPatch.leafTempo;
 }
 
-function framesPerCycle(){
-    return FRAMERATE * cycleDuration();
-}
-
-
-// NOTE: if we add functionality to jump around while playing, we should re-call play_() when we do the jumps
 function play_(){
+    if (isLooping()){
+        console.error("play_() called while already playing");
+        return;
+    }
     createSounds().then(() => {
-        // calculate and set time offset based on globalProgress
-        audioCtxTimeOffset = audioCtx.currentTime - globalProgress * cycleDuration();
-    
-        if (!isLooping()){
-            scheduleInitialSounds();
-        }
+        totalTimeSpentPausedUntilLastPlay += audioCtx.currentTime - audioCtxTimeLastPaused;
         
+        scheduleSounds();
         loop();
+
         playPauseBtnIcon.src = "assets/images/pause.png";
     });
 }
 
-
 function pause_(){
+    if (audioCtx){
+        audioCtxTimeLastPaused = audioCtx.currentTime;
+    }
+    
     noLoop();
     playPauseBtnIcon.src = "assets/images/play.png";
 }
@@ -64,8 +66,7 @@ function fullRefresh(){
     globalTree = createTreeFromMts(currentPatch.mts);
     globalTree.pruneLeaves();
     totalLeaves = globalTree.getLeafNodeCount();
-    progressIncrement = currentPatch.leafTempo / (FRAMERATE * globalTree.trueWidth() * 60);
-    if (isLooping()) play_();
+    totalWidth = globalTree.getTrueWidth();
     paint();
 }
 
@@ -115,18 +116,15 @@ function paint(){
     document.getElementById("timeSigDisplay").innerText = globalTree.getTimeSignature();
 }
 
-let globalProgress = 0; // 0 -> beginning, 1 -> one full cycle has passed, 2 -> two full cycles have passed, etc
-let progressIncrement = 0;
 
 function draw() {
     if (!p5canvas) return;
     if (!isLooping()) return;
 
     paint();
-
     scheduleSounds();
 
-    globalProgress += progressIncrement;
+    document.getElementById("frameRateMonitor").innerText = `${Math.round(frameRate())}fps`;
 }
 
 function keyPressed(){

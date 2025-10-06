@@ -324,3 +324,7 @@ input[type="checkbox"]{
     min-height: 2px;
     background-color: #111;
 }
+
+#frameRateMonitor{
+	color: white;
+}

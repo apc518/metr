@@ -5,6 +5,8 @@ function getPatchHighlightColor(){
 let leafCounter = 0;
 let totalLeaves = 0;
 
+let displayTreeUpsideDown = false;
+
 const OFF_COLOR = "hsl(0, 0%, 30%)"
 const VERTICAL_PADDING = 25;
 const HORIZONTAL_PADDING = 30;
@@ -40,15 +42,23 @@ function _drawMetricTreeRecursive(tree, depth) {
         leafCount += _drawMetricTreeRecursive(tree.children[i], depth + 1, totalMaxDepth);
     }
 
-    tree.pos = {x: null, y: canvasHeight - (VERTICAL_PADDING + textSizeValue + depth * verticalSpacing)}
-    // tree.pos = {x: null, y: (VERTICAL_PADDING + textSizeValue + depth * verticalSpacing)}
+    if (displayTreeUpsideDown){
+        tree.pos = {x: null, y: canvasHeight - (VERTICAL_PADDING + textSizeValue + depth * verticalSpacing)}
+    }
+    else{
+        tree.pos = {x: null, y: (VERTICAL_PADDING + textSizeValue + depth * verticalSpacing)}
+    }
 
     let leaf = tree.isLeaf();
 
     if (leaf){
         tree.pos.x = HORIZONTAL_PADDING / 2 + (canvasWidth - HORIZONTAL_PADDING) * (leafProgressValues[leafCounter] + (leafProgressValues[leafCounter + 1] ?? 1)) / 2;
-        tree.pos.y = canvasHeight - (VERTICAL_PADDING + textSizeValue + totalMaxDepth * verticalSpacing);
-        // tree.pos.y = (VERTICAL_PADDING + textSizeValue + totalMaxDepth * verticalSpacing);
+        if (displayTreeUpsideDown){
+            tree.pos.y = canvasHeight - (VERTICAL_PADDING + textSizeValue + totalMaxDepth * verticalSpacing);
+        }
+        else{
+            tree.pos.y = (VERTICAL_PADDING + textSizeValue + totalMaxDepth * verticalSpacing);
+        }
         tree.on = leafProgressValues[leafCounter] <= globalProgress % 1 && globalProgress % 1 < (leafProgressValues[leafCounter + 1] ?? 1);
         tree.index = leafCounter;
     }
@@ -86,15 +96,23 @@ function _drawMetricTreeRecursive(tree, depth) {
                     continue;
                 }
                 stroke(OFF_COLOR);
-                // line(tree.pos.x, tree.pos.y + textSizeValue / 5, t.pos.x, t.pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)));
-                line(tree.pos.x, tree.pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)), t.pos.x, t.pos.y + textSizeValue / 5);
+                if (displayTreeUpsideDown){
+                    line(tree.pos.x, tree.pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)), t.pos.x, t.pos.y + textSizeValue / 5);
+                }
+                else{
+                    line(tree.pos.x, tree.pos.y + textSizeValue / 5, t.pos.x, t.pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)));
+                }
             }
 
             // draw highlighted line now (after all the others) so it's always on top
             if (highlightedLineIdx >= 0){
                 stroke(getPatchHighlightColor());
-                // line(tree.pos.x, tree.pos.y + textSizeValue / 5, tree.children[highlightedLineIdx].pos.x, tree.children[highlightedLineIdx].pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)));
-                line(tree.pos.x, tree.pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)), tree.children[highlightedLineIdx].pos.x, tree.children[highlightedLineIdx].pos.y + textSizeValue / 5);
+                if (displayTreeUpsideDown){
+                    line(tree.pos.x, tree.pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)), tree.children[highlightedLineIdx].pos.x, tree.children[highlightedLineIdx].pos.y + textSizeValue / 5);
+                }
+                else{
+                    line(tree.pos.x, tree.pos.y + textSizeValue / 5, tree.children[highlightedLineIdx].pos.x, tree.children[highlightedLineIdx].pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)));
+                }
                 pop();
             }
         }

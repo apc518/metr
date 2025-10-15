@@ -32,6 +32,7 @@ function drawMetricTree(tree, depth){
     lineThickness = max(1, textSizeValue / 15);
 
     _drawMetricTreeRecursive(tree, depth, getGlobalProgress());
+    _drawMetricTreeRecursive(tree, depth, getGlobalProgress());
 }
 
 

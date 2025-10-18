@@ -7,6 +7,32 @@ class MetricTree {
         this.ratio = ratio;
     }
 
+    equals(otherTree){
+        if (this.ratio != otherTree.ratio){
+            return false;
+        }
+
+        if (this.isLeaf() != (otherTree.children.length == 0)){
+            return false;
+        }
+
+        if (this.isLeaf() && (otherTree.children.length == 0)){
+            return true;
+        }
+
+        if (otherTree.children.length !== this.children.length){
+            return false;
+        }
+
+        for (let [i, child] of this.children.entries()){
+            if (!child.equals(otherTree.children[i])){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     copy(){
         if (this.isLeaf()){
             return new MetricTree();

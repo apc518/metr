@@ -170,6 +170,8 @@ function createTreeFromMts(mts){
     const tokens = parseTokens(mts);
 
     // console.log("tokens:", tokens);
+
+    let leafIndex = 0;
     
     let i = 0;
 
@@ -196,6 +198,10 @@ function createTreeFromMts(mts){
             }
 
             const child = new MetricTree();
+            
+            child.index = leafIndex;
+            leafIndex += 1;
+
             Array.from({length: tokens[i].value}, () => child.addChild(new MetricTree()));
             tree.addChild(child);
         }

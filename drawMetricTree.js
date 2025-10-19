@@ -61,7 +61,6 @@ function _drawMetricTreeRecursive(tree, depth, globalProgress) {
             tree.pos.y = (VERTICAL_PADDING + textSizeValue + totalMaxDepth * verticalSpacing);
         }
         tree.on = leafProgressValues[leafCounter] <= globalProgress % 1 && globalProgress % 1 < (leafProgressValues[leafCounter + 1] ?? 1);
-        tree.index = leafCounter;
     }
     else{
         let sumOfChildXPositions = 0;

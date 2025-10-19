@@ -216,7 +216,13 @@ class MetricTree {
             return this.leafIsLeftmost(leaf);
         }
 
-        return Array.from(this.children, c => c.leafIsLeftmostAtDepth(leaf, targetDepth, depth + 1)).some(x => x);
+        for (let child of this.children){
+            if (child.leafIsLeftmostAtDepth(leaf, targetDepth, depth + 1)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf){

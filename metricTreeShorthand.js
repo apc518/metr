@@ -199,15 +199,7 @@ function createTreeFromMts(mts){
 
             const child = new MetricTree();
             
-            Array.from({length: tokens[i].value}, () => 
-                {
-                    const leaf = new MetricTree();
-                    leaf.index = leafIndex;
-                    leafIndex += 1;
-
-                    child.addChild(leaf);
-                }
-            );
+            Array.from({length: tokens[i].value}, () => child.addChild(new MetricTree()));
             tree.addChild(child);
         }
         else if (tokens[i].value === SUBTREE_SCOPE_OPEN){
@@ -271,9 +263,23 @@ function createTreeFromMts(mts){
         }
     }
 
+    function indexTreeRecursive(tree){
+        if (tree.isLeaf()){
+            tree.index = leafIndex;
+            leafIndex += 1;
+            return;
+        }
+
+        for (let child of tree.children){
+            indexTreeRecursive(child);
+        }
+    }
+
     const createdTree = new MetricTree();
 
     makeTreeRecursive(createdTree);
+
+    indexTreeRecursive(createdTree);
 
     return createdTree;
 }

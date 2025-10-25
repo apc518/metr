@@ -7,8 +7,11 @@ let totalLeaves = 0;
 let totalWidth = 0;
 
 let displayTreeUpsideDown = false;
+let showLeafBoxes = false;
 
-const OFF_COLOR = "hsl(0, 0%, 30%)"
+const TEXT_COLOR_OFF = "hsl(0, 0%, 20%)"
+const BOX_COLOR_OFF = "hsl(0, 0%, 30%)"
+const BOX_COLOR_ON = "hsl(0, 0%, 50%)"
 const VERTICAL_PADDING = 25;
 const HORIZONTAL_PADDING = 30;
 let verticalSpacing;
@@ -32,7 +35,6 @@ function drawMetricTree(tree, depth){
     lineThickness = max(1, textSizeValue / 15);
 
     _drawMetricTreeRecursive(tree, depth, getGlobalProgress());
-    _drawMetricTreeRecursive(tree, depth, getGlobalProgress());
 }
 
 
@@ -51,6 +53,8 @@ function _drawMetricTreeRecursive(tree, depth, globalProgress) {
     }
 
     const leaf = tree.isLeaf();
+
+    const leafDisplayWidth = (canvasWidth - HORIZONTAL_PADDING) * ((leafProgressValues[leafCounter + 1] ?? 1) - leafProgressValues[leafCounter]);
 
     if (leaf){
         tree.pos.x = HORIZONTAL_PADDING / 2 + (canvasWidth - HORIZONTAL_PADDING) * (leafProgressValues[leafCounter] + (leafProgressValues[leafCounter + 1] ?? 1)) / 2;
@@ -75,7 +79,13 @@ function _drawMetricTreeRecursive(tree, depth, globalProgress) {
     if (depth <= totalMaxDepth - currentPatch.numLayersMuted){
         push();
         noStroke();
-        fill(tree.on ? getPatchHighlightColor() : OFF_COLOR);
+
+        if (leaf && showLeafBoxes){
+            fill(tree.on ? BOX_COLOR_ON : BOX_COLOR_OFF);
+            rect(tree.pos.x - (leafDisplayWidth / 2), tree.pos.y - textSizeValue + 20, leafDisplayWidth, textSizeValue);
+        }
+
+        fill(tree.on ? getPatchHighlightColor() : TEXT_COLOR_OFF);
         textSize(textSizeValue - (leaf ? 10 : 0));
         textAlign("center");
         let textValue = `${currentPatch.nodeNumberMode === "Leaves" ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.getTrueWidth()}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
@@ -95,7 +105,7 @@ function _drawMetricTreeRecursive(tree, depth, globalProgress) {
                     highlightedLineIdx = i;
                     continue;
                 }
-                stroke(OFF_COLOR);
+                stroke(TEXT_COLOR_OFF);
                 if (displayTreeUpsideDown){
                     line(tree.pos.x, tree.pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)), t.pos.x, t.pos.y + textSizeValue / 5);
                 }

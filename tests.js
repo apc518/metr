@@ -427,6 +427,20 @@ const GENERIC_TESTS = [
             const tree = createTreeFromMts("[3+2]+[2+3]");
             return tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(3) === 2;
         }
+    },
+    {
+        name: "min depth with node whose leftmost leaf is this test 3",
+        func: () => {
+            const tree = createTreeFromMts("3+3+3+3");
+            return tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(6) === 1;
+        }
+    },
+    {
+        name: "min depth with node whose leftmost leaf is this test 4",
+        func: () => {
+            const tree = createTreeFromMts("3*4");
+            return tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(6) === 1;
+        }
     }
 ]
 

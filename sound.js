@@ -21,9 +21,15 @@ const audioSampleOptions = [
     }
 ];
 
+
 const clipList = [];
-let currentSoundIndex = 0;
+const AUDIO_LOOKAHEAD_OFFSET = -0.01; // seconds
+const AUDIO_LOOKAHEAD_WINDOW_SIZE = 0.2; // seconds
+
 let audioCtx = null;
+let audioCtxTimeLastPaused = 0;
+let totalTimeSpentPausedUntilLastPlay = 0;
+
 
 async function createSounds(){
     if (audioCtx) return;
@@ -54,17 +60,19 @@ async function createSounds(){
     }
 }
 
+function resetAudio(){
+    audioCtx = null;
+    audioCtxTimeLastPaused = 0;
+    totalTimeSpentPausedUntilLastPlay = 0;
+}
 
-let audioCtxTimeOffset = 0;  // globalProgress * cycle time + audioCtxTimeOffset should equal approximately audioCtx.currentTime when we are playing
-const AUDIO_LOOKAHEAD_FRAMES = 3;
-
-function leafHitsNext(leaf, progress, latencyFrames){
-    let leafProgress = leafProgressValues[leaf];
-    let targetFrameProgress = (progress + latencyFrames * progressIncrement) % 1;
-    if (1 - targetFrameProgress < progressIncrement){
-        targetFrameProgress = 0;
+function getGlobalProgress(){
+    if (isLooping()){
+        return ((audioCtx?.currentTime ?? 0) - totalTimeSpentPausedUntilLastPlay) / getCycleDuration();
     }
-    return targetFrameProgress <= leafProgress && leafProgress < targetFrameProgress + progressIncrement;
+    else{
+        return (audioCtxTimeLastPaused - totalTimeSpentPausedUntilLastPlay) / getCycleDuration();
+    }
 }
 
 function calculateAudioClipSpeed(leaf){
@@ -100,57 +108,31 @@ function playClip(playTime, speed, volume){
     if (!listContainsNumWithEpsilon(soundTimeQueue, playTime, 0.000001)){
         clipList[audioSampleDropdown.selectedIndex].play(playTime, speed, volume);
         soundTimeQueue.push(playTime);
-        while(soundTimeQueue.length > 16){
+        while(soundTimeQueue[0] < audioCtx.currentTime - AUDIO_LOOKAHEAD_WINDOW_SIZE){
             soundTimeQueue.shift();
         }
     }
 }
 
 
-function scheduleInitialSounds(){
-    // for the first AUDIO_LOOKAHEAD_FRAMES frames, find every leaf node that should sound and schedule it
-    for (let i = 0; i < AUDIO_LOOKAHEAD_FRAMES; i++){
-        for (let leaf = 0; leaf < totalLeaves; leaf++){
-            if (leafHitsNext(leaf, globalProgress, i)){
-                let playTime = audioCtxTimeOffset
-                    + epsilonFloor(globalProgress + progressIncrement * i) * cycleDuration()
-                    + cycleDuration() * leafProgressValues[leaf];
-
-                // console.log(JSON.stringify({playTime, frameCount, globalProgress, leaf}));
-
+function scheduleSounds(){
+    for (let leaf = 0; leaf < totalLeaves; leaf++){
+        const lookaheadWindowBeginning = audioCtx.currentTime + AUDIO_LOOKAHEAD_OFFSET;
+        const lookaheadWindowEnd = lookaheadWindowBeginning + AUDIO_LOOKAHEAD_WINDOW_SIZE;
+        
+        const cycleDuration = getCycleDuration();
+        const cycleNumber = Math.floor((lookaheadWindowBeginning - totalTimeSpentPausedUntilLastPlay) / cycleDuration); // 0-indexed
+        
+        for (let leafTime = leafProgressValues[leaf] * cycleDuration + (cycleNumber * cycleDuration) + totalTimeSpentPausedUntilLastPlay;
+            leafTime < lookaheadWindowEnd;
+            leafTime += cycleDuration){
+            if (lookaheadWindowBeginning <= leafTime && leafTime < lookaheadWindowEnd){
                 playClip(
-                    playTime,
+                    leafTime,
                     calculateAudioClipSpeed(leaf),
                     calculateAudioClipVolume(leaf)
-                );
+                )
             }
-        }
-    }
-}
-
-function scheduleSounds(){
-    // calculate if a sound should play during the frame that is AUDIO_LOOKAHEAD_FRAMES frames in the future
-    // if so, set that sound to play at precisely the correct time
-    for (let leaf = 0; leaf < totalLeaves; leaf++){
-        if (leafHitsNext(leaf, globalProgress, AUDIO_LOOKAHEAD_FRAMES)){
-            let targetFrameProgress = globalProgress + progressIncrement * AUDIO_LOOKAHEAD_FRAMES;
-            let cycle = Math.ceil(targetFrameProgress) - targetFrameProgress < progressIncrement 
-                        ? Math.ceil(targetFrameProgress)
-                        : Math.floor(targetFrameProgress);
-            
-            let playTime = audioCtxTimeOffset
-                + cycle * cycleDuration()
-                + cycleDuration() * leafProgressValues[leaf];
-            
-            if (globalTree.getMaxDepth() - globalTree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf) < currentPatch.numLayersMuted){
-                continue;
-            }
-
-            playClip(
-                playTime,
-                calculateAudioClipSpeed(leaf),
-                calculateAudioClipVolume(leaf)
-            );
         }
     }
 }

@@ -170,6 +170,8 @@ function createTreeFromMts(mts){
     const tokens = parseTokens(mts);
 
     // console.log("tokens:", tokens);
+
+    let leafIndex = 0;
     
     let i = 0;
 
@@ -196,6 +198,7 @@ function createTreeFromMts(mts){
             }
 
             const child = new MetricTree();
+            
             Array.from({length: tokens[i].value}, () => child.addChild(new MetricTree()));
             tree.addChild(child);
         }
@@ -219,7 +222,7 @@ function createTreeFromMts(mts){
                 throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`)
             }
             const lastChild = tree.children[tree.children.length - 1];
-            lastChild.ratio = lastChild.trueWidth() / tokens[i].value;
+            lastChild.ratio = lastChild.getTrueWidth() / tokens[i].value;
             increment();
         }
 
@@ -260,9 +263,23 @@ function createTreeFromMts(mts){
         }
     }
 
+    function indexTreeRecursive(tree){
+        if (tree.isLeaf()){
+            tree.index = leafIndex;
+            leafIndex += 1;
+            return;
+        }
+
+        for (let child of tree.children){
+            indexTreeRecursive(child);
+        }
+    }
+
     const createdTree = new MetricTree();
 
     makeTreeRecursive(createdTree);
+
+    indexTreeRecursive(createdTree);
 
     return createdTree;
 }

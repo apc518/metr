@@ -7,6 +7,32 @@ class MetricTree {
         this.ratio = ratio;
     }
 
+    equals(otherTree){
+        if (this.ratio != otherTree.ratio){
+            return false;
+        }
+
+        if (this.isLeaf() != (otherTree.children.length == 0)){
+            return false;
+        }
+
+        if (this.isLeaf() && (otherTree.children.length == 0)){
+            return true;
+        }
+
+        if (otherTree.children.length !== this.children.length){
+            return false;
+        }
+
+        for (let [i, child] of this.children.entries()){
+            if (!child.equals(otherTree.children[i])){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     copy(){
         if (this.isLeaf()){
             return new MetricTree();
@@ -43,30 +69,30 @@ class MetricTree {
      * This is not necessarily the number of leaf nodes, but it will be
      * the same as the number of leaf nodes if there are no tuplets in the tree.
      * 
-     * For instance, for tree `1*3`, trueWidth() returns 3.
-     * For tree `[2+3]*3` trueWidth() returns 15.
-     * For tree `3:4*2` trueWidth() returns 8, despite `3:4*2` only having 6 leaf nodes
+     * For instance, for tree `1*3`, getTrueWidth() returns 3.
+     * For tree `[2+3]*3` getTrueWidth() returns 15.
+     * For tree `3:4*2` getTrueWidth() returns 8, despite `3:4*2` only having 6 leaf nodes
      */
-    trueWidth(){
+    getTrueWidth(){
         if (this.isLeaf()) {
             return 1;
         }
 
         let sum = 0;
         for (let child of this.children){
-            sum += child.trueWidth() / this.ratio;
+            sum += child.getTrueWidth() / this.ratio;
         }
 
         return Math.round(sum);
     }
 
     /**
-     * Only different from trueWidth() if this node has a ratio != 1
+     * Only different from getTrueWidth() if this node has a ratio != 1
      */
     childrensTrueWidthSum(){
         let total = 0;
         for (let child of this.children){
-            total += child.trueWidth();
+            total += child.getTrueWidth();
         }
         return Math.round(total);
     }
@@ -85,7 +111,7 @@ class MetricTree {
         let childRelativeSizes = [];
         
         for (let child of this.children){
-            childRelativeSizes.push(child.trueWidth() / this.childrensTrueWidthSum());
+            childRelativeSizes.push(child.getTrueWidth() / this.childrensTrueWidthSum());
         }
         
         const portionValues = [];
@@ -118,7 +144,7 @@ class MetricTree {
     }
 
     getChildrensTrueWidths(){
-        return Array.from(this.children, t => t.trueWidth());
+        return Array.from(this.children, t => t.getTrueWidth());
     }
 
     getLeafParentCounts(){
@@ -137,7 +163,7 @@ class MetricTree {
             return [];
         }
         if (this.getMaxDepth() === 1){
-            return [this.trueWidth()];
+            return [this.getTrueWidth()];
         }
 
         return Array.from(this.children, c => c.getLeafParentWidths()).flat(1);
@@ -149,7 +175,7 @@ class MetricTree {
 
     getTrueWidthsAtDepthRecursive(depth, targetDepth){
         if (depth + 1 >= targetDepth){
-            return Array.from(this.children, t => t.trueWidth());
+            return Array.from(this.children, t => t.getTrueWidth());
         }
 
         return Array.from(this.children, t => t.getTrueWidthsAtDepthRecursive(depth + 1, targetDepth)).flat(1);
@@ -166,7 +192,7 @@ class MetricTree {
         let beatSizes = this.getChildrensTrueWidths();
         let layer = floor(Math.log2(max(beatSizes)));
         let ignorePowersOf2MakeupExponent = largestPowerOf2ThatEvenlyDividesEverything(beatSizes);
-        return `${this.trueWidth() / Math.pow(2, ignorePowersOf2MakeupExponent)}/${Math.pow(2, layer - ignorePowersOf2MakeupExponent + 2)}`
+        return `${this.getTrueWidth() / Math.pow(2, ignorePowersOf2MakeupExponent)}/${Math.pow(2, layer - ignorePowersOf2MakeupExponent + 2)}`
     }
 
     isLeaf(){
@@ -190,7 +216,13 @@ class MetricTree {
             return this.leafIsLeftmost(leaf);
         }
 
-        return Array.from(this.children, c => c.leafIsLeftmostAtDepth(leaf, targetDepth, depth + 1)).some(x => x);
+        for (let child of this.children){
+            if (child.leafIsLeftmostAtDepth(leaf, targetDepth, depth + 1)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf){

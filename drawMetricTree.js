@@ -4,10 +4,14 @@ function getPatchHighlightColor(){
 
 let leafCounter = 0;
 let totalLeaves = 0;
+let totalWidth = 0;
 
 let displayTreeUpsideDown = false;
+let showLeafBoxes = false;
 
-const OFF_COLOR = "hsl(0, 0%, 30%)"
+const TEXT_COLOR_OFF = "hsl(0, 0%, 20%)"
+const BOX_COLOR_OFF = "hsl(0, 0%, 30%)"
+const BOX_COLOR_ON = "hsl(0, 0%, 50%)"
 const VERTICAL_PADDING = 25;
 const HORIZONTAL_PADDING = 30;
 let verticalSpacing;
@@ -30,16 +34,15 @@ function drawMetricTree(tree, depth){
     horizontalSpacing = (canvasWidth - 2) / leafCountForDisplay;
     lineThickness = max(1, textSizeValue / 15);
 
-    
-    _drawMetricTreeRecursive(tree, depth);
+    _drawMetricTreeRecursive(tree, depth, getGlobalProgress());
 }
 
 
-function _drawMetricTreeRecursive(tree, depth) {
+function _drawMetricTreeRecursive(tree, depth, globalProgress) {
     let leafCount = 0;
 
     for (let i = 0; i < tree.children.length; i++){
-        leafCount += _drawMetricTreeRecursive(tree.children[i], depth + 1, totalMaxDepth);
+        leafCount += _drawMetricTreeRecursive(tree.children[i], depth + 1, globalProgress);
     }
 
     if (displayTreeUpsideDown){
@@ -49,7 +52,9 @@ function _drawMetricTreeRecursive(tree, depth) {
         tree.pos = {x: null, y: (VERTICAL_PADDING + textSizeValue + depth * verticalSpacing)}
     }
 
-    let leaf = tree.isLeaf();
+    const leaf = tree.isLeaf();
+
+    const leafDisplayWidth = (canvasWidth - HORIZONTAL_PADDING) * ((leafProgressValues[leafCounter + 1] ?? 1) - leafProgressValues[leafCounter]);
 
     if (leaf){
         tree.pos.x = HORIZONTAL_PADDING / 2 + (canvasWidth - HORIZONTAL_PADDING) * (leafProgressValues[leafCounter] + (leafProgressValues[leafCounter + 1] ?? 1)) / 2;
@@ -60,7 +65,6 @@ function _drawMetricTreeRecursive(tree, depth) {
             tree.pos.y = (VERTICAL_PADDING + textSizeValue + totalMaxDepth * verticalSpacing);
         }
         tree.on = leafProgressValues[leafCounter] <= globalProgress % 1 && globalProgress % 1 < (leafProgressValues[leafCounter + 1] ?? 1);
-        tree.index = leafCounter;
     }
     else{
         let sumOfChildXPositions = 0;
@@ -75,10 +79,16 @@ function _drawMetricTreeRecursive(tree, depth) {
     if (depth <= totalMaxDepth - currentPatch.numLayersMuted){
         push();
         noStroke();
-        fill(tree.on ? getPatchHighlightColor() : OFF_COLOR);
+
+        if (leaf && showLeafBoxes){
+            fill(tree.on ? BOX_COLOR_ON : BOX_COLOR_OFF);
+            rect(tree.pos.x - (leafDisplayWidth / 2), tree.pos.y - textSizeValue + 20, leafDisplayWidth, textSizeValue);
+        }
+
+        fill(tree.on ? getPatchHighlightColor() : TEXT_COLOR_OFF);
         textSize(textSizeValue - (leaf ? 10 : 0));
         textAlign("center");
-        let textValue = `${currentPatch.nodeNumberMode === "Leaves" ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.trueWidth()}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
+        let textValue = `${currentPatch.nodeNumberMode === "Leaves" ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.getTrueWidth()}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
         text(textValue, tree.pos.x, tree.pos.y);
         // ellipse(tree.pos.x, tree.pos.y, 3, 3); // show anchor point of text
         pop();
@@ -95,7 +105,7 @@ function _drawMetricTreeRecursive(tree, depth) {
                     highlightedLineIdx = i;
                     continue;
                 }
-                stroke(OFF_COLOR);
+                stroke(TEXT_COLOR_OFF);
                 if (displayTreeUpsideDown){
                     line(tree.pos.x, tree.pos.y - (textSizeValue - (tree.getMaxDepth() === 1 ? 10 : 0)), t.pos.x, t.pos.y + textSizeValue / 5);
                 }

@@ -16,7 +16,10 @@ const Z_KEYCODE = 90;
 const CTRL_KEYCODE = 17;
 
 let p5canvas = null;
-let globalTree = null;
+let upperTree = null;
+let upperTreeDrawer = null;
+let lowerTree = null;
+let lowerTreeDrawer = null;
 
 function playPause(){
     if (isLooping()) pause_();
@@ -28,11 +31,11 @@ function epsilonFloor(num){
 }
 
 function getCycleDuration(){
-    // depends on `totalWidth` being accurate, which has to be set any time the tree changes (it is so in fullRefresh)
-    return totalWidth * 60 / currentPatch.leafTempo;
+    // depends on `upperTree.totalWidth` being accurate, which has to be set any time the tree changes (it is so in fullRefresh)
+    return upperTree.totalWidth * 60 / currentPatch.leafTempo;
 
     // less stateful but takes around twice as long
-    // return globalTree.getTrueWidth() * 60 / currentPatch.leafTempo;
+    // return upperTree.getTrueWidth() * 60 / currentPatch.leafTempo;
 }
 
 function play_(){
@@ -43,7 +46,7 @@ function play_(){
     createSounds().then(() => {
         totalTimeSpentPausedUntilLastPlay += audioCtx.currentTime - audioCtxTimeLastPaused;
         
-        scheduleSounds();
+        scheduleSounds(upperTree.getLeafNodeCyclePortionValues());
         loop();
 
         playPauseBtnIcon.src = "assets/images/pause.png";
@@ -63,10 +66,20 @@ function pause_(){
 function fullRefresh(){
     setMtsErrorMessage("");
     refreshCanvas();
-    globalTree = createTreeFromMts(currentPatch.mts);
-    globalTree.pruneLeaves();
-    totalLeaves = globalTree.getLeafNodeCount();
-    totalWidth = globalTree.getTrueWidth();
+    upperTree = createTreeFromMts(currentPatch.mts);
+    upperTree.pruneLeaves();
+    upperTree.totalLeaves = upperTree.getLeafNodeCount();
+    upperTree.totalWidth = upperTree.getTrueWidth();
+    upperTreeDrawer = new MetricTreeDrawer({ 
+        tree: upperTree,
+        depth: 0,
+        displayUpsideDown: false,
+        drawLeafNodes: true,
+        horizontalScale: 1,
+        leafNodeYPos: canvasHeight * 3 / 4,
+        showLeafBoxes: false
+    });
+
     paint();
 }
 
@@ -110,10 +123,9 @@ const mod = (n, m) => (n % m + m) % m;
 function paint(){
     background(0);
 
-    leafCounter = 0;
-    drawMetricTree(globalTree, 0);
+    upperTreeDrawer.draw();
 
-    document.getElementById("timeSigDisplay").innerText = globalTree.getTimeSignature();
+    document.getElementById("timeSigDisplay").innerText = upperTree.getTimeSignature();
 }
 
 
@@ -122,7 +134,7 @@ function draw() {
     if (!isLooping()) return;
 
     paint();
-    scheduleSounds();
+    scheduleSounds(upperTree.getLeafNodeCyclePortionValues());
 
     document.getElementById("frameRateMonitor").innerText = `${Math.round(frameRate())}fps`;
 }

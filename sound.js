@@ -76,8 +76,8 @@ function getGlobalProgress(){
 }
 
 function calculateAudioClipSpeed(leaf){
-    const minDepth = globalTree.getMinDepth();
-    let soundDepth = Math.min(globalTree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf), minDepth);
+    const minDepth = upperTree.getMinDepth();
+    let soundDepth = Math.min(upperTree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf), minDepth);
     let totalDepth = minDepth;
     if (!currentPatch.accentDownbeat) {
         totalDepth -= 1;
@@ -87,7 +87,7 @@ function calculateAudioClipSpeed(leaf){
 }
 
 function calculateAudioClipVolume(leaf){
-    let soundDepth = Math.min(globalTree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf), globalTree.getMinDepth());
+    let soundDepth = Math.min(upperTree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf), upperTree.getMinDepth());
     if (!currentPatch.accentDownbeat) soundDepth = Math.max(1, soundDepth) - 1;
     return Math.pow(currentPatch.volumeFalloff, soundDepth);
 }
@@ -115,8 +115,8 @@ function playClip(playTime, speed, volume){
 }
 
 
-function scheduleSounds(){
-    for (let leaf = 0; leaf < totalLeaves; leaf++){
+function scheduleSounds(leafProgressValues){
+    for (let leaf = 0; leaf < upperTree.totalLeaves; leaf++){
         const lookaheadWindowBeginning = audioCtx.currentTime + AUDIO_LOOKAHEAD_OFFSET;
         const lookaheadWindowEnd = lookaheadWindowBeginning + AUDIO_LOOKAHEAD_WINDOW_SIZE;
         

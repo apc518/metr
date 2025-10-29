@@ -28,7 +28,7 @@ const mtsErrorMessage = document.getElementById("mtsError");
 mtsInput.oninput = () => {
     try{
         const newTree = createTreeFromMts(mtsInput.value);
-        globalTree = newTree;
+        upperTree = newTree;
         setMtsErrorMessage("");
         setPatchParam("mts", mtsInput.value);
         setLeafTempoBasedOnDisplayTempo();
@@ -219,8 +219,8 @@ audioSampleDropdown.oninput = () => {
 
 const numLayersMutedInput = document.getElementById("numLayersMutedInput");
 numLayersMutedInput.oninput = () => {
-    if (numLayersMutedInput.value > globalTree.getMaxDepth()){
-        numLayersMutedInput.value = globalTree.getMaxDepth();
+    if (numLayersMutedInput.value > upperTree.getMaxDepth()){
+        numLayersMutedInput.value = upperTree.getMaxDepth();
     }
     setPatchParamFromNumberInput("numLayersMuted", numLayersMutedInput);
     paint();

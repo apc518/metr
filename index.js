@@ -67,9 +67,6 @@ function fullRefresh(){
     setMtsErrorMessage("");
     refreshCanvas();
     upperTree = createTreeFromMts(currentPatch.mts);
-    upperTree.pruneLeaves();
-    upperTree.totalLeaves = upperTree.getLeafNodeCount();
-    upperTree.totalWidth = upperTree.getTrueWidth();
     upperTreeDrawer = new MetricTreeDrawer({ 
         tree: upperTree,
         depth: 0,
@@ -96,6 +93,7 @@ function refreshCanvas(){
 let writePatchToUrlInterval;
 
 function setup(){
+    setPatchUIElementsFromCurrentPatch();
     noLoop();
     frameRate(FRAMERATE);
     fullRefresh();
@@ -128,15 +126,19 @@ function paint(){
     document.getElementById("timeSigDisplay").innerText = upperTree.getTimeSignature();
 }
 
-
-function draw() {
+function doFrame(){
     if (!p5canvas) return;
     if (!isLooping()) return;
-
+    
     paint();
     scheduleSounds(upperTree.getLeafNodeCyclePortionValues());
-
+    
     document.getElementById("frameRateMonitor").innerText = `${Math.round(frameRate())}fps`;
+}
+
+// function `draw` is expected by p5js and called for each frame, but there's more to do on a frame than draw so I point it to `doFrame`
+function draw() {
+    doFrame();
 }
 
 function keyPressed(){

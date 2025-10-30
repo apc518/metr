@@ -166,7 +166,7 @@ function parseTokens(mts){
     return tokens;
 }
 
-function createTreeFromMts(mts){
+function createTreeFromMts(mts, doPrune=true){
     const tokens = parseTokens(mts);
 
     // console.log("tokens:", tokens);
@@ -280,6 +280,13 @@ function createTreeFromMts(mts){
     makeTreeRecursive(createdTree);
 
     indexTreeRecursive(createdTree);
+
+    if (doPrune){
+        createdTree.pruneLeaves();
+    }
+    
+    createdTree.totalLeaves = createdTree.getLeafNodeCount();
+    createdTree.totalWidth = createdTree.getTrueWidth();
 
     return createdTree;
 }

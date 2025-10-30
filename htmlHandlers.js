@@ -408,5 +408,3 @@ function setPatchUIElementsFromCurrentPatch(){
     setPresetDisplayNames();
     trySelectPreset();
 }
-
-setPatchUIElementsFromCurrentPatch();

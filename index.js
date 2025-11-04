@@ -11,15 +11,16 @@ const FRAMERATE = 60;
 
 // other constants
 const SPACE_KEYCODE = 32;
+const D_KEYCODE = 68;
 const F_KEYCODE = 70;
 const Z_KEYCODE = 90;
 const CTRL_KEYCODE = 17;
 
 let p5canvas = null;
 let upperTree = null;
-let upperTreeDrawer = null;
 let lowerTree = null;
-let lowerTreeDrawer = null;
+let treeDrawer = null;
+let __debug = false;
 
 function playPause(){
     if (isLooping()) pause_();
@@ -67,10 +68,10 @@ function fullRefresh(){
     setMtsErrorMessage("");
     refreshCanvas();
     upperTree = createTreeFromMts(currentPatch.mts);
-    upperTreeDrawer = new MetricTreeDrawer({ 
-        tree: upperTree,
+    treeDrawer = new MetricTreeDrawer({ 
+        upperTree: upperTree,
+        lowerTree: upperTree.copy(),
         depth: 0,
-        displayUpsideDown: false,
         drawLeafNodes: true,
         horizontalScale: 1,
         leafNodeYPos: canvasHeight * 3 / 4,
@@ -121,7 +122,7 @@ const mod = (n, m) => (n % m + m) % m;
 function paint(){
     background(0);
 
-    upperTreeDrawer.draw();
+    treeDrawer.draw();
 
     document.getElementById("timeSigDisplay").innerText = upperTree.getTimeSignature();
 }
@@ -148,6 +149,10 @@ function keyPressed(){
         }
         if (keyCode === F_KEYCODE){
             toggleFullscreen();
+        }
+        if (keyCode === D_KEYCODE){
+            __debug = !__debug;
+            paint();
         }
     }
 }

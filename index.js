@@ -20,7 +20,7 @@ let p5canvas = null;
 let upperTree = null;
 let lowerTree = null;
 let treeDrawer = null;
-let __debug = false;
+let __debug = true;
 
 function playPause(){
     if (isLooping()) pause_();
@@ -63,14 +63,13 @@ function pause_(){
     playPauseBtnIcon.src = "assets/images/play.png";
 }
 
-
 function fullRefresh(){
     setMtsErrorMessage("");
     refreshCanvas();
     upperTree = createTreeFromMts(currentPatch.mts);
     treeDrawer = new MetricTreeDrawer({ 
         upperTree: upperTree,
-        lowerTree: upperTree.copy(),
+        lowerTree: createTreeFromMts("2*4"),
         depth: 0,
         drawLeafNodes: true,
         horizontalScale: 1,

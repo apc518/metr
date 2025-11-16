@@ -66,12 +66,12 @@ function resetAudio(){
     totalTimeSpentPausedUntilLastPlay = 0;
 }
 
-function getGlobalProgress(){
+function getGlobalProgress(tree){
     if (isLooping()){
-        return ((audioCtx?.currentTime ?? 0) - totalTimeSpentPausedUntilLastPlay) / getCycleDuration(upperTree);
+        return ((audioCtx?.currentTime ?? 0) - totalTimeSpentPausedUntilLastPlay) / getCycleDuration(tree);
     }
     else{
-        return (audioCtxTimeLastPaused - totalTimeSpentPausedUntilLastPlay) / getCycleDuration(upperTree);
+        return (audioCtxTimeLastPaused - totalTimeSpentPausedUntilLastPlay) / getCycleDuration(tree);
     }
 }
 
@@ -162,7 +162,7 @@ class Clip {
             source.playbackRate.value = speed;
 
             source.connect(gainNode);
-            source.connect(panningNode);
+            gainNode.connect(panningNode);
             panningNode.connect(audioCtx.destination);
             
             source.start(time);

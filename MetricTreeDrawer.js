@@ -72,7 +72,7 @@ class MetricTreeDrawer{
     }
 
     draw(){
-        let globalProgress = getGlobalProgress();
+        let globalProgress = getGlobalProgress(this.upperTreeWidthRatio === 1 ? this.upperTree : this.lowerTree);
 
         const globalHorizontalOffset = ((canvasWidth - HORIZONTAL_PADDING) / 2) - (canvasWidth - HORIZONTAL_PADDING) * globalProgress;
 

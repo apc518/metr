@@ -77,7 +77,7 @@ function fullRefresh(){
     setMtsErrorMessage("");
     refreshCanvas();
     upperTree = createTreeFromMts(currentPatch.mts);
-    lowerTree = createTreeFromMts("4*4");
+    lowerTree = createTreeFromMts("4*5");
     treeDrawer = new MetricTreeDrawer({
         upperTree: upperTree,
         lowerTree: lowerTree,

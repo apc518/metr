@@ -31,12 +31,22 @@ function epsilonFloor(num){
     return Math.floor(num + 0.0000001);
 }
 
-function getCycleDuration(){
+function getCycleDuration(tree){
     // depends on `upperTree.totalWidth` being accurate, which has to be set any time the tree changes (it is so in fullRefresh)
-    return upperTree.totalWidth * 60 / currentPatch.leafTempo;
+    return tree.totalWidth * 60 / currentPatch.leafTempo;
 
     // less stateful but takes around twice as long
-    // return upperTree.getTrueWidth() * 60 / currentPatch.leafTempo;
+    // return tree.getTrueWidth() * 60 / currentPatch.leafTempo;
+}
+
+function scheduleAllSounds(){
+    if (lowerTree){
+        scheduleSounds(upperTree, audioSampleDropdown.selectedIndex, -1);
+        scheduleSounds(lowerTree, 0, 1);
+    }
+    else{
+        scheduleSounds(upperTree, audioSampleDropdown.selectedIndex, 0);
+    }
 }
 
 function play_(){
@@ -47,7 +57,7 @@ function play_(){
     createSounds().then(() => {
         totalTimeSpentPausedUntilLastPlay += audioCtx.currentTime - audioCtxTimeLastPaused;
         
-        scheduleSounds(upperTree.getLeafNodeCyclePortionValues());
+        scheduleAllSounds();
         loop();
 
         playPauseBtnIcon.src = "assets/images/pause.png";
@@ -67,9 +77,10 @@ function fullRefresh(){
     setMtsErrorMessage("");
     refreshCanvas();
     upperTree = createTreeFromMts(currentPatch.mts);
-    treeDrawer = new MetricTreeDrawer({ 
+    lowerTree = createTreeFromMts("4*4");
+    treeDrawer = new MetricTreeDrawer({
         upperTree: upperTree,
-        lowerTree: createTreeFromMts("2*4"),
+        lowerTree: lowerTree,
         depth: 0,
         drawLeafNodes: true,
         horizontalScale: 1,
@@ -131,7 +142,7 @@ function doFrame(){
     if (!isLooping()) return;
     
     paint();
-    scheduleSounds(upperTree.getLeafNodeCyclePortionValues());
+    scheduleAllSounds();
     
     document.getElementById("frameRateMonitor").innerText = `${Math.round(frameRate())}fps`;
 }

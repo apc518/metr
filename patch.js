@@ -22,7 +22,8 @@ const presets = [
         audioSample: audioSampleOptions[1],
         numLayersMuted: 0,
         mts: "1*4",
-        displayTempoMode: displayTempoOptions[0]
+        displayTempoMode: displayTempoOptions[0],
+        secondaryAudioSample: audioSampleOptions[1]
     },
     {
         name: "Orange Festival (Fizz Inc.)",
@@ -36,7 +37,8 @@ const presets = [
         audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
         mts: "3+2*4",
-        displayTempoMode: displayTempoOptions[1]
+        displayTempoMode: displayTempoOptions[1],
+        secondaryAudioSample: audioSampleOptions[0]
     },
     {
         name: "Threshold (sungazer)",
@@ -50,7 +52,8 @@ const presets = [
         audioSample: audioSampleOptions[3],
         numLayersMuted: 0,
         mts: "[6+6+7]*4",
-        displayTempoMode: displayTempoOptions[1]
+        displayTempoMode: displayTempoOptions[1],
+        secondaryAudioSample: audioSampleOptions[0]
     },
     {
         name: "Does She Know (Andy Chamberlain)",
@@ -64,7 +67,8 @@ const presets = [
         audioSample: audioSampleOptions[4],
         numLayersMuted: 0,
         mts: "3*7",
-        displayTempoMode: displayTempoOptions[2]
+        displayTempoMode: displayTempoOptions[2],
+        secondaryAudioSample: audioSampleOptions[0]
     },
     {
         name: "Natalie Has Never Tasted Anything Other Than Mustard (Andy Chamberlain)",
@@ -78,7 +82,8 @@ const presets = [
         audioSample: audioSampleOptions[2],
         numLayersMuted: 0,
         mts: "7+4",
-        displayTempoMode: displayTempoOptions[0]
+        displayTempoMode: displayTempoOptions[0],
+        secondaryAudioSample: audioSampleOptions[0]
     }
 ];
 
@@ -144,6 +149,11 @@ const patchParams = [
         name: "displayTempoMode",
         compress: x => displayTempoOptions.indexOf(x),
         decompress: x => displayTempoOptions[x]
+    },
+    {
+        name: "secondaryAudioSample",
+        compress: x => Array.from(audioSampleOptions, o => o.filename).indexOf(x.filename),
+        decompress: x => audioSampleOptions[x]
     }
 ]
 

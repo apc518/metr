@@ -21,8 +21,10 @@ const presets = [
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[1],
         numLayersMuted: 0,
-        mts: "1*4",
-        displayTempoMode: displayTempoOptions[0]
+        mtsUpper: "1*4",
+        mtsLower: null,
+        displayTempoMode: displayTempoOptions[0],
+        secondaryAudioSample: audioSampleOptions[1]
     },
     {
         name: "Orange Festival (Fizz Inc.)",
@@ -35,8 +37,10 @@ const presets = [
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[0],
         numLayersMuted: 0,
-        mts: "3+2*4",
-        displayTempoMode: displayTempoOptions[1]
+        mtsUpper: "3+2*4",
+        mtsLower: null,
+        displayTempoMode: displayTempoOptions[1],
+        secondaryAudioSample: audioSampleOptions[0]
     },
     {
         name: "Threshold (sungazer)",
@@ -49,22 +53,26 @@ const presets = [
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[3],
         numLayersMuted: 0,
-        mts: "[6+6+7]*4",
-        displayTempoMode: displayTempoOptions[1]
+        mtsUpper: "[6+6+7]*4",
+        mtsLower: null,
+        displayTempoMode: displayTempoOptions[1],
+        secondaryAudioSample: audioSampleOptions[0]
     },
     {
-        name: "Does She Know (Andy Chamberlain)",
-        nodeNumberMode: nodeNumberModeOptions[1],
-        hue: 300,
-        leafTempo: 165*3,
+        name: "Monomyth (Animals As Leaders)",
+        nodeNumberMode: nodeNumberModeOptions[0],
+        hue: 120,
+        leafTempo: 150*3,
         accentDownbeat: true,
         pitchesHighToLow: true,
         pitchSpread: 1.5,
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[4],
         numLayersMuted: 0,
-        mts: "3*7",
-        displayTempoMode: displayTempoOptions[2]
+        mtsUpper: "[2+3] + [2+2+3]*2 + [2+3]*2 + [2+2+3]",
+        mtsLower: "[3*3]*4",
+        displayTempoMode: displayTempoOptions[0],
+        secondaryAudioSample: audioSampleOptions[2]
     },
     {
         name: "Natalie Has Never Tasted Anything Other Than Mustard (Andy Chamberlain)",
@@ -77,8 +85,10 @@ const presets = [
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[2],
         numLayersMuted: 0,
-        mts: "7+4",
-        displayTempoMode: displayTempoOptions[0]
+        mtsUpper: "7+4",
+        mtsLower: null,
+        displayTempoMode: displayTempoOptions[0],
+        secondaryAudioSample: audioSampleOptions[0]
     }
 ];
 
@@ -135,7 +145,13 @@ const patchParams = [
         musical: true
     },
     {
-        name: "mts",
+        name: "mtsUpper",
+        compress: x => x,
+        decompress: x => x,
+        musical: true
+    },
+    {
+        name: "mtsLower",
         compress: x => x,
         decompress: x => x,
         musical: true
@@ -144,6 +160,11 @@ const patchParams = [
         name: "displayTempoMode",
         compress: x => displayTempoOptions.indexOf(x),
         decompress: x => displayTempoOptions[x]
+    },
+    {
+        name: "secondaryAudioSample",
+        compress: x => Array.from(audioSampleOptions, o => o.filename).indexOf(x.filename),
+        decompress: x => audioSampleOptions[x]
     }
 ]
 
@@ -253,7 +274,7 @@ function trySelectPreset(){
     }
 
     for (let i = 0; i < presets.length; i++){
-        if (currentPatch.mts === presets[i].tree && currentPatch.leafTempo === presets[i].leafTempo){
+        if (currentPatch.mtsUpper === presets[i].mtsUpper && currentPatch.leafTempo === presets[i].leafTempo){
             presetSelectDropdown.children[i].text = "*" + presets[i].name;
             presetSelectDropdown.selectedIndex = i;
             return;

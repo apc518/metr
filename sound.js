@@ -66,18 +66,18 @@ function resetAudio(){
     totalTimeSpentPausedUntilLastPlay = 0;
 }
 
-function getGlobalProgress(){
+function getGlobalProgress(tree){
     if (isLooping()){
-        return ((audioCtx?.currentTime ?? 0) - totalTimeSpentPausedUntilLastPlay) / getCycleDuration();
+        return ((audioCtx?.currentTime ?? 0) - totalTimeSpentPausedUntilLastPlay) / getCycleDuration(tree);
     }
     else{
-        return (audioCtxTimeLastPaused - totalTimeSpentPausedUntilLastPlay) / getCycleDuration();
+        return (audioCtxTimeLastPaused - totalTimeSpentPausedUntilLastPlay) / getCycleDuration(tree);
     }
 }
 
-function calculateAudioClipSpeed(leaf){
-    const minDepth = globalTree.getMinDepth();
-    let soundDepth = Math.min(globalTree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf), minDepth);
+function calculateAudioClipSpeed(tree, leaf){
+    const minDepth = tree.getMinDepth();
+    let soundDepth = Math.min(tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf), minDepth);
     let totalDepth = minDepth;
     if (!currentPatch.accentDownbeat) {
         totalDepth -= 1;
@@ -86,8 +86,8 @@ function calculateAudioClipSpeed(leaf){
     return Math.pow(currentPatch.pitchSpread, currentPatch.pitchesHighToLow ? totalDepth - soundDepth : soundDepth);
 }
 
-function calculateAudioClipVolume(leaf){
-    let soundDepth = Math.min(globalTree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf), globalTree.getMinDepth());
+function calculateAudioClipVolume(tree, leaf){
+    let soundDepth = Math.min(tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf), tree.getMinDepth());
     if (!currentPatch.accentDownbeat) soundDepth = Math.max(1, soundDepth) - 1;
     return Math.pow(currentPatch.volumeFalloff, soundDepth);
 }
@@ -95,32 +95,37 @@ function calculateAudioClipVolume(leaf){
 
 const soundTimeQueue = [];
 
-function listContainsNumWithEpsilon(ls, num, epsilon){
-    for (let n of ls){
-        if (Math.abs(n - num) <= epsilon){
+function playEventListContainsWithTimeEpsilon(ls, { playTime, speed, volume, audioSampleIdx }, epsilon){
+    for (let playEvent of ls){
+        if (Math.abs(playEvent.playTime - playTime) <= epsilon
+            && playEvent.speed === speed
+            && playEvent.volume === volume
+            && playEvent.audioSampleIdx === audioSampleIdx){
             return true;
         }
     }
     return false;
 }
 
-function playClip(playTime, speed, volume){
-    if (!listContainsNumWithEpsilon(soundTimeQueue, playTime, 0.000001)){
-        clipList[audioSampleDropdown.selectedIndex].play(playTime, speed, volume);
-        soundTimeQueue.push(playTime);
-        while(soundTimeQueue[0] < audioCtx.currentTime - AUDIO_LOOKAHEAD_WINDOW_SIZE){
+function playClip(playTime, speed, volume, audioSampleIdx, panning){
+    const playEvent = { playTime, speed, volume, audioSampleIdx }
+    if (!playEventListContainsWithTimeEpsilon(soundTimeQueue, playEvent, 0.000001)){
+        clipList[audioSampleIdx].play(playTime, speed, volume, panning);
+        soundTimeQueue.push(playEvent);
+        while(soundTimeQueue[0].playTime < audioCtx.currentTime - AUDIO_LOOKAHEAD_WINDOW_SIZE){
             soundTimeQueue.shift();
         }
     }
 }
 
 
-function scheduleSounds(){
-    for (let leaf = 0; leaf < totalLeaves; leaf++){
+function scheduleSounds(tree, audioSampleIdx, panning){
+    const leafProgressValues = tree.getLeafNodeCyclePortionValues();
+    for (let leaf = 0; leaf < tree.totalLeaves; leaf++){
         const lookaheadWindowBeginning = audioCtx.currentTime + AUDIO_LOOKAHEAD_OFFSET;
         const lookaheadWindowEnd = lookaheadWindowBeginning + AUDIO_LOOKAHEAD_WINDOW_SIZE;
         
-        const cycleDuration = getCycleDuration();
+        const cycleDuration = getCycleDuration(tree);
         const cycleNumber = Math.floor((lookaheadWindowBeginning - totalTimeSpentPausedUntilLastPlay) / cycleDuration); // 0-indexed
         
         for (let leafTime = leafProgressValues[leaf] * cycleDuration + (cycleNumber * cycleDuration) + totalTimeSpentPausedUntilLastPlay;
@@ -129,8 +134,10 @@ function scheduleSounds(){
             if (lookaheadWindowBeginning <= leafTime && leafTime < lookaheadWindowEnd){
                 playClip(
                     leafTime,
-                    calculateAudioClipSpeed(leaf),
-                    calculateAudioClipVolume(leaf)
+                    calculateAudioClipSpeed(tree, leaf),
+                    calculateAudioClipVolume(tree, leaf),
+                    audioSampleIdx,
+                    panning
                 )
             }
         }
@@ -144,16 +151,19 @@ class Clip {
         this.audioBuffer = audioBuffer;
     }
 
-    play(time, speed, volume){
+    play(time, speed, volume, panning){
         let source = audioCtx.createBufferSource();
         let gainNode = audioCtx.createGain();
+        let panningNode = audioCtx.createStereoPanner();
+        panningNode.pan.value = panning;
         gainNode.gain.value = globalVolume * volume;
         if(this.audioBuffer){
             source.buffer = this.audioBuffer;
             source.playbackRate.value = speed;
 
             source.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
+            gainNode.connect(panningNode);
+            panningNode.connect(audioCtx.destination);
             
             source.start(time);
         }

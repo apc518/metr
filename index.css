@@ -1,9 +1,19 @@
+html{
+	height: 100%;
+}
 body{
 	background-color: #1D1D21;
 	margin: 0px;
 	padding: 0px;
 	font-family: "Trebuchet MS", Helvetica, sans-serif;
 	overflow: hidden;
+	height: 100%;
+}
+main{
+	height: 100%;
+}
+#settingsColumn{
+	height: 100%;
 }
 h1{
 	color: white;
@@ -21,14 +31,13 @@ h3{
 	letter-spacing: 0.52rem;
 	user-select: none;
 }
-#timeSigDisplay{
+.timeSigDisplay{
+	font-size: 54px;
 	color: white;
-	font-size: 62px;
-	margin: 5px;
-	line-height: 92px;
-	letter-spacing: 0.2rem;
-	margin: 0px;
-	max-width: 100%;
+	padding-bottom: 0.25rem;
+	margin-top: 0.5rem;
+	margin-bottom: 0px;
+	min-width: 100%;
 }
 div{
 	text-align: center;
@@ -199,15 +208,16 @@ input[type="checkbox"]{
 .meterTextInput{
 	font-size: 42px;
 	height: 48px;
-
 	color: black;
 	padding-bottom: 0.25rem;
-	margin-top: 1rem;
+	margin-top: 0.5rem;
 	min-width: 100%;
 }
 
 .errorMessage{
 	font-size: 1rem;
+	margin-bottom: 0px;
+	margin-top: 0.5rem;
 	color: #f88;
 	min-height: 1rem;
 }
@@ -219,7 +229,7 @@ input[type="checkbox"]{
 	padding-right: 1rem;
 }
 
-#nodeNumberModeSelectorContainer{
+.nodeNumberModeSelectorContainer{
 	display: flex;
 	font-size: 1.1rem;
 	height: 2rem;

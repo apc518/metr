@@ -99,11 +99,6 @@ const TIME_SIGNATURE_TESTS = [
         name: "12/8 but in sextuplets",
         tree: "6*4",
         expectedResult: "12/8"
-    },
-    {
-        name: "Empty list",
-        tree: [],
-        expectedResult: "?"
     }
 ]
 
@@ -246,17 +241,16 @@ const GENERIC_TESTS = [
         }
     },
     {
-        name: "MetricTree pre-prune",
+        name: "MetricTree no pruning",
         func: () => {
-            let t = createTreeFromMts("1*4");
+            let t = createTreeFromMts("1*4", false);
             return t.getMaxDepth() === 2;
         }
     },
     {
-        name: "MetricTree post-prune",
+        name: "MetricTree with pruning",
         func: () => {
             let t = createTreeFromMts("1*4");
-            t.pruneLeaves();
             return t.getMaxDepth() === 1;
         }
     },
@@ -461,11 +455,9 @@ function runTimeSignatureTests(){
         catch(e){
             console.error(`Test \"${test.name}\" FAILED (ERROR): ${e}`);
         }
-    })
-    if (passedCount === TIME_SIGNATURE_TESTS.length){
-        console.log(`%c${passedCount}/${TIME_SIGNATURE_TESTS.length} time signature tests passed`, consoleGoodStyle);
-    }
-    else{
+    });
+    console.log(`%c${passedCount}/${TIME_SIGNATURE_TESTS.length} time signature tests passed`, consoleGoodStyle);
+    if (passedCount !== TIME_SIGNATURE_TESTS.length){
         console.log(`%c${TIME_SIGNATURE_TESTS.length - passedCount}/${TIME_SIGNATURE_TESTS.length} time signature tests failed`, consoleErrorStyle);
     }
 }

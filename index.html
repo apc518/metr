@@ -8,21 +8,12 @@
 	<script src="lib/sweetalert2.min.js"></script>
 </head>
 <body>
-<div id="main">
-	<div style="display: flex">
+<main style="display: flex">
+	<div id="settingsColumn">
 		<div style="flex: 1">
 			<h1>MeTr</h1>
 			<h3>Metric Trees</h3>
 		</div>
-		<div style="flex: 2; margin: auto;">
-			<input type="text" id="mtsInput" class="meterTextInput"/>
-			<p id="mtsError" class="errorMessage"></p>
-		</div>
-		<div style="flex: 1">
-			<p id="timeSigDisplay">?</p>
-		</div>
-	</div>
-	<div style="display: flex;">
 		<div id="patchSettings">
 			<div class="settingsCategory">
 				<label for="presetSelectDropdown" id="presetSelectDropdownLabel" class="settingsCategoryLabel">Presets</label>
@@ -50,7 +41,7 @@
 				<div class="patchSettingRow">
 					<input type="number" id="volumeFalloffInput" class="patchSmallNumber" step="0.1" /> <label for="volumeFalloffInput" class="settingsCategoryLabel">Volume Falloff</label>
 				</div>
-				<div class="patchSettingRow">
+				<div class="patchSettingRow" hidden>
 					<input type="number" id="numLayersMutedInput" class="patchSmallNumber" step="1" min="0" /> <label for="numLayersMutedInput" class="settingsCategoryLabel">Muted Layers</label>
 				</div>
 			</div>
@@ -63,7 +54,7 @@
 			<br/>
 			<div class="settingsCategory">
 				<label id="nodeNumberModeDropdownLabel" class="settingsCategoryLabel">Node Numbers</label>
-				<div id="nodeNumberModeSelectorContainer">
+				<div class="nodeNumberModeSelectorContainer">
 					<div class="nodeNumberModeOption" id="nodeNumberModeLeaves" style="flex: 1;">
 						Leaves
 					</div>
@@ -80,9 +71,44 @@
 					</div>
 				</details>
 			</div>
+			<div class="settingsCategory">
+				<div class="patchSettingRow">
+					<input type="checkbox" id="continuousScrollingCheckbox" /> <label for="continuousScrollingCheckbox" class="settingsCategoryLabel">Continuous Scrolling</label>
+				</div>
+			</div>
 		</div>
-		<div>
-			<div id="p5canvas"></div>
+	</div>
+	<div>
+		<div style="display: flex">
+			<div style="flex: 1; margin: auto;">
+				<label for="lowerTreeToggle" style="color: white">poly</label>
+				<br/>
+				<input type="checkbox" unchecked id="lowerTreeToggle" name="hello" />
+			</div>
+			<div style="flex: 15; margin: auto;">
+				<div style="display: flex">
+					<div style="flex: 3; margin: auto;">
+						<input type="text" id="upperMtsInput" class="meterTextInput"/>
+						<p id="upperMtsError" class="errorMessage"></p>
+					</div>
+					<div style="flex: 1; margin: auto;">
+						<p id="upperTimeSigDisplay" class="timeSigDisplay">?</p>
+						<p class="errorMessage"></p>
+					</div>
+				</div>
+				<div id="lowerTreeTopBar" style="display: none">
+					<div style="flex: 3; margin: none;">
+						<input type="text" id="lowerMtsInput" class="meterTextInput"/>
+						<p id="lowerMtsError" class="errorMessage"></p>
+					</div>
+					<div style="flex: 1; margin: auto;">
+						<p id="lowerTimeSigDisplay" class="timeSigDisplay">?</p>
+						<p class="errorMessage"></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="p5canvas"></div>
 			<div id="bottomControlBar">
 				<div class="playback-control-bar">
 					<button id="playPauseBtn" class="playbar-button"><img id="playPauseBtnIcon" src="assets/images/play.png" class="playbar-button-icon"/></button>
@@ -94,16 +120,15 @@
 					<div id="frameRateMonitor">0fps</div>
 				</div>
 			</div>
-		</div>
 	</div>
-</div>
+</main>
 <script src="math.js" defer></script>
 <script src="MetricTree.js" defer></script>
 <script src="sound.js" defer></script>
 <script src="metricTreeShorthand.js" defer></script>
 <script src="environment.js" defer></script>
 <script src="meters.js" defer></script>
-<script src="drawMetricTree.js" defer></script>
+<script src="MetricTreeDrawer.js" defer></script>
 <script src="index.js" defer></script>
 <script src="patch.js" defer></script>
 <script src="htmlHandlers.js" defer></script>

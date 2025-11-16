@@ -113,6 +113,8 @@ const DIGITS = "0123456789";
 
 const SPACING_CHARACTERS = " "; // characters that wont be parsed into tokens but are allowed in between tokens
 
+const SYNTAX_ERROR_MESSAGE_PREFIX = "SYNTAX: ";
+
 /**
  * Returns a list of tokens from a raw mts string.
  * 
@@ -140,16 +142,16 @@ function parseTokens(mts){
             const val = parseInt(digitString);
 
             if (typeof val !== "number"){
-                throw new Error(`\"${digitString}\" at index ${charIdx - digitString.length + 1} could not be parsed as a number`);
+                throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}\"${digitString}\" at index ${charIdx - digitString.length + 1} could not be parsed as a number`);
             }
             if (val !== Math.floor(val)){
-                throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is not an integer.`);
+                throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is not an integer.`);
             }
             if (val > maxValueAll){
-                throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too large (max ${maxValueAll})`);
+                throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too large (max ${maxValueAll})`);
             }
             if (val < minValueAll){
-                throw new Error(`Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too small (min ${minValueAll})`);
+                throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}Number \"${digitString}\" at index ${charIdx - digitString.length + 1} is too small (min ${minValueAll})`);
             }
 
             tokens.push({
@@ -159,14 +161,14 @@ function parseTokens(mts){
             });
         }
         else if (!SPACING_CHARACTERS.includes(mts[charIdx])){
-            throw new Error(`Invalid character \"${mts[charIdx]}\" at index ${charIdx}`);
+            throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}Invalid character \"${mts[charIdx]}\" at index ${charIdx}`);
         }
     }
 
     return tokens;
 }
 
-function createTreeFromMts(mts){
+function createTreeFromMts(mts, doPrune=true){
     const tokens = parseTokens(mts);
 
     // console.log("tokens:", tokens);
@@ -190,11 +192,11 @@ function createTreeFromMts(mts){
             }
 
             if (tokens[i].value < minNodeNumber){
-                throw new Error(`Node number too small: ${tokens[i].value} at index ${tokens[i].idx} (min ${minNodeNumber})`)
+                throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}Node number too small: ${tokens[i].value} at index ${tokens[i].idx} (min ${minNodeNumber})`)
             }
             
             if (tokens[i].value > maxNodeNumber){
-                throw new Error(`Node number too big: ${tokens[i].value} at index ${tokens[i].idx} (max ${maxNodeNumber})`)
+                throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}Node number too big: ${tokens[i].value} at index ${tokens[i].idx} (max ${maxNodeNumber})`)
             }
 
             const child = new MetricTree();
@@ -209,7 +211,7 @@ function createTreeFromMts(mts){
             tree.addChild(child);
         }
         else{
-            throw new Error(`Expected number or open bracket at index ${tokens[i].idx}`);
+            throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}Expected number or open bracket at index ${tokens[i].idx}`);
         }
 
         increment();
@@ -219,7 +221,7 @@ function createTreeFromMts(mts){
         if (tokens[i].value === TUPLET_OPERATOR){
             increment();
             if (typeof tokens[i].value !== "number"){
-                throw new Error(`Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`)
+                throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`)
             }
             const lastChild = tree.children[tree.children.length - 1];
             lastChild.ratio = lastChild.getTrueWidth() / tokens[i].value;
@@ -243,7 +245,7 @@ function createTreeFromMts(mts){
                 increment();
             }
             else{
-                throw new Error(`Expected number after multiplier at index ${tokens[i-1].idx}`);
+                throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}Expected number after multiplier at index ${tokens[i-1].idx}`);
             }
         }
 
@@ -259,7 +261,7 @@ function createTreeFromMts(mts){
             return;
         }
         else{
-            throw new Error(`Expected scope close or addition operator at index ${tokens[i].idx}`);
+            throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}Expected scope close or addition operator at index ${tokens[i].idx}`);
         }
     }
 
@@ -280,6 +282,13 @@ function createTreeFromMts(mts){
     makeTreeRecursive(createdTree);
 
     indexTreeRecursive(createdTree);
+
+    if (doPrune){
+        createdTree.pruneLeaves();
+    }
+    
+    createdTree.totalLeaves = createdTree.getLeafNodeCount();
+    createdTree.totalWidth = createdTree.getTrueWidth();
 
     return createdTree;
 }

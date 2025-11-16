@@ -85,7 +85,8 @@ function fullRefresh(){
         drawLeafNodes: true,
         horizontalScale: 1,
         leafNodeYPos: canvasHeight * 3 / 4,
-        showLeafBoxes: false
+        showLeafBoxes: false,
+        continuousScrolling: false
     });
 
     paint();

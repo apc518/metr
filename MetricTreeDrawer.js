@@ -10,7 +10,7 @@ const HORIZONTAL_PADDING = 30;
 
 
 class MetricTreeDrawer{
-    constructor({upperTree, lowerTree, depth, drawLeafNodes, leafNodeYPos, horizontalScale, showLeafBoxes, showLeafPositions }){
+    constructor({upperTree, lowerTree, depth, drawLeafNodes, leafNodeYPos, horizontalScale, showLeafBoxes, continuousScrolling }){
         this.upperTree = upperTree;
         this.lowerTree = lowerTree;
         this.displayDepth = depth;
@@ -18,6 +18,7 @@ class MetricTreeDrawer{
         this.leafNodeYPos = leafNodeYPos;
         this.horizontalScale = horizontalScale;
         this.showLeafBoxes = showLeafBoxes;
+        this.continuousScrolling = continuousScrolling
 
         this.totalMaxDepth = max(upperTree ? max(1, upperTree.getMaxDepth()) : 0, lowerTree ? max(1, lowerTree.getMaxDepth()) : 0);
         this.upperLeafProgressValues = [];
@@ -76,10 +77,11 @@ class MetricTreeDrawer{
         const globalHorizontalOffset = ((canvasWidth - HORIZONTAL_PADDING) / 2) - (canvasWidth - HORIZONTAL_PADDING) * globalProgress;
 
         const upperTreePixelWidth = (canvasWidth - HORIZONTAL_PADDING) * this.upperTreeWidthRatio;
+        const upperTreeCopies = Math.ceil(1 + 1 / (this.horizontalScale * this.upperTreeWidthRatio))
 
         if(this.upperTree){
             const indexOffset = Math.floor(- globalHorizontalOffset / upperTreePixelWidth);
-            for (let i = indexOffset; i < indexOffset + Math.ceil(1 + 1 / (this.horizontalScale * this.upperTreeWidthRatio)); i++){
+            for (let i = indexOffset; i < indexOffset + upperTreeCopies; i++){
                 if (i < 0) continue;
                 this.leafCounter = 0;
                 this._draw(
@@ -89,17 +91,18 @@ class MetricTreeDrawer{
                     false,
                     this.upperLeafProgressValues,
                     this.horizontalScale * this.upperTreeWidthRatio,
-                    i * upperTreePixelWidth + globalHorizontalOffset,
-                    i
+                    this.continuousScrolling ? i * upperTreePixelWidth + globalHorizontalOffset : 0,
+                    this.continuousScrolling ? i : 0
                 );
             }
         }
 
         const lowerTreePixelWidth = (canvasWidth - HORIZONTAL_PADDING) * this.lowerTreeWidthRatio;
+        const lowerTreeCopies = Math.ceil(1 + 1 / (this.horizontalScale * this.lowerTreeWidthRatio))
 
         if (this.lowerTree){
             const indexOffset = Math.floor(- globalHorizontalOffset / lowerTreePixelWidth);
-            for (let i = indexOffset; i < indexOffset + Math.ceil(1 + 1 / (this.horizontalScale * this.lowerTreeWidthRatio)); i++){
+            for (let i = indexOffset; i < indexOffset + lowerTreeCopies; i++){
                 if (i < 0) continue;
                 this.leafCounter = 0;
                 this._draw(
@@ -109,8 +112,8 @@ class MetricTreeDrawer{
                     true,
                     this.lowerLeafProgressValues,
                     this.horizontalScale * this.lowerTreeWidthRatio,
-                    i * lowerTreePixelWidth + globalHorizontalOffset,
-                    i
+                    this.continuousScrolling ? i * lowerTreePixelWidth + globalHorizontalOffset : 0,
+                    this.continuousScrolling ? i : 0
                 );
             }
         }
@@ -153,7 +156,12 @@ class MetricTreeDrawer{
             if (isNaN(upperBound)) {
                 upperBound = index + 1;
             }
-            tree.on = index + leafProgressValues[this.leafCounter] <= progress && progress < upperBound;
+            if (this.continuousScrolling){
+                tree.on = index + leafProgressValues[this.leafCounter] <= progress && progress < upperBound;
+            }
+            else{
+                tree.on = leafProgressValues[this.leafCounter] <= progress % 1 && progress % 1 < (leafProgressValues[this.leafCounter + 1] ?? upperBound)
+            }
         }
         else{
             let sumOfChildXPositions = 0;

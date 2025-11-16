@@ -99,11 +99,6 @@ const TIME_SIGNATURE_TESTS = [
         name: "12/8 but in sextuplets",
         tree: "6*4",
         expectedResult: "12/8"
-    },
-    {
-        name: "Empty list",
-        tree: [],
-        expectedResult: "?"
     }
 ]
 

@@ -9,6 +9,16 @@ const VERTICAL_PADDING = 25;
 const HORIZONTAL_PADDING = 30;
 
 
+function listIsSubsequenceOfOther(ls1, ls2, ls1Scale){
+    for (let i = 0; i < ls1.length; i++){
+        if (!(Math.abs(ls2[i] - ls1Scale * ls1[i]) < 0.000001)){
+            return false;
+        }
+    }
+
+    return true;
+}
+
 class MetricTreeDrawer{
     constructor({upperTree, lowerTree, depth, drawLeafNodes, leafNodeYPos, horizontalScale, showLeafBoxes, continuousScrolling }){
         this.upperTree = upperTree;
@@ -50,6 +60,13 @@ class MetricTreeDrawer{
             this.lowerLeafProgressValues = lowerTree.getLeafNodeCyclePortionValues();
         }
 
+        if (upperTree && lowerTree){
+            const lowerTreeProgressValuesIsSubset = listIsSubsequenceOfOther(this.lowerLeafProgressValues, this.upperLeafProgressValues, this.lowerTreeWidthRatio);
+            const upperTreeProgressValuesIsSubset = listIsSubsequenceOfOther(this.upperLeafProgressValues, this.lowerLeafProgressValues, this.upperTreeWidthRatio);
+
+            this.showLeafBoxes = !(lowerTreeProgressValuesIsSubset || upperTreeProgressValuesIsSubset);
+        }
+
 
         this.lineThickness = 4;
 
@@ -72,7 +89,7 @@ class MetricTreeDrawer{
     }
 
     draw(){
-        let globalProgress = getGlobalProgress(this.upperTreeWidthRatio === 1 ? this.upperTree : this.lowerTree);
+        let globalProgress = getGlobalProgress(this.upperTreeWidthRatio === 1 && this.upperTree ? this.upperTree : this.lowerTree);
 
         const globalHorizontalOffset = ((canvasWidth - HORIZONTAL_PADDING) / 2) - (canvasWidth - HORIZONTAL_PADDING) * globalProgress;
 

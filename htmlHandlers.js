@@ -4,7 +4,7 @@ const textFieldErrorColorDark = "#811";
 const textFieldOkayColorDark = "#111";
 
 
-const mainDiv = document.getElementById("main");
+const mainDiv = document.getElementsByTagName("main");
 
 
 function setPatchParamFromNumberInput(paramName, elem, func=(n => n)){
@@ -22,32 +22,75 @@ function setPatchParamFromNumberInput(paramName, elem, func=(n => n)){
 //  MTS INPUT   //
 //////////////////
 
-const mtsInput = document.getElementById("mtsInput");
-const mtsErrorMessage = document.getElementById("mtsError");
+const upperMtsInput = document.getElementById("upperMtsInput");
+const lowerMtsInput = document.getElementById("lowerMtsInput");
+const upperMtsErrorMessage = document.getElementById("upperMtsError");
+const lowerMtsErrorMessage = document.getElementById("lowerMtsError");
 
-mtsInput.oninput = () => {
+const lowerTreeToggle = document.getElementById("lowerTreeToggle");
+lowerTreeToggle.checked = false;
+lowerTreeToggle.oninput = () => {
+    lowerTreeTopBar.style.display = lowerTreeToggle.checked ? "flex" : "none";
+}
+
+const lowerTreeTopBar = document.getElementById("lowerTreeTopBar");
+lowerTreeTopBar.style.display = lowerTreeToggle.checked ? "flex" : "none";
+
+
+upperMtsInput.oninput = () => {
     try{
-        const newTree = createTreeFromMts(mtsInput.value);
+        const newTree = createTreeFromMts(upperMtsInput.value);
         upperTree = newTree;
-        setMtsErrorMessage("");
-        setPatchParam("mts", mtsInput.value);
+        setMtsErrorMessage(upperMtsInput, upperMtsErrorMessage, "");
+        setPatchParam("mtsUpper", upperMtsInput.value);
         setLeafTempoBasedOnDisplayTempo();
         if (p5canvas){
             fullRefresh();
         }
     }
     catch (e){
-        setMtsErrorMessage(e.message);
+        console.log("hello there");
+        setMtsErrorMessage(upperMtsInput, upperMtsErrorMessage, e.message);
+        if (e.message.slice(0, SYNTAX_ERROR_MESSAGE_PREFIX.length) !== SYNTAX_ERROR_MESSAGE_PREFIX){
+            console.error(e);
+        }
+    }
+}
+
+lowerMtsInput.oninput = () => {
+    try{
+        const newTree = createTreeFromMts(lowerMtsInput.value);
+        lowerTree = newTree;
+        setMtsErrorMessage(lowerMtsInput, lowerMtsErrorMessage, "");
+        setPatchParam("mtsLower", lowerMtsInput.value);
+        setLeafTempoBasedOnDisplayTempo();
+        if (p5canvas){
+            fullRefresh();
+        }
+    }
+    catch (e){
+        setMtsErrorMessage(lowerMtsInput, lowerMtsErrorMessage, e.message);
+        if (e.message.slice(0, SYNTAX_ERROR_MESSAGE_PREFIX.length) !== SYNTAX_ERROR_MESSAGE_PREFIX){
+            console.error(e);
+        }
     }
 }
 
 function setMtsInputFromCurrentPatch(){
-    mtsInput.value = currentPatch.mts;
+    upperMtsInput.value = currentPatch.mtsUpper;
+    lowerMtsInput.value = currentPatch.mtsLower;
+    lowerTreeTopBar.style.display = currentPatch.mtsLower?.length > 0 ? "flex" : "none";
+    lowerTreeToggle.checked = !!(currentPatch.mtsLower?.length > 0);
 }
 
-function setMtsErrorMessage(s){
-    mtsErrorMessage.textContent = s;
-    mtsInput.style.backgroundColor = s.length === 0 ? textFieldOkayColorLight : textFieldErrorColorLight;
+function setMtsErrorMessage(inputElem, errorElem, s){
+    errorElem.textContent = s.slice(SYNTAX_ERROR_MESSAGE_PREFIX.length);
+    inputElem.style.backgroundColor = s.length === 0 ? textFieldOkayColorLight : textFieldErrorColorLight;
+}
+
+function clearMtsErrorMessages(){
+    setMtsErrorMessage(upperMtsInput, upperMtsErrorMessage, "");
+    setMtsErrorMessage(lowerMtsInput, lowerMtsErrorMessage, "");
 }
 
 
@@ -126,7 +169,7 @@ displayTempoDropdown.oninput = () => {
 }
 
 function calculateLeafTempo(displayTempoValue){
-    const tree = createTreeFromMts(currentPatch.mts);
+    const tree = createTreeFromMts(currentPatch.mtsUpper);
     const trueWidths = tree.getChildrensTrueWidths();
     if (currentPatch.displayTempoMode === "Largest Beat"){
         let maxBeatSize = 0;
@@ -148,7 +191,7 @@ function calculateLeafTempo(displayTempoValue){
 }
 
 function calculateDisplayTempo(){
-    const tree = createTreeFromMts(currentPatch.mts);
+    const tree = createTreeFromMts(currentPatch.mtsUpper ? currentPatch.mtsUpper : currentPatch.mtsLower);
     const trueWidths = tree.getChildrensTrueWidths();
     let returnValue = null;
     if (currentPatch.displayTempoMode === "Largest Beat"){
@@ -318,6 +361,18 @@ function changeHue(e){
     if (!isLooping()) {
         paint();
     }
+}
+
+
+//////////////////////////
+// CONTINUOUS SCROLLING //
+//////////////////////////
+
+const continuousScrollingCheckbox = document.getElementById("continuousScrollingCheckbox");
+
+continuousScrollingCheckbox.oninput = () => {
+    treeDrawer.continuousScrolling = continuousScrollingCheckbox.checked;
+    paint();
 }
 
 

@@ -20,7 +20,7 @@ let p5canvas = null;
 let upperTree = null;
 let lowerTree = null;
 let treeDrawer = null;
-let __debug = true;
+let __debug = false;
 
 function playPause(){
     if (isLooping()) pause_();
@@ -74,10 +74,9 @@ function pause_(){
 }
 
 function fullRefresh(){
-    setMtsErrorMessage("");
     refreshCanvas();
-    upperTree = createTreeFromMts(currentPatch.mts);
-    lowerTree = createTreeFromMts("4*5");
+    upperTree = createTreeFromMts(currentPatch.mtsUpper);
+    lowerTree = currentPatch.mtsLower ? createTreeFromMts(currentPatch.mtsLower) : null;
     treeDrawer = new MetricTreeDrawer({
         upperTree: upperTree,
         lowerTree: lowerTree,
@@ -86,7 +85,7 @@ function fullRefresh(){
         horizontalScale: 1,
         leafNodeYPos: canvasHeight * 3 / 4,
         showLeafBoxes: false,
-        continuousScrolling: false
+        continuousScrolling: continuousScrollingCheckbox.checked
     });
 
     paint();
@@ -122,7 +121,7 @@ function setup(){
     
     if (isDevelopmentEnvironment()){
         runTests();
-        setMtsErrorMessage("");
+        clearMtsErrorMessages();
     }
 }
 
@@ -135,7 +134,8 @@ function paint(){
 
     treeDrawer.draw();
 
-    document.getElementById("timeSigDisplay").innerText = upperTree.getTimeSignature();
+    document.getElementById("upperTimeSigDisplay").innerText = upperTree ? upperTree.getTimeSignature() : "";
+    document.getElementById("lowerTimeSigDisplay").innerText = lowerTree ? lowerTree.getTimeSignature() : "?";
 }
 
 function doFrame(){

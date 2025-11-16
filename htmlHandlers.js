@@ -31,6 +31,7 @@ const lowerTreeToggle = document.getElementById("lowerTreeToggle");
 lowerTreeToggle.checked = false;
 lowerTreeToggle.oninput = () => {
     lowerTreeTopBar.style.display = lowerTreeToggle.checked ? "flex" : "none";
+    setClickSoundSettingsFromCurrentPatch();
 }
 
 const lowerTreeTopBar = document.getElementById("lowerTreeTopBar");
@@ -74,6 +75,8 @@ lowerMtsInput.oninput = () => {
             console.error(e);
         }
     }
+
+    setClickSoundSettingsFromCurrentPatch();
 }
 
 function setMtsInputFromCurrentPatch(){
@@ -260,6 +263,19 @@ audioSampleDropdown.oninput = () => {
     setPatchParam("audioSample", audioSampleOptions[audioSampleDropdown.selectedIndex]);
 }
 
+const secondaryAudioSampleDropdown = document.getElementById("secondaryAudioSampleDropdown");
+for (let option of audioSampleOptions){
+    let elem = document.createElement('option');
+    elem.value = option.filename;
+    elem.innerText = option.displayName;
+    secondaryAudioSampleDropdown.appendChild(elem);
+}
+secondaryAudioSampleDropdown.oninput = () => {
+    setPatchParam("secondaryAudioSample", audioSampleOptions[secondaryAudioSampleDropdown.selectedIndex]);
+}
+
+const secondaryAudioSampleDropdownContainer = document.getElementById("secondaryAudioSampleDropdownContainer");
+
 const numLayersMutedInput = document.getElementById("numLayersMutedInput");
 numLayersMutedInput.oninput = () => {
     if (numLayersMutedInput.value > upperTree.getMaxDepth()){
@@ -282,6 +298,15 @@ function setClickSoundSettingsFromCurrentPatch(){
             break;
         }
     }
+
+    for (let i = 0; i < secondaryAudioSampleDropdown.children.length; i++){
+        if (secondaryAudioSampleDropdown.children[i].value === currentPatch.secondaryAudioSample.filename){
+            secondaryAudioSampleDropdown.selectedIndex = i;
+            break;
+        }
+    }
+
+    secondaryAudioSampleDropdownContainer.style.display = currentPatch.mtsLower?.length > 0 ? "block" : "none";
 }
 
 

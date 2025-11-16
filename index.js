@@ -42,7 +42,7 @@ function getCycleDuration(tree){
 function scheduleAllSounds(){
     if (lowerTree){
         scheduleSounds(upperTree, audioSampleDropdown.selectedIndex, -1);
-        scheduleSounds(lowerTree, 0, 1);
+        scheduleSounds(lowerTree, secondaryAudioSampleDropdown.selectedIndex, 1);
     }
     else{
         scheduleSounds(upperTree, audioSampleDropdown.selectedIndex, 0);

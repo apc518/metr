@@ -65,14 +65,14 @@ const presets = [
         leafTempo: 150*3,
         accentDownbeat: true,
         pitchesHighToLow: true,
-        pitchSpread: 1.5,
+        pitchSpread: 0.9,
         volumeFalloff: 0.5,
         audioSample: audioSampleOptions[4],
         numLayersMuted: 0,
         mtsUpper: "[2+3] + [2+2+3]*2 + [2+3]*2 + [2+2+3]",
         mtsLower: "[3*3]*4",
         displayTempoMode: displayTempoOptions[0],
-        secondaryAudioSample: audioSampleOptions[2]
+        secondaryAudioSample: audioSampleOptions[3]
     },
     {
         name: "Natalie Has Never Tasted Anything Other Than Mustard (Andy Chamberlain)",

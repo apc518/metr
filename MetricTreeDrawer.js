@@ -9,9 +9,9 @@ const VERTICAL_PADDING = 25;
 const HORIZONTAL_PADDING = 30;
 
 
-function listIsSubsequenceOfOther(ls1, ls2, ls1Scale){
+function listDiffsIsSubsequenceOfOther(ls1, ls2, ls1Scale){
     for (let i = 0; i < ls1.length; i++){
-        if (!(Math.abs(ls2[i] - ls1Scale * ls1[i]) < 0.000001)){
+        if (!(Math.abs(((ls2[i+1] ?? 1) - ls2[i]) - (ls1Scale * ((ls1[i+1] ?? 1) - ls1[i]))) < 0.000001)){
             return false;
         }
     }
@@ -61,8 +61,8 @@ class MetricTreeDrawer{
         }
 
         if (upperTree && lowerTree){
-            const lowerTreeProgressValuesIsSubset = listIsSubsequenceOfOther(this.lowerLeafProgressValues, this.upperLeafProgressValues, this.lowerTreeWidthRatio);
-            const upperTreeProgressValuesIsSubset = listIsSubsequenceOfOther(this.upperLeafProgressValues, this.lowerLeafProgressValues, this.upperTreeWidthRatio);
+            const lowerTreeProgressValuesIsSubset = listDiffsIsSubsequenceOfOther(this.lowerLeafProgressValues, this.upperLeafProgressValues, this.lowerTreeWidthRatio);
+            const upperTreeProgressValuesIsSubset = listDiffsIsSubsequenceOfOther(this.upperLeafProgressValues, this.lowerLeafProgressValues, this.upperTreeWidthRatio);
 
             this.showLeafBoxes = !(lowerTreeProgressValuesIsSubset || upperTreeProgressValuesIsSubset);
         }

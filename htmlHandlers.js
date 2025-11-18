@@ -32,6 +32,7 @@ lowerTreeToggle.checked = false;
 lowerTreeToggle.oninput = () => {
     lowerTreeTopBar.style.display = lowerTreeToggle.checked ? "flex" : "none";
     setClickSoundSettingsFromCurrentPatch();
+    windowResized();
 }
 
 const lowerTreeTopBar = document.getElementById("lowerTreeTopBar");

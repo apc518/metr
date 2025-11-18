@@ -435,6 +435,22 @@ const GENERIC_TESTS = [
             const tree = createTreeFromMts("3*4");
             return tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(6) === 1;
         }
+    },
+    {
+        name: "progress subsets test 1",
+        func: () => {
+            const tree1 = createTreeFromMts("3");
+            const tree2 = createTreeFromMts("2+3:4");
+            return !listDiffsIsSubsequenceOfOther(tree1.getLeafNodeCyclePortionValues(), tree2.getLeafNodeCyclePortionValues(), tree1.getTrueWidth() / tree2.getTrueWidth());
+        }
+    },
+    {
+        name: "progress subsets test 2",
+        func: () => {
+            const tree1 = createTreeFromMts("3");
+            const tree2 = createTreeFromMts("2+3");
+            return listDiffsIsSubsequenceOfOther(tree1.getLeafNodeCyclePortionValues(), tree2.getLeafNodeCyclePortionValues(), tree1.getTrueWidth() / tree2.getTrueWidth());
+        }
     }
 ]
 

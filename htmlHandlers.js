@@ -51,7 +51,6 @@ upperMtsInput.oninput = () => {
         }
     }
     catch (e){
-        console.log("hello there");
         setMtsErrorMessage(upperMtsInput, upperMtsErrorMessage, e.message);
         if (e.message.slice(0, SYNTAX_ERROR_MESSAGE_PREFIX.length) !== SYNTAX_ERROR_MESSAGE_PREFIX){
             console.error(e);

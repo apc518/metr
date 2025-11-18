@@ -1,8 +1,17 @@
 "use strict";
 
 // graphics constants
-const CANVAS_WIDTH_DEFAULT = document.body.clientWidth - document.getElementById("patchSettings").clientWidth;
-const CANVAS_HEIGHT_DEFAULT = 700;
+function computeCanvasWidth(){
+    return document.body.clientWidth - document.getElementById("patchSettings").clientWidth;
+}
+
+function computeCanvasHeight(){
+    return 0.85 * (document.body.clientHeight - document.getElementById("topBar").clientHeight - document.getElementById("bottomControlBar").clientHeight);
+}
+
+const CANVAS_WIDTH_DEFAULT = computeCanvasWidth();
+const CANVAS_HEIGHT_DEFAULT = computeCanvasHeight();
+
 let canvasWidth = CANVAS_WIDTH_DEFAULT;
 let canvasHeight = CANVAS_HEIGHT_DEFAULT;
 
@@ -169,7 +178,8 @@ function keyPressed(){
 }
 
 function windowResized(){
-    canvasWidth = windowWidth - document.getElementById("patchSettings").clientWidth;
+    canvasWidth = computeCanvasWidth();
+    canvasHeight = computeCanvasHeight();
     p5canvas.resize(canvasWidth, canvasHeight);
     fullRefresh();
 }

@@ -195,6 +195,9 @@ class MetricTreeDrawer{
             push();
             noStroke();
             
+            push();
+            stroke(BOX_COLOR_ON);
+            strokeWeight(1);
             if (leaf && (this.showLeafBoxes || __debug)){
                 fill(tree.on ? BOX_COLOR_ON : BOX_COLOR_OFF);
                 rect(horizontalOffset + tree.pos.x - (leafDisplayWidth / 2), tree.pos.y - this.leafNodeHeight / 2, leafDisplayWidth, this.leafNodeHeight);
@@ -203,6 +206,8 @@ class MetricTreeDrawer{
                 fill(tree.on ? BOX_COLOR_ON : BOX_COLOR_OFF);
                 rect(horizontalOffset + tree.pos.x - (this.innerNodeHeight / 2), tree.pos.y - this.innerNodeHeight / 2, this.innerNodeHeight, this.innerNodeHeight);
             }
+
+            pop();
 
             fill(tree.on ? getPatchHighlightColor() : TEXT_COLOR_OFF);
             textSize(leaf ? this.leafNodeTextSize : this.innerNodeTextSize);

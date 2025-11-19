@@ -8,7 +8,7 @@ body{
 	font-family: "Trebuchet MS", Helvetica, sans-serif;
 	height: 100%;
 }
-main{
+#main{
 	height: 100%;
 }
 #settingsColumn{

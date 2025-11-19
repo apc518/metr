@@ -92,7 +92,6 @@ function fullRefresh(){
         depth: 0,
         drawLeafNodes: true,
         horizontalScale: 1,
-        leafNodeYPos: canvasHeight * 3 / 4,
         showLeafBoxes: false,
         continuousScrolling: continuousScrollingCheckbox.checked
     });

@@ -20,12 +20,11 @@ function listDiffsIsSubsequenceOfOther(ls1, ls2, ls1Scale){
 }
 
 class MetricTreeDrawer{
-    constructor({upperTree, lowerTree, depth, drawLeafNodes, leafNodeYPos, horizontalScale, showLeafBoxes, continuousScrolling }){
+    constructor({upperTree, lowerTree, depth, drawLeafNodes, horizontalScale, showLeafBoxes, continuousScrolling }){
         this.upperTree = upperTree;
         this.lowerTree = lowerTree;
         this.displayDepth = depth;
         this.drawLeafNodes = drawLeafNodes;
-        this.leafNodeYPos = leafNodeYPos;
         this.horizontalScale = horizontalScale;
         this.showLeafBoxes = showLeafBoxes;
         this.continuousScrolling = continuousScrolling

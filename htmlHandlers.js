@@ -4,7 +4,7 @@ const textFieldErrorColorDark = "#811";
 const textFieldOkayColorDark = "#111";
 
 
-const mainDiv = document.getElementsByTagName("main");
+const mainDiv = document.getElementById("main");
 
 
 function setPatchParamFromNumberInput(paramName, elem, func=(n => n)){
@@ -458,17 +458,20 @@ function doVolumeInput() {
 function toggleFullscreen(){
     if (mainDiv.hidden){
         mainDiv.hidden = false;
+        mainDiv.style.display = "flex";
         canvasHeight = CANVAS_HEIGHT_DEFAULT;
         windowResized();
         refreshCanvas();
         paint();
+        document.body.style.setProperty("overflow", "visible");
     }
     else {
         mainDiv.hidden = true;
+        mainDiv.style.display = "none";
+        document.body.style.setProperty("overflow", "hidden");
         canvasWidth = document.body.getBoundingClientRect().width;
         canvasHeight = window.innerHeight;
-        refreshCanvas();
-        paint();
+        fullRefresh();
     }
 }
 
@@ -488,3 +491,5 @@ function setPatchUIElementsFromCurrentPatch(){
     setPresetDisplayNames();
     trySelectPreset();
 }
+
+setTimeout(windowResized, 50);

@@ -90,9 +90,9 @@ class MetricTreeDrawer{
     draw(){
         let globalProgress = getGlobalProgress(this.upperTreeWidthRatio === 1 && this.upperTree ? this.upperTree : this.lowerTree);
 
-        const globalHorizontalOffset = ((canvasWidth - HORIZONTAL_PADDING) / 2) - (canvasWidth - HORIZONTAL_PADDING) * globalProgress;
+        const globalHorizontalOffset = ((canvasWidth - HORIZONTAL_PADDING) / 2) - (canvasWidth - HORIZONTAL_PADDING) * this.horizontalScale * globalProgress;
 
-        const upperTreePixelWidth = (canvasWidth - HORIZONTAL_PADDING) * this.upperTreeWidthRatio;
+        const upperTreePixelWidth = (canvasWidth - HORIZONTAL_PADDING) * this.upperTreeWidthRatio * this.horizontalScale;
         const upperTreeCopies = Math.ceil(1 + 1 / (this.horizontalScale * this.upperTreeWidthRatio))
 
         if(this.upperTree){
@@ -113,7 +113,7 @@ class MetricTreeDrawer{
             }
         }
 
-        const lowerTreePixelWidth = (canvasWidth - HORIZONTAL_PADDING) * this.lowerTreeWidthRatio;
+        const lowerTreePixelWidth = (canvasWidth - HORIZONTAL_PADDING) * this.lowerTreeWidthRatio * this.horizontalScale;
         const lowerTreeCopies = Math.ceil(1 + 1 / (this.horizontalScale * this.lowerTreeWidthRatio))
 
         if (this.lowerTree){
@@ -212,7 +212,12 @@ class MetricTreeDrawer{
             textSize(leaf ? this.leafNodeTextSize : this.innerNodeTextSize);
             textAlign(CENTER, CENTER);
             let textValue = `${currentPatch.nodeNumberMode === "Leaves" ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.getTrueWidth()}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
-            text(textValue, horizontalOffset + tree.pos.x, tree.pos.y + (leaf ? this.leafNodeTextSize : this.innerNodeTextSize) * 0.05);
+            const textPos = { x: horizontalOffset + tree.pos.x, y: tree.pos.y + (leaf ? this.leafNodeTextSize : this.innerNodeTextSize) * 0.05 }
+            if (textPos.x < canvasWidth + this.innerNodeTextSize * textValue.length * 2
+                && textPos.x > 0 - this.innerNodeTextSize * textValue.length * 2)
+            {
+                text(textValue, textPos.x, textPos.y);
+            }
             
             if (__debug){
                 // show position of nodes
@@ -240,7 +245,16 @@ class MetricTreeDrawer{
 
                     const yValues = this._calculateYCoordinatesForEdge(tree, t, isLowerTree);
 
-                    line(horizontalOffset + tree.pos.x, yValues[0], horizontalOffset + t.pos.x, yValues[1]);
+                    const linePos1 = createVector(horizontalOffset + tree.pos.x, yValues[0]);
+                    const linePos2 = createVector(horizontalOffset + t.pos.x, yValues[1])
+
+                    if ((linePos1.x < canvasWidth + this.lineThickness * 2
+                        && linePos1.x > 0 - this.lineThickness * 2)
+                        || (linePos2.x < canvasWidth + this.lineThickness * 2
+                        && linePos2.x > 0 - this.lineThickness * 2))
+                    {
+                        line(linePos1.x, linePos1.y, linePos2.x, linePos2.y);
+                    }
                 }
 
                 // draw highlighted line now (after all the others) so it's always on top
@@ -262,16 +276,11 @@ class MetricTreeDrawer{
     }
 
     _calculateYCoordinatesForEdge(tree1, tree2, isLowerTree){
-        const yValues = [
-            tree1.pos.y + this.innerNodeHeight / 2,
-            tree2.pos.y - (tree2.isLeaf() ? this.leafNodeHeight  : this.innerNodeHeight) / 2
-        ];
-        
-        if (isLowerTree){
-            yValues[0] = tree1.pos.y - this.innerNodeHeight / 2;
-            yValues[1] = tree2.pos.y + (tree2.isLeaf() ? this.leafNodeHeight  : this.innerNodeHeight) / 2;
-        }
+        const mult = isLowerTree ? -1 : 1;
 
-        return yValues;
+        return [
+            mult * this.innerNodeHeight / 2 + tree1.pos.y,
+            - mult * (tree2.isLeaf() ? this.leafNodeHeight  : this.innerNodeHeight) / 2 + tree2.pos.y
+        ];
     }
 }

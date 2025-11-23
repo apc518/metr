@@ -31,11 +31,10 @@ h3{
 	user-select: none;
 }
 .timeSigDisplay{
-	font-size: 54px;
+	font-size: 48px;
 	color: white;
 	padding-bottom: 0.25rem;
-	margin-top: 0.5rem;
-	margin-bottom: 0px;
+	margin-block: auto;
 	min-width: 100%;
 }
 div{
@@ -205,8 +204,8 @@ input[type="checkbox"]{
 }
 
 .meterTextInput{
-	font-size: 42px;
-	height: 48px;
+	font-size: 32px;
+	height: 40px;
 	color: black;
 	padding-bottom: 0.25rem;
 	margin-top: 0.5rem;
@@ -216,7 +215,7 @@ input[type="checkbox"]{
 .errorMessage{
 	font-size: 1rem;
 	margin-bottom: 0px;
-	margin-top: 0.5rem;
+	margin-top: 0.25rem;
 	color: #f88;
 	min-height: 1rem;
 }

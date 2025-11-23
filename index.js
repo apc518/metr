@@ -6,7 +6,7 @@ function computeCanvasWidth(){
 }
 
 function computeCanvasHeight(){
-    return 0.85 * (document.body.clientHeight - document.getElementById("topBar").clientHeight - document.getElementById("bottomControlBar").clientHeight);
+    return 0.9 * (document.body.clientHeight - document.getElementById("topBar").clientHeight - document.getElementById("bottomControlBar").clientHeight);
 }
 
 let canvasWidth;
@@ -97,8 +97,6 @@ function fullRefresh(){
 }
 
 function refreshCanvas(){
-    setMtsInputFromCurrentPatch();
-    setCanvasDimensions();
     p5canvas = createCanvas(canvasWidth, canvasHeight);
     if (mainDiv.hidden){
         p5canvas.parent(document.body);
@@ -114,6 +112,8 @@ function setup(){
     setPatchUIElementsFromCurrentPatch();
     noLoop();
     frameRate(FRAMERATE);
+    setMtsInputFromCurrentPatch();
+    setCanvasDimensions();
     fullRefresh();
 
     globalVolumeSlider.oninput();
@@ -181,6 +181,7 @@ function setCanvasDimensions(){
 }
 
 function windowResized(){
+    setCanvasDimensions();
     p5canvas.resize(canvasWidth, canvasHeight);
     fullRefresh();
 }

@@ -460,7 +460,6 @@ function toggleFullscreen(){
     if (mainDiv.hidden){
         mainDiv.hidden = false;
         mainDiv.style.display = "flex";
-        canvasHeight = CANVAS_HEIGHT_DEFAULT;
         windowResized();
         refreshCanvas();
         paint();
@@ -470,8 +469,8 @@ function toggleFullscreen(){
         mainDiv.hidden = true;
         mainDiv.style.display = "none";
         document.body.style.setProperty("overflow", "hidden");
-        canvasWidth = document.body.getBoundingClientRect().width;
-        canvasHeight = window.innerHeight;
+        canvasWidth = document.body.clientWidth;
+        canvasHeight = document.body.clientHeight;
         fullRefresh();
     }
 }

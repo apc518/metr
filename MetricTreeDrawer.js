@@ -83,7 +83,12 @@ class MetricTreeDrawer{
         if (lowerTree){
             this.layerHeight = ((canvasHeight - VERTICAL_PADDING) / 2 - this.leafNodeHeight) / this.totalMaxDepth;
             if (!this.showBothLeafRows){
-                this.layerHeight += this.leafNodeHeight / 4;
+                if (this.upperTree.getMaxDepth() > this.lowerTree.getMaxDepth()){
+                    this.layerHeight += this.leafNodeHeight / (2 * this.upperTree.getMaxDepth());
+                }
+                else{
+                    this.layerHeight += this.leafNodeHeight / (2 * this.lowerTree.getMaxDepth());
+                }
             }
         }
         else{

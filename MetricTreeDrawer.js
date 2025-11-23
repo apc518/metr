@@ -239,7 +239,7 @@ class MetricTreeDrawer{
                 fill(tree.on ? getPatchHighlightColor() : TEXT_COLOR_OFF);
                 textSize(leaf ? this.leafNodeTextSize : this.innerNodeTextSize);
                 textAlign(CENTER, CENTER);
-                if (tree.on && leaf){
+                if (tree.on && leaf && !this.continuousScrolling){
                     postRecusionTasks.push(() => {
                         push();
                         noStroke();

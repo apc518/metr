@@ -175,7 +175,12 @@ class MetricTreeDrawer{
             this._draw(tree.children[i], depth + 1, progress, isLowerTree, leafProgressValues, horizontalScale, horizontalOffset, index, postRecusionTasks);
         }
 
-        tree.pos = {x: null, y: (VERTICAL_PADDING / 2 + (this.innerNodeHeight / 2) + depth * this.layerHeight)}
+        const rootTree = isLowerTree ? this.lowerTree : this.upperTree;
+
+        tree.pos = {
+            x: null,
+            y: (VERTICAL_PADDING / 2 + (this.innerNodeHeight / 2) + ((depth - (rootTree.getMaxDepth() - this.totalMaxDepth)) * this.layerHeight))
+        }
         if (isLowerTree){
             tree.pos.y = canvasHeight - tree.pos.y;
         }

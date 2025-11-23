@@ -165,6 +165,12 @@ const patchParams = [
         name: "secondaryAudioSample",
         compress: x => Array.from(audioSampleOptions, o => o.filename).indexOf(x.filename),
         decompress: x => audioSampleOptions[x]
+    },
+    {
+        name: "lowerTreeActive",
+        compress: x => x ? 1 : 0,
+        decompress: x => !!x,
+        musical: true
     }
 ]
 

@@ -9,11 +9,8 @@ function computeCanvasHeight(){
     return 0.85 * (document.body.clientHeight - document.getElementById("topBar").clientHeight - document.getElementById("bottomControlBar").clientHeight);
 }
 
-const CANVAS_WIDTH_DEFAULT = computeCanvasWidth();
-const CANVAS_HEIGHT_DEFAULT = computeCanvasHeight();
-
-let canvasWidth = CANVAS_WIDTH_DEFAULT;
-let canvasHeight = CANVAS_HEIGHT_DEFAULT;
+let canvasWidth;
+let canvasHeight;
 
 // physics constants
 const FRAMERATE = 60;
@@ -88,7 +85,7 @@ function fullRefresh(){
     lowerTree = currentPatch.mtsLower ? createTreeFromMts(currentPatch.mtsLower) : null;
     treeDrawer = new MetricTreeDrawer({
         upperTree: upperTree,
-        lowerTree: lowerTree,
+        lowerTree: currentPatch.lowerTreeActive ? lowerTree : null,
         depth: 0,
         drawLeafNodes: true,
         horizontalScale: 1,
@@ -100,6 +97,8 @@ function fullRefresh(){
 }
 
 function refreshCanvas(){
+    setMtsInputFromCurrentPatch();
+    setCanvasDimensions();
     p5canvas = createCanvas(canvasWidth, canvasHeight);
     if (mainDiv.hidden){
         p5canvas.parent(document.body);
@@ -176,9 +175,12 @@ function keyPressed(){
     }
 }
 
-function windowResized(){
+function setCanvasDimensions(){
     canvasWidth = computeCanvasWidth();
     canvasHeight = computeCanvasHeight();
+}
+
+function windowResized(){
     p5canvas.resize(canvasWidth, canvasHeight);
     fullRefresh();
 }

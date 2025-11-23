@@ -28,15 +28,16 @@ const upperMtsErrorMessage = document.getElementById("upperMtsError");
 const lowerMtsErrorMessage = document.getElementById("lowerMtsError");
 
 const lowerTreeToggle = document.getElementById("lowerTreeToggle");
-lowerTreeToggle.checked = false;
+lowerTreeToggle.checked = !!currentPatch.lowerTreeActive;
 lowerTreeToggle.oninput = () => {
     lowerTreeTopBar.style.display = lowerTreeToggle.checked ? "flex" : "none";
+    currentPatch.lowerTreeActive = !!lowerTreeToggle.checked;
     setClickSoundSettingsFromCurrentPatch();
     windowResized();
 }
 
 const lowerTreeTopBar = document.getElementById("lowerTreeTopBar");
-lowerTreeTopBar.style.display = lowerTreeToggle.checked ? "flex" : "none";
+lowerTreeTopBar.style.display = currentPatch.lowerTreeActive ? "flex" : "none";
 
 
 upperMtsInput.oninput = () => {
@@ -82,8 +83,8 @@ lowerMtsInput.oninput = () => {
 function setMtsInputFromCurrentPatch(){
     upperMtsInput.value = currentPatch.mtsUpper;
     lowerMtsInput.value = currentPatch.mtsLower;
-    lowerTreeTopBar.style.display = currentPatch.mtsLower?.length > 0 ? "flex" : "none";
-    lowerTreeToggle.checked = !!(currentPatch.mtsLower?.length > 0);
+    lowerTreeTopBar.style.display = !!currentPatch.lowerTreeActive ? "flex" : "none";
+    lowerTreeToggle.checked = !!currentPatch.lowerTreeActive;
 }
 
 function setMtsErrorMessage(inputElem, errorElem, s){
@@ -492,4 +493,4 @@ function setPatchUIElementsFromCurrentPatch(){
     trySelectPreset();
 }
 
-setTimeout(windowResized, 50);
+// setTimeout(windowResized, 50);

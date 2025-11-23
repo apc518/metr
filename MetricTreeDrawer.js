@@ -27,8 +27,9 @@ class MetricTreeDrawer{
         this.drawLeafNodes = drawLeafNodes;
         this.horizontalScale = horizontalScale;
         this.showLeafBoxes = showLeafBoxes;
-        this.continuousScrolling = continuousScrolling
+        this.continuousScrolling = continuousScrolling;
 
+        this.showBothLeafRows = true;
         this.totalMaxDepth = max(upperTree ? max(1, upperTree.getMaxDepth()) : 0, lowerTree ? max(1, lowerTree.getMaxDepth()) : 0);
         this.upperLeafProgressValues = [];
         this.lowerLeafProgressValues = [];
@@ -63,9 +64,9 @@ class MetricTreeDrawer{
             const lowerTreeProgressValuesIsSubset = listDiffsIsSubsequenceOfOther(this.lowerLeafProgressValues, this.upperLeafProgressValues, this.lowerTreeWidthRatio);
             const upperTreeProgressValuesIsSubset = listDiffsIsSubsequenceOfOther(this.upperLeafProgressValues, this.lowerLeafProgressValues, this.upperTreeWidthRatio);
 
-            this.showLeafBoxes = !(lowerTreeProgressValuesIsSubset || upperTreeProgressValuesIsSubset);
+            this.showBothLeafRows = !(lowerTreeProgressValuesIsSubset || upperTreeProgressValuesIsSubset);
+            this.showLeafBoxes = this.showLeafBoxes || !(lowerTreeProgressValuesIsSubset || upperTreeProgressValuesIsSubset);
         }
-
 
         this.lineThickness = 4;
 
@@ -81,6 +82,9 @@ class MetricTreeDrawer{
         
         if (lowerTree){
             this.layerHeight = ((canvasHeight - VERTICAL_PADDING) / 2 - this.leafNodeHeight) / this.totalMaxDepth;
+            if (!this.showBothLeafRows){
+                this.layerHeight += this.leafNodeHeight / 4;
+            }
         }
         else{
             this.layerHeight = (canvasHeight - VERTICAL_PADDING - this.leafNodeHeight) / this.totalMaxDepth;
@@ -93,7 +97,10 @@ class MetricTreeDrawer{
         const globalHorizontalOffset = ((canvasWidth - HORIZONTAL_PADDING) / 2) - (canvasWidth - HORIZONTAL_PADDING) * this.horizontalScale * globalProgress;
 
         const upperTreePixelWidth = (canvasWidth - HORIZONTAL_PADDING) * this.upperTreeWidthRatio * this.horizontalScale;
-        const upperTreeCopies = Math.ceil(1 + 1 / (this.horizontalScale * this.upperTreeWidthRatio))
+        const upperTreeCopies = Math.ceil(1 + 1 / (this.horizontalScale * this.upperTreeWidthRatio));
+
+        const upperTreePostRecursionTasks = [];
+        const lowerTreePostRecursionTasks = [];
 
         if(this.upperTree){
             const indexOffset = Math.floor(- globalHorizontalOffset / upperTreePixelWidth);
@@ -108,7 +115,8 @@ class MetricTreeDrawer{
                     this.upperLeafProgressValues,
                     this.horizontalScale * this.upperTreeWidthRatio,
                     this.continuousScrolling ? i * upperTreePixelWidth + globalHorizontalOffset : 0,
-                    this.continuousScrolling ? i : 0
+                    this.continuousScrolling ? i : 0,
+                    upperTreePostRecursionTasks
                 );
             }
         }
@@ -129,9 +137,18 @@ class MetricTreeDrawer{
                     this.lowerLeafProgressValues,
                     this.horizontalScale * this.lowerTreeWidthRatio,
                     this.continuousScrolling ? i * lowerTreePixelWidth + globalHorizontalOffset : 0,
-                    this.continuousScrolling ? i : 0
+                    this.continuousScrolling ? i : 0,
+                    lowerTreePostRecursionTasks
                 );
             }
+        }
+        
+        for (let func of upperTreePostRecursionTasks){
+            func();
+        }
+        
+        for (let func of lowerTreePostRecursionTasks){
+            func();
         }
 
         if (__debug){
@@ -148,9 +165,9 @@ class MetricTreeDrawer{
         }
     }
 
-    _draw(tree, depth, progress, isLowerTree, leafProgressValues, horizontalScale, horizontalOffset, index){
+    _draw(tree, depth, progress, isLowerTree, leafProgressValues, horizontalScale, horizontalOffset, index, postRecusionTasks){
         for (let i = 0; i < tree.children.length; i++){
-            this._draw(tree.children[i], depth + 1, progress, isLowerTree, leafProgressValues, horizontalScale, horizontalOffset, index);
+            this._draw(tree.children[i], depth + 1, progress, isLowerTree, leafProgressValues, horizontalScale, horizontalOffset, index, postRecusionTasks);
         }
 
         tree.pos = {x: null, y: (VERTICAL_PADDING / 2 + (this.innerNodeHeight / 2) + depth * this.layerHeight)}
@@ -208,15 +225,30 @@ class MetricTreeDrawer{
 
             pop();
 
-            fill(tree.on ? getPatchHighlightColor() : TEXT_COLOR_OFF);
-            textSize(leaf ? this.leafNodeTextSize : this.innerNodeTextSize);
-            textAlign(CENTER, CENTER);
             let textValue = `${currentPatch.nodeNumberMode === "Leaves" ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.getTrueWidth()}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
             const textPos = { x: horizontalOffset + tree.pos.x, y: tree.pos.y + (leaf ? this.leafNodeTextSize : this.innerNodeTextSize) * 0.05 }
             if (textPos.x < canvasWidth + this.innerNodeTextSize * textValue.length * 2
-                && textPos.x > 0 - this.innerNodeTextSize * textValue.length * 2)
+                && textPos.x > 0 - this.innerNodeTextSize * textValue.length * 2
+                && (!leaf || this.showBothLeafRows || (this.lowerTreeWidthRatio < this.upperTreeWidthRatio ? !isLowerTree : isLowerTree) || tree.on))
             {
-                text(textValue, textPos.x, textPos.y);
+                fill(tree.on ? getPatchHighlightColor() : TEXT_COLOR_OFF);
+                textSize(leaf ? this.leafNodeTextSize : this.innerNodeTextSize);
+                textAlign(CENTER, CENTER);
+                if (tree.on && leaf){
+                    postRecusionTasks.push(() => {
+                        push();
+                        noStroke();
+                        fill(tree.on ? getPatchHighlightColor() : TEXT_COLOR_OFF);
+                        textSize(leaf ? this.leafNodeTextSize : this.innerNodeTextSize);
+                        textAlign(CENTER, CENTER);
+                        
+                        text(textValue, textPos.x, textPos.y);
+                        pop();
+                    });
+                }
+                else{
+                    text(textValue, textPos.x, textPos.y);
+                }
             }
             
             if (__debug){

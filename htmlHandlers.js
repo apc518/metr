@@ -485,6 +485,11 @@ globalVolumeSlider.oninput = () => {
     doVolumeInput();
 }
 
+globalVolumeSlider.ondblclick = () => {
+    globalVolumeSlider.value = int(globalVolumeSlider.max) / 2;
+    globalVolumeSlider.oninput();
+}
+
 const logb = (base, x) => {
     return Math.log(x) / Math.log(base);
 }

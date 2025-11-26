@@ -48,7 +48,7 @@ function getCycleDuration(tree){
 function scheduleAllSounds(){
     if (lowerTree){
         scheduleSounds(upperTree, audioSampleDropdown.selectedIndex, -1);
-        scheduleSounds(lowerTree, secondaryAudioSampleDropdown.selectedIndex, 1);
+        scheduleSounds(lowerTree, lowerTreeAudioSampleDropdown.selectedIndex, 1);
     }
     else{
         scheduleSounds(upperTree, audioSampleDropdown.selectedIndex, 0);
@@ -88,9 +88,9 @@ function fullRefresh(){
         lowerTree: currentPatch.lowerTreeActive ? lowerTree : null,
         depth: 0,
         drawLeafNodes: true,
-        horizontalScale: 1,
+        horizontalScale: currentPatch.horizontalScale ?? 1,
         showLeafBoxes: false,
-        continuousScrolling: continuousScrollingCheckbox.checked
+        continuousScrolling: currentPatch.continuousScrolling ?? false
     });
 
     paint();

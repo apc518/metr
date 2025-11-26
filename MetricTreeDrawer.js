@@ -179,7 +179,7 @@ class MetricTreeDrawer{
 
         tree.pos = {
             x: null,
-            y: (VERTICAL_PADDING / 2 + (this.innerNodeHeight / 2) + ((depth - (rootTree.getMaxDepth() - this.totalMaxDepth)) * this.layerHeight))
+            y: VERTICAL_PADDING / 2 + (this.innerNodeHeight / 2) + ((depth - (rootTree.getMaxDepth() - this.totalMaxDepth)) * this.layerHeight)
         }
         if (isLowerTree){
             tree.pos.y = canvasHeight - tree.pos.y;
@@ -235,7 +235,7 @@ class MetricTreeDrawer{
 
             pop();
 
-            let textValue = `${currentPatch.nodeNumberMode === "Leaves" ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.getTrueWidth()}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
+            let textValue = `${currentPatch.nodeNumberMode === "Leaves" && !isLowerTree ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.getTrueWidth()}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
             const textPos = { x: horizontalOffset + tree.pos.x, y: tree.pos.y + (leaf ? this.leafNodeTextSize : this.innerNodeTextSize) * 0.05 }
             if (textPos.x < canvasWidth + this.innerNodeTextSize * textValue.length * 2
                 && textPos.x > 0 - this.innerNodeTextSize * textValue.length * 2

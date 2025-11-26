@@ -264,18 +264,18 @@ audioSampleDropdown.oninput = () => {
     setPatchParam("audioSample", audioSampleOptions[audioSampleDropdown.selectedIndex]);
 }
 
-const secondaryAudioSampleDropdown = document.getElementById("secondaryAudioSampleDropdown");
+const lowerTreeAudioSampleDropdown = document.getElementById("lowerTreeAudioSampleDropdown");
 for (let option of audioSampleOptions){
     let elem = document.createElement('option');
     elem.value = option.filename;
     elem.innerText = option.displayName;
-    secondaryAudioSampleDropdown.appendChild(elem);
+    lowerTreeAudioSampleDropdown.appendChild(elem);
 }
-secondaryAudioSampleDropdown.oninput = () => {
-    setPatchParam("secondaryAudioSample", audioSampleOptions[secondaryAudioSampleDropdown.selectedIndex]);
+lowerTreeAudioSampleDropdown.oninput = () => {
+    setPatchParam("lowerTreeAudioSample", audioSampleOptions[lowerTreeAudioSampleDropdown.selectedIndex]);
 }
 
-const secondaryAudioSampleDropdownContainer = document.getElementById("secondaryAudioSampleDropdownContainer");
+const lowerTreeAudioSampleDropdownContainer = document.getElementById("lowerTreeAudioSampleDropdownContainer");
 
 const numLayersMutedInput = document.getElementById("numLayersMutedInput");
 numLayersMutedInput.oninput = () => {
@@ -300,14 +300,14 @@ function setClickSoundSettingsFromCurrentPatch(){
         }
     }
 
-    for (let i = 0; i < secondaryAudioSampleDropdown.children.length; i++){
-        if (secondaryAudioSampleDropdown.children[i].value === currentPatch.secondaryAudioSample.filename){
-            secondaryAudioSampleDropdown.selectedIndex = i;
+    for (let i = 0; i < lowerTreeAudioSampleDropdown.children.length; i++){
+        if (lowerTreeAudioSampleDropdown.children[i].value === currentPatch.lowerTreeAudioSample.filename){
+            lowerTreeAudioSampleDropdown.selectedIndex = i;
             break;
         }
     }
 
-    secondaryAudioSampleDropdownContainer.style.display = currentPatch.mtsLower?.length > 0 ? "block" : "none";
+    lowerTreeAudioSampleDropdownContainer.style.display = currentPatch.mtsLower?.length > 0 ? "block" : "none";
 }
 
 
@@ -397,8 +397,54 @@ function changeHue(e){
 const continuousScrollingCheckbox = document.getElementById("continuousScrollingCheckbox");
 
 continuousScrollingCheckbox.oninput = () => {
-    treeDrawer.continuousScrolling = continuousScrollingCheckbox.checked;
-    paint();
+    currentPatch.continuousScrolling = continuousScrollingCheckbox.checked;
+    fullRefresh();
+}
+
+function setContinuousScrollingInputFromCurrentPatch(){
+    continuousScrollingCheckbox.checked = currentPatch.continuousScrolling;
+}
+
+
+//////////////////////
+// HORIZONTAL SCALE //
+//////////////////////
+
+const horizontalScaleSliderMultiplier = 20 / 3;
+const horizontalScaleSliderExponent = 3;
+const horizontalScaleSliderOffset = 1 / 6;
+
+function convertHorizontalScaleValueToSliderPortion(s){
+    return Math.pow((s - horizontalScaleSliderOffset) / horizontalScaleSliderMultiplier, 1/horizontalScaleSliderExponent);
+}
+
+function convertSliderPortionToHorizontalScaleValue(s){
+    return horizontalScaleSliderMultiplier * Math.pow(s, horizontalScaleSliderExponent) + horizontalScaleSliderOffset;
+}
+
+const horizontalScaleSlider = document.getElementById("horizontalScaleSlider");
+horizontalScaleSlider.oninput = () => {
+    const portion = horizontalScaleSlider.valueAsNumber / int(horizontalScaleSlider.max);
+    currentPatch.horizontalScale = convertSliderPortionToHorizontalScaleValue(portion);
+
+    fullRefresh();
+}
+
+horizontalScaleSlider.ondblclick = () => {
+    currentPatch.horizontalScale = 1;
+    setHorizontalScaleInputFromCurrentPatch();
+    fullRefresh();
+}
+
+function setHorizontalScaleInputFromCurrentPatch(){
+    horizontalScaleSlider.value = convertHorizontalScaleValueToSliderPortion(currentPatch.horizontalScale) * int(horizontalScaleSlider.max);
+}
+
+
+function setDisplaySettingsFromPatch(){
+    setColorInputsFromCurrentPatch();
+    setContinuousScrollingInputFromCurrentPatch();
+    setHorizontalScaleInputFromCurrentPatch();
 }
 
 
@@ -483,7 +529,7 @@ function toggleFullscreen(){
 
 function setPatchUIElementsFromCurrentPatch(){
     setClickSoundSettingsFromCurrentPatch();
-    setColorInputsFromCurrentPatch();
+    setDisplaySettingsFromPatch();
     setMtsInputFromCurrentPatch();
     setNumberModeInputFromCurrentPatch();
     setTempoInputFromCurrentPatch();

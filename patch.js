@@ -11,22 +11,6 @@ const displayTempoOptions = [
 
 const presets = [
     {
-        name: "Default",
-        nodeNumberMode: nodeNumberModeOptions[0],
-        hue: 300,
-        leafTempo: 140,
-        accentDownbeat: true,
-        pitchesHighToLow: true,
-        pitchSpread: 1.5,
-        volumeFalloff: 0.5,
-        audioSample: audioSampleOptions[1],
-        numLayersMuted: 0,
-        mtsUpper: "1*4",
-        mtsLower: null,
-        displayTempoMode: displayTempoOptions[0],
-        secondaryAudioSample: audioSampleOptions[1]
-    },
-    {
         name: "Orange Festival (Fizz Inc.)",
         nodeNumberMode: nodeNumberModeOptions[0],
         hue: 30,
@@ -40,7 +24,7 @@ const presets = [
         mtsUpper: "3+2*4",
         mtsLower: null,
         displayTempoMode: displayTempoOptions[1],
-        secondaryAudioSample: audioSampleOptions[0]
+        lowerTreeAudioSample: audioSampleOptions[0]
     },
     {
         name: "Threshold (sungazer)",
@@ -56,7 +40,7 @@ const presets = [
         mtsUpper: "[6+6+7]*4",
         mtsLower: null,
         displayTempoMode: displayTempoOptions[1],
-        secondaryAudioSample: audioSampleOptions[0]
+        lowerTreeAudioSample: audioSampleOptions[0]
     },
     {
         name: "Monomyth (Animals As Leaders)",
@@ -72,7 +56,7 @@ const presets = [
         mtsUpper: "[2+3] + [2+2+3]*2 + [2+3]*2 + [2+2+3]",
         mtsLower: "[3*3]*4",
         displayTempoMode: displayTempoOptions[0],
-        secondaryAudioSample: audioSampleOptions[3]
+        lowerTreeAudioSample: audioSampleOptions[3]
     },
     {
         name: "Natalie Has Never Tasted Anything Other Than Mustard (Andy Chamberlain)",
@@ -88,7 +72,7 @@ const presets = [
         mtsUpper: "7+4",
         mtsLower: null,
         displayTempoMode: displayTempoOptions[0],
-        secondaryAudioSample: audioSampleOptions[0]
+        lowerTreeAudioSample: audioSampleOptions[0]
     }
 ];
 
@@ -162,7 +146,7 @@ const patchParams = [
         decompress: x => displayTempoOptions[x]
     },
     {
-        name: "secondaryAudioSample",
+        name: "lowerTreeAudioSample",
         compress: x => Array.from(audioSampleOptions, o => o.filename).indexOf(x.filename),
         decompress: x => audioSampleOptions[x]
     },
@@ -171,6 +155,41 @@ const patchParams = [
         compress: x => x ? 1 : 0,
         decompress: x => !!x,
         musical: true
+    },
+    {
+        name: "lowerTreeAccentDownbeat",
+        compress: x => x ? 1 : 0,
+        decompress: x => !!x
+    },
+    {
+        name: "lowerTreePitchesHighToLow",
+        compress: x => x ? 1 : 0,
+        decompress: x => !!x
+    },
+    {
+        name: "lowerTreePitchSpread",
+        compress: x => x,
+        decompress: x => x
+    },
+    {
+        name: "lowerTreeVolumeFalloff",
+        compress: x => x,
+        decompress: x => x
+    },
+    {
+        name: "lowerTreeNodeNumberMode",
+        compress: x => nodeNumberModeOptions.indexOf(x),
+        decompress: x => nodeNumberModeOptions[x]
+    },
+    {
+        name: "horizontalScale",
+        compress: x => x,
+        decompress: x => x
+    },
+    {
+        name: "continuousScrolling",
+        compress: x => x ? 1 : 0,
+        decompress: x => !!x
     }
 ]
 
@@ -203,9 +222,10 @@ function getPatchFromURL(){
             return convertListToPatch(JSON.parse(window.atob(base64String)));
         }
     }
-    catch{
+    catch(e){
         let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        alert("Corrupt patch; press okay to refresh the page");
+        console.error(e);
+        alert("Corrupt patch while getting patch from URL; press okay to refresh the page");
         window.history.pushState({ path: refresh }, '', refresh);
         location.reload();
     }
@@ -238,7 +258,8 @@ function writePatchToUrl(){
     catch(e){
         clearInterval(writePatchToUrlInterval);
         let refresh = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        alert("Corrupt patch; press okay to refresh the page");
+        console.error(e);
+        alert("Corrupt patch while writing; press okay to refresh the page");
         window.history.pushState({ path: refresh }, '', refresh);
         location.reload();
     }

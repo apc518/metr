@@ -235,7 +235,7 @@ class MetricTreeDrawer{
 
             pop();
 
-            let textValue = `${currentPatch.nodeNumberMode === "Leaves" && !isLowerTree ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.getTrueWidth()}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
+            let textValue = `${(isLowerTree ? currentPatch.lowerTreeNodeNumberMode : currentPatch.nodeNumberMode) === "Leaves" ? `${(leaf ? 1 : tree.childrensTrueWidthSum())}${tree.ratio === 1 ? '' : `:${tree.getTrueWidth()}`}` : (tree.children.length > 0 ? tree.children.length : 1)}`
             const textPos = { x: horizontalOffset + tree.pos.x, y: tree.pos.y + (leaf ? this.leafNodeTextSize : this.innerNodeTextSize) * 0.05 }
             if (textPos.x < canvasWidth + this.innerNodeTextSize * textValue.length * 2
                 && textPos.x > 0 - this.innerNodeTextSize * textValue.length * 2

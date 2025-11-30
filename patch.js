@@ -11,7 +11,7 @@ const displayTempoOptions = [
 
 const presets = [
     {
-        name: "Orange Festival (Fizz Inc.)",
+        name: "Orange Festival (phonon, Israel Strom, Noah Denton)",
         nodeNumberMode: nodeNumberModeOptions[0],
         hue: 30,
         leafTempo: 160*2,
@@ -56,7 +56,8 @@ const presets = [
         mtsUpper: "[2+3] + [2+2+3]*2 + [2+3]*2 + [2+2+3]",
         mtsLower: "[3*3]*4",
         displayTempoMode: displayTempoOptions[0],
-        lowerTreeAudioSample: audioSampleOptions[3]
+        lowerTreeAudioSample: audioSampleOptions[3],
+        lowerTreeActive: true
     },
     {
         name: "Natalie Has Never Tasted Anything Other Than Mustard (Andy Chamberlain)",
@@ -73,6 +74,23 @@ const presets = [
         mtsLower: null,
         displayTempoMode: displayTempoOptions[0],
         lowerTreeAudioSample: audioSampleOptions[0]
+    },
+    {
+        name: "Chronostasis (Victoria)",
+        nodeNumberMode: nodeNumberModeOptions[0],
+        hue: 30,
+        leafTempo: 140,
+        accentDownbeat: true,
+        pitchesHighToLow: false,
+        pitchSpread: 1.5,
+        volumeFalloff: 0.5,
+        audioSample: audioSampleOptions[2],
+        numLayersMuted: 0,
+        mtsUpper: "4:3 + 6:4 + 4:3",
+        mtsLower: "5+5",
+        displayTempoMode: displayTempoOptions[0],
+        lowerTreeAudioSample: audioSampleOptions[0],
+        lowerTreeActive: true
     }
 ];
 

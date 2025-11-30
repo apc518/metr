@@ -79,17 +79,19 @@ function calculateAudioClipSpeed(tree, leaf){
     const minDepth = tree.getMinDepth();
     let soundDepth = Math.min(tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf), minDepth);
     let totalDepth = minDepth;
-    if (!currentPatch.accentDownbeat) {
+    if (!(tree === upperTree ? currentPatch.accentDownbeat : currentPatch.lowerTreeAccentDownbeat)) {
         totalDepth -= 1;
         soundDepth = Math.max(0, soundDepth - 1);
     }
-    return Math.pow(currentPatch.pitchSpread, currentPatch.pitchesHighToLow ? totalDepth - soundDepth : soundDepth);
+    const pitchSpread = tree === upperTree ? currentPatch.pitchSpread : currentPatch.lowerTreePitchSpread;
+    const pitchesHighToLow = tree === upperTree ? currentPatch.pitchesHighToLow : currentPatch.lowerTreePitchesHighToLow;
+    return Math.pow(pitchSpread, pitchesHighToLow ? totalDepth - soundDepth : soundDepth);
 }
 
 function calculateAudioClipVolume(tree, leaf){
     let soundDepth = Math.min(tree.minDepthContainingNodeWhoseLeftMostLeafIsThis(leaf), tree.getMinDepth());
-    if (!currentPatch.accentDownbeat) soundDepth = Math.max(1, soundDepth) - 1;
-    return Math.pow(currentPatch.volumeFalloff, soundDepth);
+    if (!(tree === upperTree ? currentPatch.accentDownbeat : currentPatch.lowerTreeAccentDownbeat)) soundDepth = Math.max(1, soundDepth) - 1;
+    return Math.pow(tree === upperTree ? currentPatch.volumeFalloff : currentPatch.lowerTreeVolumeFalloff, soundDepth);
 }
 
 

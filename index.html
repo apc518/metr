@@ -28,6 +28,18 @@
 				<input type="number" id="tempoInput" class="patchBigNumber" />
 				<select id="displayTempoDropdown"  class="patchDropdown"></select>
 			</div>
+			<div class="appDrawerDivider"></div>
+			<br/>
+			<div id="upperLowerDisplaySettingsToggleContainer" class="settingsCategory">
+				<div class="nodeNumberModeSelectorContainer">
+					<div class="nodeNumberModeOption " id="displaySettingsUpperToggle" style="flex: 1;">
+						Upper
+					</div>
+					<div class="nodeNumberModeOption" id="displaySettingsLowerToggle" style="flex: 1;">
+						Lower
+					</div>
+				</div>
+			</div>
 			<div class="settingsCategory">
 				<div class="patchSettingRow">
 					<input type="checkbox" id="accentDownbeatCheckbox" /> <label for="accentDownbeatCheckbox" class="settingsCategoryLabel">Accent Downbeat</label>
@@ -50,24 +62,19 @@
 				<br/>
 				<select id="audioSampleDropdown"  class="patchDropdown"></select>
 			</div>
-			<div class="settingsCategory" id="lowerTreeAudioSampleDropdownContainer">
-				<label for="lowerTreeAudioSampleDropdown" class="settingsCategoryLabel">Secondary Audio Sample</label>
-				<br/>
-				<select id="lowerTreeAudioSampleDropdown"  class="patchDropdown"></select>
-			</div>
-			<div class="appDrawerDivider"></div>
-			<br/>
 			<div class="settingsCategory">
 				<label id="nodeNumberModeDropdownLabel" class="settingsCategoryLabel">Node Numbers</label>
 				<div class="nodeNumberModeSelectorContainer">
-					<div class="nodeNumberModeOption" id="nodeNumberModeLeaves" style="flex: 1;">
+					<div class="nodeNumberModeOption toggleSwitchLeft" id="nodeNumberModeLeaves" style="flex: 1;">
 						Leaves
 					</div>
-					<div class="nodeNumberModeOption" id="nodeNumberModeChildren" style="flex: 1;">
+					<div class="nodeNumberModeOption toggleSwitchRight" id="nodeNumberModeChildren" style="flex: 1;">
 						Children
 					</div>
 				</div>
 			</div>
+			<div class="appDrawerDivider"></div>
+			<br/>
 			<div class="settingsCategory">
 				<details style="text-align: left; line-height: 1rem; user-select: none;" open>
 					<summary>Highlight Hue</summary>

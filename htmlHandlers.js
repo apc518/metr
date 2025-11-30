@@ -6,6 +6,12 @@ const textFieldOkayColorDark = "#111";
 
 const mainDiv = document.getElementById("main");
 
+let displaySettingsApplyToUpperTree = true;
+
+function displaySettingsUpper(){
+    return displaySettingsApplyToUpperTree || (!currentPatch.lowerTreeActive);
+}
+
 
 function setPatchParamFromNumberInput(paramName, elem, func=(n => n)){
     if (typeof elem.valueAsNumber === "number" && !isNaN(elem.valueAsNumber)){
@@ -85,6 +91,8 @@ function setMtsInputFromCurrentPatch(){
     lowerMtsInput.value = currentPatch.mtsLower;
     lowerTreeTopBar.style.display = !!currentPatch.lowerTreeActive ? "flex" : "none";
     lowerTreeToggle.checked = !!currentPatch.lowerTreeActive;
+
+    upperLowerDisplaySettingsToggleContainer.style.display = !!currentPatch.lowerTreeActive ? "block" : "none";
 }
 
 function setMtsErrorMessage(inputElem, errorElem, s){
@@ -231,6 +239,38 @@ function setTempoDisplayModeFromCurrentPatch(){
     displayTempoDropdown.selectedIndex = displayTempoOptions.indexOf(currentPatch.displayTempoMode);
 }
 
+
+////////////////////////////////////////////
+// UPPER VS LOWER DISPLAY SETTINGS TOGGLE //
+////////////////////////////////////////////
+
+const upperLowerDisplaySettingsToggleContainer = document.getElementById("upperLowerDisplaySettingsToggleContainer");
+const displaySettingsUpperToggle = document.getElementById("displaySettingsUpperToggle");
+const displaySettingsLowerToggle = document.getElementById("displaySettingsLowerToggle");
+
+displaySettingsUpperToggle.onclick = () => {
+    displaySettingsUpperToggle.className = "nodeNumberModeOption nodeNumberModeOptionSelected";
+    displaySettingsLowerToggle.className = "nodeNumberModeOption";
+    displaySettingsApplyToUpperTree = true;
+    setClickSoundSettingsFromCurrentPatch();
+    if(p5canvas)
+        paint();
+}
+
+displaySettingsLowerToggle.onclick = () => {
+    displaySettingsLowerToggle.className = "nodeNumberModeOption nodeNumberModeOptionSelected";
+    displaySettingsUpperToggle.className = "nodeNumberModeOption";
+    displaySettingsApplyToUpperTree = false;
+    setClickSoundSettingsFromCurrentPatch();
+    if (p5canvas)
+        paint();
+}
+
+function setUpperLowerDisplaySettingsToggleInputFromCurrentPatch(){
+    displaySettingsUpperToggle.onclick();
+}
+
+
 /////////////////////////////
 //  CLICK SOUND SETTINGS   //
 /////////////////////////////
@@ -238,19 +278,19 @@ function setTempoDisplayModeFromCurrentPatch(){
 const accentDownbeatCheckbox = document.getElementById("accentDownbeatCheckbox");
 const pitchesHighToLowCheckbox = document.getElementById("pitchesHighToLowCheckbox");
 accentDownbeatCheckbox.oninput = () => {
-    setPatchParam("accentDownbeat", accentDownbeatCheckbox.checked);
+    setPatchParam(displaySettingsUpper() ? "accentDownbeat" : "lowerTreeAccentDownbeat", accentDownbeatCheckbox.checked);
 }
 pitchesHighToLowCheckbox.oninput = () => {
-    setPatchParam("pitchesHighToLow", pitchesHighToLowCheckbox.checked);
+    setPatchParam(displaySettingsUpper() ? "pitchesHighToLow" : "lowerTreePitchesHighToLow", pitchesHighToLowCheckbox.checked);
 }
 
 const pitchSpreadInput = document.getElementById("pitchSpreadInput");
 const volumeFalloffInput = document.getElementById("volumeFalloffInput");
 pitchSpreadInput.oninput = () => {
-    setPatchParamFromNumberInput("pitchSpread", pitchSpreadInput);
+    setPatchParamFromNumberInput(displaySettingsUpper() ? "pitchSpread" : "lowerTreePitchSpread", pitchSpreadInput);
 }
 volumeFalloffInput.oninput = () => {
-    setPatchParamFromNumberInput("volumeFalloff", volumeFalloffInput);
+    setPatchParamFromNumberInput(displaySettingsUpper() ? "volumeFalloff" : "lowerTreeVolumeFalloff", volumeFalloffInput);
 }
 
 const audioSampleDropdown = document.getElementById("audioSampleDropdown");
@@ -261,53 +301,47 @@ for (let option of audioSampleOptions){
     audioSampleDropdown.appendChild(elem);
 }
 audioSampleDropdown.oninput = () => {
-    setPatchParam("audioSample", audioSampleOptions[audioSampleDropdown.selectedIndex]);
+    setPatchParam(displaySettingsUpper() ? "audioSample" : "lowerTreeAudioSample", audioSampleOptions[audioSampleDropdown.selectedIndex]);
 }
 
-const lowerTreeAudioSampleDropdown = document.getElementById("lowerTreeAudioSampleDropdown");
-for (let option of audioSampleOptions){
-    let elem = document.createElement('option');
-    elem.value = option.filename;
-    elem.innerText = option.displayName;
-    lowerTreeAudioSampleDropdown.appendChild(elem);
-}
-lowerTreeAudioSampleDropdown.oninput = () => {
-    setPatchParam("lowerTreeAudioSample", audioSampleOptions[lowerTreeAudioSampleDropdown.selectedIndex]);
-}
+// const lowerTreeAudioSampleDropdown = document.getElementById("lowerTreeAudioSampleDropdown");
+// for (let option of audioSampleOptions){
+//     let elem = document.createElement('option');
+//     elem.value = option.filename;
+//     elem.innerText = option.displayName;
+//     lowerTreeAudioSampleDropdown.appendChild(elem);
+// }
+// lowerTreeAudioSampleDropdown.oninput = () => {
+//     setPatchParam(displaySettingsUpper() ? "lowerTreeAudioSample" : "", audioSampleOptions[lowerTreeAudioSampleDropdown.selectedIndex]);
+// }
 
-const lowerTreeAudioSampleDropdownContainer = document.getElementById("lowerTreeAudioSampleDropdownContainer");
+// const lowerTreeAudioSampleDropdownContainer = document.getElementById("lowerTreeAudioSampleDropdownContainer");
 
 const numLayersMutedInput = document.getElementById("numLayersMutedInput");
 numLayersMutedInput.oninput = () => {
     if (numLayersMutedInput.value > upperTree.getMaxDepth()){
         numLayersMutedInput.value = upperTree.getMaxDepth();
     }
-    setPatchParamFromNumberInput("numLayersMuted", numLayersMutedInput);
+    setPatchParamFromNumberInput(displaySettingsUpper() ? "numLayersMuted" : "lowerTreeNumLayersMuted", numLayersMutedInput);
     paint();
 }
 
 function setClickSoundSettingsFromCurrentPatch(){
-    accentDownbeatCheckbox.checked = currentPatch.accentDownbeat;
-    pitchesHighToLowCheckbox.checked = currentPatch.pitchesHighToLow;
-    pitchSpreadInput.value = currentPatch.pitchSpread;
-    volumeFalloffInput.value = currentPatch.volumeFalloff;
+    accentDownbeatCheckbox.checked = displaySettingsUpper() ? currentPatch.accentDownbeat : currentPatch.lowerTreeAccentDownbeat;
+    pitchesHighToLowCheckbox.checked = displaySettingsUpper() ? currentPatch.pitchesHighToLow : currentPatch.lowerTreePitchesHighToLow;
+    pitchSpreadInput.value = displaySettingsUpper() ? currentPatch.pitchSpread : currentPatch.lowerTreePitchSpread;
+    volumeFalloffInput.value = displaySettingsUpper() ? currentPatch.volumeFalloff : currentPatch.lowerTreeVolumeFalloff;
     numLayersMutedInput.value = currentPatch.numLayersMuted;
 
     for (let i = 0; i < audioSampleDropdown.children.length; i++){
-        if (audioSampleDropdown.children[i].value === currentPatch.audioSample.filename){
+        if (audioSampleDropdown.children[i].value === (displaySettingsUpper() ? currentPatch.audioSample : currentPatch.lowerTreeAudioSample).filename){
             audioSampleDropdown.selectedIndex = i;
             break;
         }
     }
 
-    for (let i = 0; i < lowerTreeAudioSampleDropdown.children.length; i++){
-        if (lowerTreeAudioSampleDropdown.children[i].value === currentPatch.lowerTreeAudioSample.filename){
-            lowerTreeAudioSampleDropdown.selectedIndex = i;
-            break;
-        }
-    }
-
-    lowerTreeAudioSampleDropdownContainer.style.display = currentPatch.mtsLower?.length > 0 ? "block" : "none";
+    setMtsInputFromCurrentPatch();
+    setNumberModeInputFromCurrentPatch();
 }
 
 
@@ -322,7 +356,7 @@ const nodeNumberModeChildren = document.getElementById("nodeNumberModeChildren")
 nodeNumberModeLeaves.onclick = () => {
     nodeNumberModeLeaves.className = "nodeNumberModeOption nodeNumberModeOptionSelected";
     nodeNumberModeChildren.className = "nodeNumberModeOption";
-    setPatchParam("nodeNumberMode", "Leaves");
+    setPatchParam(displaySettingsUpper() ? "nodeNumberMode" : "lowerTreeNodeNumberMode", "Leaves");
     if(p5canvas)
         paint();
 }
@@ -330,13 +364,13 @@ nodeNumberModeLeaves.onclick = () => {
 nodeNumberModeChildren.onclick = () => {
     nodeNumberModeChildren.className = "nodeNumberModeOption nodeNumberModeOptionSelected";
     nodeNumberModeLeaves.className = "nodeNumberModeOption";
-    setPatchParam("nodeNumberMode", "Children");
+    setPatchParam(displaySettingsUpper() ? "nodeNumberMode" : "lowerTreeNodeNumberMode", "Children");
     if (p5canvas)
         paint();
 }
 
 function setNumberModeInputFromCurrentPatch(){
-    if (currentPatch.nodeNumberMode === "Leaves"){
+    if ((displaySettingsUpper() ? currentPatch.nodeNumberMode : currentPatch.lowerTreeNodeNumberMode) === "Leaves"){
         nodeNumberModeLeaves.onclick();
     }
     else{
@@ -445,6 +479,7 @@ function setDisplaySettingsFromPatch(){
     setColorInputsFromCurrentPatch();
     setContinuousScrollingInputFromCurrentPatch();
     setHorizontalScaleInputFromCurrentPatch();
+    setUpperLowerDisplaySettingsToggleInputFromCurrentPatch();
 }
 
 
@@ -535,8 +570,6 @@ function toggleFullscreen(){
 function setPatchUIElementsFromCurrentPatch(){
     setClickSoundSettingsFromCurrentPatch();
     setDisplaySettingsFromPatch();
-    setMtsInputFromCurrentPatch();
-    setNumberModeInputFromCurrentPatch();
     setTempoInputFromCurrentPatch();
     setTempoDisplayModeFromCurrentPatch();
     setPresetDisplayNames();

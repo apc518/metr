@@ -47,8 +47,9 @@ function getCycleDuration(tree){
 
 function scheduleAllSounds(){
     if (lowerTree){
-        scheduleSounds(upperTree, audioSampleDropdown.selectedIndex, -1);
-        scheduleSounds(lowerTree, lowerTreeAudioSampleDropdown.selectedIndex, 1);
+        const audioFilenames = Array.from(audioSampleOptions, a => a.filename);
+        scheduleSounds(upperTree, audioFilenames.indexOf(currentPatch.audioSample.filename), -1);
+        scheduleSounds(lowerTree, audioFilenames.indexOf(currentPatch.lowerTreeAudioSample.filename), 1);
     }
     else{
         scheduleSounds(upperTree, audioSampleDropdown.selectedIndex, 0);
@@ -60,6 +61,7 @@ function play_(){
         console.error("play_() called while already playing");
         return;
     }
+    console.log("playing")
     createSounds().then(() => {
         totalTimeSpentPausedUntilLastPlay += audioCtx.currentTime - audioCtxTimeLastPaused;
         

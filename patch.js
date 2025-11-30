@@ -208,6 +208,11 @@ const patchParams = [
         name: "continuousScrolling",
         compress: x => x ? 1 : 0,
         decompress: x => !!x
+    },
+    {
+        name: "upperTreePanning",
+        compress: x => x ?? 0,
+        decompress: x => x ?? 0
     }
 ]
 

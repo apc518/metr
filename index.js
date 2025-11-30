@@ -46,13 +46,10 @@ function getCycleDuration(tree){
 }
 
 function scheduleAllSounds(){
+    const audioFilenames = Array.from(audioSampleOptions, a => a.filename);
+    scheduleSounds(upperTree, audioFilenames.indexOf(currentPatch.audioSample.filename), currentPatch.upperTreePanning);
     if (lowerTree){
-        const audioFilenames = Array.from(audioSampleOptions, a => a.filename);
-        scheduleSounds(upperTree, audioFilenames.indexOf(currentPatch.audioSample.filename), -1);
-        scheduleSounds(lowerTree, audioFilenames.indexOf(currentPatch.lowerTreeAudioSample.filename), 1);
-    }
-    else{
-        scheduleSounds(upperTree, audioSampleDropdown.selectedIndex, 0);
+        scheduleSounds(lowerTree, audioFilenames.indexOf(currentPatch.lowerTreeAudioSample.filename), -1 * currentPatch.upperTreePanning);
     }
 }
 

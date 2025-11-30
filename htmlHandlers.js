@@ -493,8 +493,30 @@ function setDisplaySettingsFromPatch(){
     setContinuousScrollingInputFromCurrentPatch();
     setHorizontalScaleInputFromCurrentPatch();
     setUpperLowerDisplaySettingsToggleInputFromCurrentPatch();
+    setPanningInputFromCurrentPatch();
 }
 
+/////////////
+// PANNING //
+/////////////
+
+const upperTreePanningSlider = document.getElementById("upperTreePanningSlider");
+upperTreePanningSlider.oninput = () => {
+    const d = int(upperTreePanningSlider.max) / 2;
+    currentPatch.upperTreePanning = (upperTreePanningSlider.valueAsNumber - d) / d;
+
+    fullRefresh();
+}
+
+upperTreePanningSlider.ondblclick = () => {
+    currentPatch.upperTreePanning = 0;
+    setPanningInputFromCurrentPatch();
+    fullRefresh();
+}
+
+function setPanningInputFromCurrentPatch(){
+    upperTreePanningSlider.value = ((currentPatch.upperTreePanning + 1) / 2) * int(upperTreePanningSlider.max);
+}
 
 
 /////////////////////////

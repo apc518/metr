@@ -59,7 +59,6 @@ function play_(){
         console.error("play_() called while already playing");
         return;
     }
-    console.log("playing")
     createSounds().then(() => {
         totalTimeSpentPausedUntilLastPlay += audioCtx.currentTime - audioCtxTimeLastPaused;
         

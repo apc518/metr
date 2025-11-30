@@ -11,7 +11,7 @@ const displayTempoOptions = [
 
 const presets = [
     {
-        name: "Orange Festival (phonon, Israel Strom, Noah Denton)",
+        name: "Orange Festival (Israel Strom, phonon, Noah Denton)",
         nodeNumberMode: nodeNumberModeOptions[0],
         hue: 30,
         leafTempo: 160*2,
@@ -88,6 +88,23 @@ const presets = [
         numLayersMuted: 0,
         mtsUpper: "4:3 + 6:4 + 4:3",
         mtsLower: "5+5",
+        displayTempoMode: displayTempoOptions[0],
+        lowerTreeAudioSample: audioSampleOptions[0],
+        lowerTreeActive: true
+    },
+    {
+        name: "Polyriddim (phonon)",
+        nodeNumberMode: nodeNumberModeOptions[0],
+        hue: 180,
+        leafTempo: 122.5,
+        accentDownbeat: true,
+        pitchesHighToLow: false,
+        pitchSpread: 1.5,
+        volumeFalloff: 0.5,
+        audioSample: audioSampleOptions[2],
+        numLayersMuted: 0,
+        mtsUpper: "[7:6 + 11:8]:7 + [[4:3 + 1 + 3:2] + [4:3 + 4:3 + 5]:8]:7 + [[2 + 4:3 + 4:2]:6 + [3:2 + 4:2 + 5:2 + 5:2]]:7 + [[3:2*3] + [5 + 11:6]:8]:7",
+        mtsLower: "[3+4]*4",
         displayTempoMode: displayTempoOptions[0],
         lowerTreeAudioSample: audioSampleOptions[0],
         lowerTreeActive: true

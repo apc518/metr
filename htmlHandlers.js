@@ -327,6 +327,19 @@ numLayersMutedInput.oninput = () => {
 }
 
 function setClickSoundSettingsFromCurrentPatch(){
+    if (!currentPatch.lowerTreeAudioSample)
+        currentPatch.lowerTreeAudioSample = JSON.parse(JSON.stringify(currentPatch.audioSample));
+    if (!currentPatch.lowerTreeAccentDownbeat)
+        currentPatch.lowerTreeAccentDownbeat = currentPatch.accentDownbeat;
+    if (!currentPatch.lowerTreePitchesHighToLow)
+        currentPatch.lowerTreePitchesHighToLow = currentPatch.pitchesHighToLow;
+    if (!currentPatch.lowerTreePitchSpread)
+        currentPatch.lowerTreePitchSpread = currentPatch.pitchSpread;
+    if (!currentPatch.lowerTreeVolumeFalloff)
+        currentPatch.lowerTreeVolumeFalloff = currentPatch.volumeFalloff;
+    if (!currentPatch.lowerTreeNodeNumberMode)
+        currentPatch.lowerTreeNodeNumberMode = currentPatch.nodeNumberMode;
+
     accentDownbeatCheckbox.checked = displaySettingsUpper() ? currentPatch.accentDownbeat : currentPatch.lowerTreeAccentDownbeat;
     pitchesHighToLowCheckbox.checked = displaySettingsUpper() ? currentPatch.pitchesHighToLow : currentPatch.lowerTreePitchesHighToLow;
     pitchSpreadInput.value = displaySettingsUpper() ? currentPatch.pitchSpread : currentPatch.lowerTreePitchSpread;
@@ -575,5 +588,3 @@ function setPatchUIElementsFromCurrentPatch(){
     setPresetDisplayNames();
     trySelectPreset();
 }
-
-// setTimeout(windowResized, 50);

@@ -93,7 +93,7 @@ const presets = [
         lowerTreeActive: true
     },
     {
-        name: "Polyriddim (phonon)",
+        name: "polyriddim (phonon)",
         nodeNumberMode: nodeNumberModeOptions[0],
         hue: 180,
         leafTempo: 122.5,

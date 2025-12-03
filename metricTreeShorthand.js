@@ -220,8 +220,9 @@ function createTreeFromMts(mts, doPrune=true){
 
         if (tokens[i].value === TUPLET_OPERATOR){
             increment();
-            if (typeof tokens[i].value !== "number"){
-                throw new Error(`${SYNTAX_ERROR_MESSAGE_PREFIX}Number expected after tuplet operator \"${tokens[i-1].value}\" at index ${tokens[i].idx}, instead got: \"${tokens[i].value}\"`)
+            if (typeof tokens[i]?.value !== "number"){
+                const errorMessage = `${SYNTAX_ERROR_MESSAGE_PREFIX}Number expected after tuplet operator \"${tokens[i-1]?.value}\"`;
+                throw new Error(errorMessage + (typeof tokens[i] === "undefined" ? ` at index ${tokens[i-1]?.idx}` : `, instead got: \"${tokens[i]?.value}\" at index ${tokens[i]?.idx}`));
             }
             const lastChild = tree.children[tree.children.length - 1];
             lastChild.ratio = lastChild.getTrueWidth() / tokens[i].value;

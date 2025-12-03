@@ -52,7 +52,6 @@ input[disabled]{
 }
 
 a {
-	font-size: 42px;
 	position: inherit;
 	transition-duration: 0.3s;
 }
@@ -63,7 +62,6 @@ a:visited {
 	color: cyan;
 }
 a:hover {
-	font-size: 43px;
 	color: white;
 }
 a:active {
@@ -335,4 +333,13 @@ input[type="checkbox"]{
 
 #frameRateMonitor{
 	color: white;
+}
+
+#footerContainer{
+	color: white;
+	text-align: left;
+}
+
+.footerLink{
+	font-size: 12px;
 }

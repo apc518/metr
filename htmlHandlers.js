@@ -46,44 +46,33 @@ const lowerTreeTopBar = document.getElementById("lowerTreeTopBar");
 lowerTreeTopBar.style.display = currentPatch.lowerTreeActive ? "flex" : "none";
 
 
-upperMtsInput.oninput = () => {
+function handleMtsInput(inputElem, isLower, errorMessageElem){
+    const paramName = "mts" + (isLower ? "Lower" : "Upper")
     try{
-        const newTree = createTreeFromMts(upperMtsInput.value);
+        const newTree = createTreeFromMts(inputElem.value);
         upperTree = newTree;
-        setMtsErrorMessage(upperMtsInput, upperMtsErrorMessage, "");
-        setPatchParam("mtsUpper", upperMtsInput.value);
+        setMtsErrorMessage(inputElem, errorMessageElem, "");
+        setPatchParam(paramName, inputElem.value);
         setLeafTempoBasedOnDisplayTempo();
         if (p5canvas){
             fullRefresh();
         }
     }
     catch (e){
-        setMtsErrorMessage(upperMtsInput, upperMtsErrorMessage, e.message);
+        setMtsErrorMessage(inputElem, errorMessageElem, e.message);
         if (e.message.slice(0, SYNTAX_ERROR_MESSAGE_PREFIX.length) !== SYNTAX_ERROR_MESSAGE_PREFIX){
             console.error(e);
         }
     }
 }
 
-lowerMtsInput.oninput = () => {
-    try{
-        const newTree = createTreeFromMts(lowerMtsInput.value);
-        lowerTree = newTree;
-        setMtsErrorMessage(lowerMtsInput, lowerMtsErrorMessage, "");
-        setPatchParam("mtsLower", lowerMtsInput.value);
-        setLeafTempoBasedOnDisplayTempo();
-        if (p5canvas){
-            fullRefresh();
-        }
-    }
-    catch (e){
-        setMtsErrorMessage(lowerMtsInput, lowerMtsErrorMessage, e.message);
-        if (e.message.slice(0, SYNTAX_ERROR_MESSAGE_PREFIX.length) !== SYNTAX_ERROR_MESSAGE_PREFIX){
-            console.error(e);
-        }
-    }
 
-    setClickSoundSettingsFromCurrentPatch();
+upperMtsInput.oninput = () => {
+    handleMtsInput(upperMtsInput, false, upperMtsErrorMessage);
+}
+
+lowerMtsInput.oninput = () => {
+    handleMtsInput(lowerMtsInput, true, lowerMtsErrorMessage);
 }
 
 function setMtsInputFromCurrentPatch(){
@@ -96,7 +85,19 @@ function setMtsInputFromCurrentPatch(){
 }
 
 function setMtsErrorMessage(inputElem, errorElem, s){
-    errorElem.textContent = s.slice(SYNTAX_ERROR_MESSAGE_PREFIX.length);
+    if (s.slice(0, SYNTAX_ERROR_MESSAGE_PREFIX.length) === SYNTAX_ERROR_MESSAGE_PREFIX){
+        errorElem.textContent = s.slice(SYNTAX_ERROR_MESSAGE_PREFIX.length);
+    }
+    else {
+        errorElem.textContent = s;
+        
+        if (s.length > 0){
+            Swal.fire({
+                icon: "info",
+                text: "This error is unexpected; please copy the text you have entered to cause this and send it to Andy!"
+            });
+        }
+    }
     inputElem.style.backgroundColor = s.length === 0 ? textFieldOkayColorLight : textFieldErrorColorLight;
 }
 

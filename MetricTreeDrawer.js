@@ -61,8 +61,8 @@ class MetricTreeDrawer{
         }
 
         if (upperTree && lowerTree){
-            const lowerTreeProgressValuesIsSubset = listDiffsIsSubsequenceOfOther(this.lowerLeafProgressValues, this.upperLeafProgressValues, this.lowerTreeWidthRatio);
-            const upperTreeProgressValuesIsSubset = listDiffsIsSubsequenceOfOther(this.upperLeafProgressValues, this.lowerLeafProgressValues, this.upperTreeWidthRatio);
+            const lowerTreeProgressValuesIsSubset = listDiffsIsSubsequenceOfOther(this.lowerLeafProgressValues, this.upperLeafProgressValues, this.lowerTreeWidthRatio) && this.upperTreeWidthRatio === 1;
+            const upperTreeProgressValuesIsSubset = listDiffsIsSubsequenceOfOther(this.upperLeafProgressValues, this.lowerLeafProgressValues, this.upperTreeWidthRatio) && this.lowerTreeWidthRatio === 1;
 
             this.showBothLeafRows = !(lowerTreeProgressValuesIsSubset || upperTreeProgressValuesIsSubset);
             this.showLeafBoxes = this.showLeafBoxes || !(lowerTreeProgressValuesIsSubset || upperTreeProgressValuesIsSubset);

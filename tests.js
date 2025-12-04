@@ -451,6 +451,33 @@ const GENERIC_TESTS = [
             const tree2 = createTreeFromMts("2+3");
             return listDiffsIsSubsequenceOfOther(tree1.getLeafNodeCyclePortionValues(), tree2.getLeafNodeCyclePortionValues(), tree1.getTrueWidth() / tree2.getTrueWidth());
         }
+    },
+    {
+        name: "preset sameness test accounts for undefined vars in preset",
+        func: () => {
+            const preset = JSON.parse(JSON.stringify(presets[0]));
+            return patchEquals(
+                preset,
+                {
+                    nodeNumberMode: nodeNumberModeOptions[0],
+                    hue: 30,
+                    leafTempo: 160*2,
+                    accentDownbeat: true,
+                    pitchesHighToLow: true,
+                    pitchSpread: 1.5,
+                    volumeFalloff: 0.5,
+                    audioSample: audioSampleOptions[0],
+                    numLayersMuted: 0,
+                    mtsUpper: "3+2*4",
+                    mtsLower: null,
+                    displayTempoMode: displayTempoOptions[1],
+                    lowerTreeAudioSample: audioSampleOptions[0],
+                    lowerTreeActive: false,
+                    upperTreePanning: 0,
+                    lowerTreeAccentDownbeat: false
+                }
+            )
+        }
     }
 ]
 

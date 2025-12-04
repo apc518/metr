@@ -49,7 +49,7 @@ function scheduleAllSounds(){
     const audioFilenames = Array.from(audioSampleOptions, a => a.filename);
     const upperTreePanning = currentPatch.upperTreePanning ?? 0
     scheduleSounds(upperTree, audioFilenames.indexOf(currentPatch.audioSample.filename), upperTreePanning);
-    if (lowerTree){
+    if (currentPatch.lowerTreeActive && lowerTree){
         scheduleSounds(lowerTree, audioFilenames.indexOf(currentPatch.lowerTreeAudioSample.filename), -1 * upperTreePanning);
     }
 }

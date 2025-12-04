@@ -24,7 +24,8 @@ const presets = [
         mtsUpper: "3+2*4",
         mtsLower: null,
         displayTempoMode: displayTempoOptions[1],
-        lowerTreeAudioSample: audioSampleOptions[0]
+        lowerTreeAudioSample: audioSampleOptions[0],
+        lowerTreeActive: false
     },
     {
         name: "Threshold (sungazer)",
@@ -40,7 +41,8 @@ const presets = [
         mtsUpper: "[6+6+7]*4",
         mtsLower: null,
         displayTempoMode: displayTempoOptions[1],
-        lowerTreeAudioSample: audioSampleOptions[0]
+        lowerTreeAudioSample: audioSampleOptions[0],
+        lowerTreeActive: false
     },
     {
         name: "Monomyth (Animals As Leaders)",
@@ -73,7 +75,8 @@ const presets = [
         mtsUpper: "7+4",
         mtsLower: null,
         displayTempoMode: displayTempoOptions[0],
-        lowerTreeAudioSample: audioSampleOptions[0]
+        lowerTreeAudioSample: audioSampleOptions[0],
+        lowerTreeActive: false
     },
     {
         name: "Chronostasis (Victoria)",
@@ -307,7 +310,7 @@ function writePatchToUrl(){
 
 function patchEquals(p1, p2){
     for (let param of patchParams){
-        if (JSON.stringify(p1[param.name]) !== JSON.stringify(p2[param.name])){
+        if (JSON.stringify(p1[param.name] ?? p2[param.name]) !== JSON.stringify(p2[param.name])){
             return false;
         }
     }

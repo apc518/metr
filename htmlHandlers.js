@@ -330,15 +330,15 @@ numLayersMutedInput.oninput = () => {
 function setClickSoundSettingsFromCurrentPatch(){
     if (!currentPatch.lowerTreeAudioSample)
         currentPatch.lowerTreeAudioSample = JSON.parse(JSON.stringify(currentPatch.audioSample));
-    if (!currentPatch.lowerTreeAccentDownbeat)
+    if (typeof currentPatch.lowerTreeAccentDownbeat !== "boolean")
         currentPatch.lowerTreeAccentDownbeat = currentPatch.accentDownbeat;
-    if (!currentPatch.lowerTreePitchesHighToLow)
+    if (typeof currentPatch.lowerTreePitchesHighToLow !== "boolean")
         currentPatch.lowerTreePitchesHighToLow = currentPatch.pitchesHighToLow;
-    if (!currentPatch.lowerTreePitchSpread)
+    if (typeof currentPatch.lowerTreePitchSpread !== "number")
         currentPatch.lowerTreePitchSpread = currentPatch.pitchSpread;
-    if (!currentPatch.lowerTreeVolumeFalloff)
+    if (typeof currentPatch.lowerTreeVolumeFalloff !== "number")
         currentPatch.lowerTreeVolumeFalloff = currentPatch.volumeFalloff;
-    if (!currentPatch.lowerTreeNodeNumberMode)
+    if (typeof currentPatch.lowerTreeNodeNumberMode !== "string")
         currentPatch.lowerTreeNodeNumberMode = currentPatch.nodeNumberMode;
 
     accentDownbeatCheckbox.checked = displaySettingsUpper() ? currentPatch.accentDownbeat : currentPatch.lowerTreeAccentDownbeat;

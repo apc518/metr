@@ -147,7 +147,7 @@ function scheduleSounds(tree, audioSampleIdx, panning){
 }
 
 let lowpassFrequency = 20000;
-let lowpassQValue = 2;
+let lowpassQValue = 1.5;
 
 class Clip {
     constructor(audioBuffer, name){

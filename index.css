@@ -7,6 +7,7 @@ body{
 	padding: 0px;
 	font-family: "Trebuchet MS", Helvetica, sans-serif;
 	height: 100%;
+	color: white;
 }
 #main{
 	height: 100%;
@@ -15,7 +16,6 @@ body{
 	height: 100%;
 }
 h1{
-	color: white;
 	font-size: 60px;
 	margin-bottom: 0;
 	margin-top: 10px;
@@ -25,14 +25,12 @@ h1{
 }
 h3{
 	padding-left: 0.3rem;
-	color: white;
 	margin-top: 0px;
 	letter-spacing: 0.52rem;
 	user-select: none;
 }
 .timeSigDisplay{
 	font-size: 48px;
-	color: white;
 	padding-bottom: 0.25rem;
 	margin-block: auto;
 	min-width: 100%;
@@ -53,7 +51,7 @@ input[disabled]{
 
 a {
 	position: inherit;
-	transition-duration: 0.3s;
+	transition-duration: 0.2s;
 }
 a:link {
 	color: cyan;
@@ -85,7 +83,6 @@ a:active {
 }
 
 .settingsCategory{
-	color: white;
 	min-width: 100%;
 	margin-bottom: 1rem;
 	text-align: left;
@@ -102,7 +99,7 @@ a:active {
 	height: 1.5rem;
 	font-size: 0.9rem;
 	background-color: #111;
-	color: white;
+	color: inherit;
 	border: none;
 	border-radius: 4px;
 }
@@ -195,12 +192,6 @@ input[type="checkbox"]{
   height: 0;
 }
 
-.melharmlabel{
-	font-size: 24px;
-	color: white;
-	vertical-align: middle;
-}
-
 .meterTextInput{
 	font-size: 32px;
 	height: 40px;
@@ -243,8 +234,8 @@ input[type="checkbox"]{
 }
 
 .nodeNumberModeOptionSelected{
-	color: white;
 	background-color: #11f;
+	color: white;
 }
 
 .toggleSwitchLeft{
@@ -305,7 +296,8 @@ input[type="checkbox"]{
 	filter: invert(75%);
 }
 
-#volumeSliderContainer{
+.playbackSliderContainer{
+	color:white;
 	max-height: 100%;
     display: flex;
 }
@@ -331,12 +323,7 @@ input[type="checkbox"]{
     background-color: #111;
 }
 
-#frameRateMonitor{
-	color: white;
-}
-
 #footerContainer{
-	color: white;
 	text-align: left;
 }
 

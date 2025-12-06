@@ -146,6 +146,9 @@ function scheduleSounds(tree, audioSampleIdx, panning){
     }
 }
 
+let lowpassFrequency = 20000;
+let lowpassQValue = 2;
+
 class Clip {
     constructor(audioBuffer, name){
         // input
@@ -157,15 +160,22 @@ class Clip {
         let source = audioCtx.createBufferSource();
         let gainNode = audioCtx.createGain();
         let panningNode = audioCtx.createStereoPanner();
+        let biquadFilterNode = audioCtx.createBiquadFilter();
+
         panningNode.pan.value = panning;
         gainNode.gain.value = globalVolume * volume;
+        biquadFilterNode.frequency.value = lowpassFrequency;
+        biquadFilterNode.Q.value = lowpassQValue;
+        biquadFilterNode.type = "lowpass";
+
         if(this.audioBuffer){
             source.buffer = this.audioBuffer;
             source.playbackRate.value = speed;
 
             source.connect(gainNode);
             gainNode.connect(panningNode);
-            panningNode.connect(audioCtx.destination);
+            panningNode.connect(biquadFilterNode);
+            biquadFilterNode.connect(audioCtx.destination);
             
             source.start(time);
         }

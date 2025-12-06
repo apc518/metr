@@ -138,11 +138,15 @@
 				<div class="playback-control-bar">
 					<button id="playPauseBtn" class="playbar-button"><img id="playPauseBtnIcon" src="assets/images/play.png" class="playbar-button-icon"/></button>
 					<button id="resetBtn" class="playbar-button"><img src="assets/images/stop.png" class="playbar-button-icon"/></button>
-					<div id="volumeSliderContainer">
+					<div class="playbackSliderContainer">
 						<img id="volumeIcon" src="assets/images/volume_high_white.png">
 						<input type="range" min="0" max="100" id="globalVolumeSlider" class="slider"/>
 					</div>
-					<div id="frameRateMonitor">0fps</div>
+					<div class="playbackSliderContainer">
+						<label for="globalLowpassSlider" style="margin-left: 1rem">Lowpass</label>
+						<input type="range" min="0" max="100" default="100" id="globalLowpassSlider" class="slider"/>
+					</div>
+					<div id="frameRateMonitor" style="margin-left: 1rem">0fps</div>
 				</div>
 			</div>
 	</div>

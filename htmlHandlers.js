@@ -578,6 +578,15 @@ function doVolumeInput() {
     globalVolume = val;
 }
 
+
+const globalLowpassSlider = document.getElementById("globalLowpassSlider");
+globalLowpassSlider.value = 100;
+globalLowpassSlider.oninput = () => {
+    const n = parseInt(globalLowpassSlider.max) + 1;
+    lowpassFrequency = 20_000 * (1 - (Math.log(n - globalLowpassSlider.valueAsNumber) / Math.log(n)));
+}
+
+
 function toggleFullscreen(){
     if (mainDiv.hidden){
         mainDiv.hidden = false;
